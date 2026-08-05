@@ -18,7 +18,8 @@ import profileRoutes from "./routes/profileRoutes.js";
 import uploadRoutes from "./routes/uploadRoutes.js";
 import callRoutes from "./routes/callRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js";
-
+import contactsRoutes from "./routes/contactRoutes.js";
+import elevenLabsRoutes from "./routes/elevenLabsRoutes.js";
 
 // ==========================================
 // Load Environment Variables
@@ -102,10 +103,10 @@ app.get("/health", (req, res) => {
  app.use("/api/profile", profileRoutes);
  app.use("/api/upload", uploadRoutes);
  app.use("/api/calls", callRoutes);
-// app.use("/api/contacts", contactsRoutes);
+ app.use("/api/contacts", contactsRoutes);
  app.use("/api/ai", aiRoutes);
 // app.use("/api/twilio", twilioRoutes);
-// app.use("/api/voice-clone", elevenLabsRoutes);
+ app.use("/api/voice-clone", elevenLabsRoutes);
 
 // ==========================================
 // 404 Handler
