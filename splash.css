@@ -1,0 +1,495 @@
+/* ==========================================
+   EchoCall AI
+   File: css/splash.css
+   Part 1
+========================================== */
+
+/* ---------- Reset ---------- */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:"Inter",sans-serif;
+    -webkit-tap-highlight-color:transparent;
+}
+
+
+/* ---------- Body ---------- */
+
+.splash-body{
+
+    min-height:100vh;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    overflow:hidden;
+
+    background:#020617;
+
+    color:#ffffff;
+
+}
+
+
+/* ---------- Animated Background ---------- */
+
+.background{
+
+    position:fixed;
+
+    inset:0;
+
+    z-index:-1;
+
+    background:
+    linear-gradient(
+        135deg,
+        #020617,
+        #0F172A,
+        #1E3A8A,
+        #7C3AED
+    );
+
+    background-size:300% 300%;
+
+    animation:
+    backgroundMove 12s ease infinite;
+
+}
+
+
+.background::before{
+
+    content:"";
+
+    position:absolute;
+
+    width:350px;
+
+    height:350px;
+
+    top:-120px;
+
+    left:-120px;
+
+    border-radius:50%;
+
+    background:
+    rgba(37,99,235,.35);
+
+    filter:blur(120px);
+
+}
+
+
+.background::after{
+
+    content:"";
+
+    position:absolute;
+
+    width:350px;
+
+    height:350px;
+
+    right:-120px;
+
+    bottom:-120px;
+
+    border-radius:50%;
+
+    background:
+    rgba(124,58,237,.35);
+
+    filter:blur(120px);
+
+}
+
+
+/* ---------- Splash Container ---------- */
+
+.splash-container{
+
+    width:100%;
+
+    max-width:420px;
+
+    padding:30px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    align-items:center;
+
+    text-align:center;
+
+    animation:
+    splashFade 1s ease;
+
+}
+/* ==========================================
+   EchoCall AI
+   File: css/splash.css
+   Part 2
+   Append below Part 1
+========================================== */
+
+
+/* ---------- Logo ---------- */
+
+.logo{
+
+    width:140px;
+
+    height:140px;
+
+    object-fit:contain;
+
+    margin-bottom:25px;
+
+    animation:
+    logoFloat 4s ease-in-out infinite;
+
+    filter:
+    drop-shadow(0 15px 35px rgba(37,99,235,.45));
+
+}
+
+
+/* ---------- Title ---------- */
+
+.splash-container h1{
+
+    font-size:38px;
+
+    font-weight:800;
+
+    letter-spacing:.5px;
+
+    background:
+
+    linear-gradient(
+        135deg,
+        #60A5FA,
+        #A78BFA
+    );
+
+    -webkit-background-clip:text;
+
+    -webkit-text-fill-color:transparent;
+
+}
+
+
+/* ---------- Subtitle ---------- */
+
+.splash-container p{
+
+    margin-top:12px;
+
+    color:#CBD5E1;
+
+    font-size:16px;
+
+    font-weight:400;
+
+    letter-spacing:.3px;
+
+}
+
+
+/* ---------- Loader ---------- */
+
+.loader{
+
+    width:170px;
+
+    height:6px;
+
+    margin-top:45px;
+
+    border-radius:50px;
+
+    overflow:hidden;
+
+    background:
+
+    rgba(255,255,255,.12);
+
+    position:relative;
+
+}
+
+
+.loader::before{
+
+    content:"";
+
+    position:absolute;
+
+    height:100%;
+
+    width:45%;
+
+    left:0;
+
+    top:0;
+
+    border-radius:50px;
+
+    background:
+
+    linear-gradient(
+        90deg,
+        #2563EB,
+        #7C3AED
+    );
+
+    animation:
+
+    loadingMove 1.3s ease-in-out infinite;
+
+}
+
+
+/* ---------- Logo Animation ---------- */
+
+@keyframes logoFloat{
+
+    0%{
+
+        transform:translateY(0);
+
+    }
+
+
+    50%{
+
+        transform:translateY(-12px);
+
+    }
+
+
+    100%{
+
+        transform:translateY(0);
+
+    }
+
+}
+
+
+/* ---------- Loading Animation ---------- */
+
+@keyframes loadingMove{
+
+    0%{
+
+        transform:translateX(-120%);
+
+    }
+
+
+    100%{
+
+        transform:translateX(300%);
+
+    }
+
+}
+/* ==========================================
+   EchoCall AI
+   File: css/splash.css
+   Part 3 (Final)
+========================================== */
+
+
+/* ---------- Background Animation ---------- */
+
+@keyframes backgroundMove{
+
+    0%{
+
+        background-position:
+        0% 50%;
+
+    }
+
+
+    50%{
+
+        background-position:
+        100% 50%;
+
+    }
+
+
+    100%{
+
+        background-position:
+        0% 50%;
+
+    }
+
+}
+
+
+/* ---------- Splash Entrance ---------- */
+
+@keyframes splashFade{
+
+    from{
+
+        opacity:0;
+
+        transform:
+        translateY(25px);
+
+    }
+
+
+    to{
+
+        opacity:1;
+
+        transform:
+        translateY(0);
+
+    }
+
+}
+
+
+/* ---------- Logo Glow ---------- */
+
+.logo{
+
+    animation:
+
+    logoFloat 4s ease-in-out infinite,
+    logoGlow 3s ease-in-out infinite;
+
+}
+
+
+@keyframes logoGlow{
+
+    0%{
+
+        filter:
+        drop-shadow(
+        0 0 15px rgba(37,99,235,.35)
+        );
+
+    }
+
+
+    50%{
+
+        filter:
+        drop-shadow(
+        0 0 40px rgba(124,58,237,.55)
+        );
+
+    }
+
+
+    100%{
+
+        filter:
+        drop-shadow(
+        0 0 15px rgba(37,99,235,.35)
+        );
+
+    }
+
+}
+
+
+/* ---------- Mobile Responsive ---------- */
+
+@media(max-width:600px){
+
+
+    .splash-container{
+
+        padding:22px;
+
+    }
+
+
+    .logo{
+
+        width:110px;
+
+        height:110px;
+
+    }
+
+
+    .splash-container h1{
+
+        font-size:32px;
+
+    }
+
+
+    .splash-container p{
+
+        font-size:14px;
+
+    }
+
+
+    .loader{
+
+        width:140px;
+
+        margin-top:35px;
+
+    }
+
+}
+
+
+/* ---------- Small Phones ---------- */
+
+@media(max-width:380px){
+
+
+    .logo{
+
+        width:95px;
+
+        height:95px;
+
+    }
+
+
+    .splash-container h1{
+
+        font-size:28px;
+
+    }
+
+
+    .splash-container p{
+
+        font-size:13px;
+
+    }
+
+}
+
+
+/* ==========================================
+   End of splash.css
+========================================== */

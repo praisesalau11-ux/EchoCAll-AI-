@@ -1,0 +1,947 @@
+/* ==========================================
+   EchoCall AI
+   File: css/profile.css
+   Part 1
+========================================== */
+
+/* ==========================================
+   Page
+========================================== */
+
+.profile-page{
+
+    width:100%;
+
+    max-width:1200px;
+
+    margin:0 auto;
+
+    padding:24px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:24px;
+
+}
+
+/* ==========================================
+   Sections
+========================================== */
+
+.section{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:18px;
+
+}
+
+.section-title{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+}
+
+.section-title h2{
+
+    font-size:1.15rem;
+
+    font-weight:700;
+
+    margin:0;
+
+}
+
+/* ==========================================
+   Hero
+========================================== */
+
+.hero-card{
+
+    border-radius:24px;
+
+    padding:32px;
+
+    background:linear-gradient(
+        135deg,
+        #1E3A8A,
+        #4338CA
+    );
+
+    color:#fff;
+
+    overflow:hidden;
+
+    position:relative;
+
+}
+
+.hero-content{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:12px;
+
+}
+
+.hero-badge{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    width:max-content;
+
+    padding:8px 16px;
+
+    border-radius:999px;
+
+    background:rgba(255,255,255,.15);
+
+    backdrop-filter:blur(10px);
+
+    font-size:.85rem;
+
+    font-weight:600;
+
+}
+
+.hero-card h1{
+
+    margin:0;
+
+    font-size:2rem;
+
+    font-weight:800;
+
+}
+
+.hero-card p{
+
+    margin:0;
+
+    opacity:.92;
+
+    line-height:1.6;
+
+    max-width:650px;
+
+}
+
+/* ==========================================
+   Profile Header
+========================================== */
+
+.profile-card{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:24px;
+
+    padding:24px;
+
+    border-radius:22px;
+
+    background:var(--card-bg,#1B1B1F);
+
+    border:1px solid rgba(255,255,255,.08);
+
+}
+
+.profile-photo-wrapper{
+
+    position:relative;
+
+    width:120px;
+
+    height:120px;
+
+    flex-shrink:0;
+
+}
+
+.profile-photo{
+
+    width:100%;
+
+    height:100%;
+
+    border-radius:50%;
+
+    object-fit:cover;
+
+    border:4px solid #1E3A8A;
+
+}
+
+.camera-btn{
+
+    position:absolute;
+
+    right:0;
+
+    bottom:0;
+
+    width:42px;
+
+    height:42px;
+
+    border:none;
+
+    border-radius:50%;
+
+    cursor:pointer;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    background:#2563EB;
+
+    color:#fff;
+
+    transition:.25s;
+
+}
+
+.camera-btn:hover{
+
+    transform:scale(1.08);
+
+}
+
+.profile-header-info{
+
+    flex:1;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:10px;
+
+}
+
+.profile-header-info h2{
+
+    margin:0;
+
+    font-size:1.8rem;
+
+    font-weight:700;
+
+}
+
+.profile-header-info p{
+
+    margin:0;
+
+    opacity:.8;
+
+}
+
+.profile-badges{
+
+    display:flex;
+
+    flex-wrap:wrap;
+
+    gap:10px;
+
+}
+
+/* Part 2 starts below */
+/* ==========================================
+   EchoCall AI
+   File: css/profile.css
+   Part 2
+   Append below Part 1
+========================================== */
+
+/* ==========================================
+   Forms
+========================================== */
+
+.profile-form{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:20px;
+
+    padding:24px;
+
+    border-radius:22px;
+
+    background:var(--card-bg,#1B1B1F);
+
+    border:1px solid rgba(255,255,255,.08);
+
+}
+
+.form-group{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:10px;
+
+}
+
+.form-group label{
+
+    font-size:.95rem;
+
+    font-weight:600;
+
+}
+
+.form-group input,
+
+.form-group textarea,
+
+.form-group select{
+
+    width:100%;
+
+    padding:14px 16px;
+
+    border-radius:14px;
+
+    border:1px solid rgba(255,255,255,.10);
+
+    background:rgba(255,255,255,.04);
+
+    color:inherit;
+
+    font-size:1rem;
+
+    outline:none;
+
+    transition:.25s;
+
+    box-sizing:border-box;
+
+}
+
+.form-group textarea{
+
+    resize:vertical;
+
+    min-height:120px;
+
+}
+
+.form-group input:focus,
+
+.form-group textarea:focus,
+
+.form-group select:focus{
+
+    border-color:#2563EB;
+
+    box-shadow:0 0 0 3px rgba(37,99,235,.20);
+
+}
+
+.form-group input[readonly]{
+
+    opacity:.75;
+
+    cursor:not-allowed;
+
+}
+
+#bioCounter{
+
+    align-self:flex-end;
+
+    font-size:.8rem;
+
+    opacity:.7;
+
+}
+
+/* ==========================================
+   Statistics
+========================================== */
+
+.stats-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+
+    gap:18px;
+
+}
+
+.stat-card{
+
+    padding:22px;
+
+    border-radius:20px;
+
+    background:var(--card-bg,#1B1B1F);
+
+    border:1px solid rgba(255,255,255,.08);
+
+    text-align:center;
+
+    transition:.25s;
+
+}
+
+.stat-card:hover{
+
+    transform:translateY(-4px);
+
+}
+
+.stat-card .material-symbols-rounded{
+
+    font-size:34px;
+
+    color:#3B82F6;
+
+    margin-bottom:10px;
+
+}
+
+.stat-card h3{
+
+    margin:0;
+
+    font-size:1.7rem;
+
+    font-weight:700;
+
+}
+
+.stat-card p{
+
+    margin-top:8px;
+
+    opacity:.8;
+
+}
+
+/* ==========================================
+   Subscription
+========================================== */
+
+.subscription-card{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    gap:24px;
+
+    padding:24px;
+
+    border-radius:22px;
+
+    background:linear-gradient(
+        135deg,
+        #1E3A8A,
+        #4338CA
+    );
+
+    color:#fff;
+
+}
+
+.subscription-card h3{
+
+    margin:0;
+
+    font-size:1.5rem;
+
+}
+
+.subscription-card p{
+
+    margin-top:8px;
+
+    line-height:1.6;
+
+    opacity:.95;
+
+}
+
+/* Part 3 starts below */
+/* ==========================================
+   EchoCall AI
+   File: css/profile.css
+   Part 3
+   Append below Part 2
+========================================== */
+
+/* ==========================================
+   Settings List
+========================================== */
+
+.settings-list{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:16px;
+
+}
+
+.settings-item{
+
+    width:100%;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:18px;
+
+    padding:18px 20px;
+
+    border:none;
+
+    border-radius:20px;
+
+    cursor:pointer;
+
+    text-align:left;
+
+    background:var(--card-bg,#1B1B1F);
+
+    border:1px solid rgba(255,255,255,.08);
+
+    color:inherit;
+
+    transition:.25s;
+
+}
+
+.settings-item:hover{
+
+    transform:translateY(-3px);
+
+    border-color:#2563EB;
+
+}
+
+.settings-item>.material-symbols-rounded:first-child{
+
+    font-size:30px;
+
+    color:#3B82F6;
+
+}
+
+.settings-item>div{
+
+    flex:1;
+
+}
+
+.settings-item h3{
+
+    margin:0;
+
+    font-size:1rem;
+
+    font-weight:600;
+
+}
+
+.settings-item p{
+
+    margin-top:6px;
+
+    font-size:.9rem;
+
+    opacity:.75;
+
+    line-height:1.5;
+
+}
+
+.settings-item>.material-symbols-rounded:last-child{
+
+    font-size:24px;
+
+    opacity:.7;
+
+}
+
+.danger-item{
+
+    border-color:rgba(239,68,68,.35);
+
+}
+
+.danger-item:hover{
+
+    border-color:#EF4444;
+
+}
+
+.danger-item>.material-symbols-rounded:first-child{
+
+    color:#EF4444;
+
+}
+
+/* ==========================================
+   Buttons
+========================================== */
+
+.primary-btn,
+
+.secondary-btn{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:10px;
+
+    padding:15px 24px;
+
+    border-radius:16px;
+
+    font-size:1rem;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+    transition:.25s;
+
+}
+
+.primary-btn{
+
+    border:none;
+
+    background:#2563EB;
+
+    color:#fff;
+
+}
+
+.primary-btn:hover{
+
+    transform:translateY(-2px);
+
+    background:#1D4ED8;
+
+}
+
+.secondary-btn{
+
+    background:transparent;
+
+    color:inherit;
+
+    border:1px solid rgba(255,255,255,.12);
+
+}
+
+.secondary-btn:hover{
+
+    border-color:#2563EB;
+
+}
+
+.full-width-btn{
+
+    width:100%;
+
+}
+
+.primary-btn .material-symbols-rounded,
+
+.secondary-btn .material-symbols-rounded{
+
+    font-size:22px;
+
+}
+
+/* ==========================================
+   Save Button Section
+========================================== */
+
+#saveProfileBtn{
+
+    min-height:58px;
+
+    font-size:1.05rem;
+
+}
+
+/* Part 4 starts below */
+/* ==========================================
+   EchoCall AI
+   File: css/profile.css
+   Part 4
+   Append below Part 3
+========================================== */
+
+/* ==========================================
+   Quick Actions
+========================================== */
+
+.quick-actions-grid{
+
+    display:grid;
+
+    grid-template-columns:
+    repeat(auto-fit,minmax(220px,1fr));
+
+    gap:18px;
+
+}
+
+.quick-action-card{
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:flex-start;
+
+    gap:14px;
+
+    padding:22px;
+
+    border:none;
+
+    border-radius:22px;
+
+    cursor:pointer;
+
+    text-align:left;
+
+    background:var(--card-bg,#1B1B1F);
+
+    border:1px solid rgba(255,255,255,.08);
+
+    color:inherit;
+
+    transition:.25s;
+
+}
+
+.quick-action-card:hover{
+
+    transform:translateY(-4px);
+
+    border-color:#2563EB;
+
+    box-shadow:
+    0 12px 28px
+    rgba(37,99,235,.18);
+
+}
+
+.quick-action-card
+.material-symbols-rounded{
+
+    font-size:36px;
+
+    color:#3B82F6;
+
+}
+
+.quick-action-card h3{
+
+    margin:0;
+
+    font-size:1.1rem;
+
+    font-weight:700;
+
+}
+
+.quick-action-card p{
+
+    margin:0;
+
+    opacity:.78;
+
+    line-height:1.6;
+
+}
+
+/* ==========================================
+   Footer
+========================================== */
+
+.page-footer{
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:8px;
+
+    text-align:center;
+
+    padding:24px;
+
+    border-radius:20px;
+
+    background:var(--card-bg,#1B1B1F);
+
+    border:1px solid
+    rgba(255,255,255,.08);
+
+}
+
+.page-footer p{
+
+    margin:0;
+
+    opacity:.75;
+
+    font-size:.95rem;
+
+}
+
+/* ==========================================
+   Utility Classes
+========================================== */
+
+.hidden{
+
+    display:none !important;
+
+}
+
+.text-center{
+
+    text-align:center;
+
+}
+
+.mt-16{
+
+    margin-top:16px;
+
+}
+
+.mb-16{
+
+    margin-bottom:16px;
+
+}
+
+/* ==========================================
+   Responsive
+========================================== */
+
+@media (max-width:768px){
+
+    .profile-page{
+
+        padding:18px;
+
+    }
+
+    .profile-card{
+
+        flex-direction:column;
+
+        text-align:center;
+
+    }
+
+    .profile-header-info{
+
+        align-items:center;
+
+    }
+
+    .subscription-card{
+
+        flex-direction:column;
+
+        align-items:flex-start;
+
+    }
+
+    .stats-grid{
+
+        grid-template-columns:
+        repeat(2,1fr);
+
+    }
+
+    .quick-actions-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+}
+
+@media (max-width:480px){
+
+    .hero-card{
+
+        padding:24px;
+
+    }
+
+    .hero-card h1{
+
+        font-size:1.7rem;
+
+    }
+
+    .profile-photo-wrapper{
+
+        width:100px;
+
+        height:100px;
+
+    }
+
+    .stats-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+}
+
+/* ==========================================
+   End of profile.css
+========================================== */

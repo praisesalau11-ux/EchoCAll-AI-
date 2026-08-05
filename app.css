@@ -1,0 +1,1231 @@
+/* ==========================================
+   EchoCall AI
+   File: css/app.css
+   Part 1
+========================================== */
+
+
+/* ---------- Reset ---------- */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:"Inter",sans-serif;
+    -webkit-tap-highlight-color:transparent;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    min-height:100vh;
+    overflow-x:hidden;
+    background:#020617;
+    color:#ffffff;
+}
+
+
+/* ---------- Animated Background ---------- */
+
+.background{
+
+    position:fixed;
+
+    inset:0;
+
+    z-index:-2;
+
+    background:
+    linear-gradient(
+        135deg,
+        #020617,
+        #0F172A,
+        #1E3A8A,
+        #7C3AED
+    );
+
+    background-size:300% 300%;
+
+    animation:
+    backgroundMove 14s ease infinite;
+
+}
+
+.background::before{
+
+    content:"";
+
+    position:absolute;
+
+    width:420px;
+    height:420px;
+
+    top:-160px;
+    left:-140px;
+
+    border-radius:50%;
+
+    background:
+    rgba(37,99,235,.28);
+
+    filter:blur(130px);
+
+}
+
+.background::after{
+
+    content:"";
+
+    position:absolute;
+
+    width:420px;
+    height:420px;
+
+    right:-150px;
+    bottom:-150px;
+
+    border-radius:50%;
+
+    background:
+    rgba(124,58,237,.28);
+
+    filter:blur(130px);
+
+}
+
+
+/* ---------- Main App ---------- */
+
+.app-container{
+
+    min-height:100vh;
+
+    padding:22px 20px 120px;
+
+    position:relative;
+
+}
+
+
+/* ---------- Header ---------- */
+
+.app-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:26px;
+
+}
+
+
+/* ---------- Header Left ---------- */
+
+.header-left{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:15px;
+
+}
+
+.header-logo{
+
+    width:58px;
+
+    height:58px;
+
+    border-radius:18px;
+
+    object-fit:cover;
+
+    box-shadow:
+    0 15px 35px rgba(37,99,235,.35);
+
+}
+
+.header-left h2{
+
+    font-size:24px;
+
+    font-weight:800;
+
+    margin-bottom:4px;
+
+}
+
+.header-left p{
+
+    font-size:14px;
+
+    color:#CBD5E1;
+
+}
+
+
+/* ---------- Header Right ---------- */
+
+.header-right{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+}
+
+
+/* ---------- Icon Button ---------- */
+
+.icon-button{
+
+    width:48px;
+
+    height:48px;
+
+    border:none;
+
+    border-radius:16px;
+
+    background:
+    rgba(255,255,255,.08);
+
+    color:#ffffff;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    cursor:pointer;
+
+    transition:.3s;
+
+    backdrop-filter:blur(16px);
+
+}
+
+.icon-button:hover{
+
+    background:#2563EB;
+
+    transform:translateY(-2px);
+
+}
+
+
+/* ---------- Profile Avatar ---------- */
+
+.profile-avatar{
+
+    width:48px;
+
+    height:48px;
+
+    border-radius:50%;
+
+    object-fit:cover;
+
+    border:2px solid rgba(255,255,255,.15);
+
+    cursor:pointer;
+
+    transition:.3s;
+
+}
+
+.profile-avatar:hover{
+
+    transform:scale(1.05);
+
+    border-color:#3B82F6;
+
+}
+/* ==========================================
+   EchoCall AI
+   File: css/app.css
+   Part 2
+   Append below Part 1
+========================================== */
+
+
+/* ---------- Page Container ---------- */
+
+.page-container{
+
+    width:100%;
+
+    min-height:65vh;
+
+    animation:fadeUp .6s ease;
+
+}
+
+
+/* ---------- Loading Screen ---------- */
+
+.loading-screen{
+
+    min-height:65vh;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    align-items:center;
+
+    text-align:center;
+
+    padding:20px;
+
+}
+
+
+.loading-screen h2{
+
+    margin-top:22px;
+
+    font-size:26px;
+
+    font-weight:800;
+
+}
+
+
+.loading-screen p{
+
+    margin-top:10px;
+
+    color:#CBD5E1;
+
+    font-size:15px;
+
+    line-height:1.6;
+
+}
+
+
+/* ---------- Loader ---------- */
+
+.loader{
+
+    width:70px;
+
+    height:70px;
+
+    border-radius:50%;
+
+    border:6px solid rgba(255,255,255,.12);
+
+    border-top:6px solid #3B82F6;
+
+    animation:spin 1s linear infinite;
+
+}
+
+
+/* ---------- Primary Button ---------- */
+
+.primary-btn{
+
+    border:none;
+
+    outline:none;
+
+    cursor:pointer;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:10px;
+
+    height:56px;
+
+    padding:0 22px;
+
+    border-radius:18px;
+
+    background:linear-gradient(
+        135deg,
+        #2563EB,
+        #7C3AED
+    );
+
+    color:#ffffff;
+
+    font-size:16px;
+
+    font-weight:700;
+
+    box-shadow:
+    0 18px 40px rgba(37,99,235,.35);
+
+    transition:.3s ease;
+
+}
+
+
+.primary-btn:hover{
+
+    transform:translateY(-3px);
+
+    box-shadow:
+    0 25px 50px rgba(37,99,235,.45);
+
+}
+
+
+.primary-btn:active{
+
+    transform:scale(.98);
+
+}
+
+
+.primary-btn
+.material-symbols-rounded{
+
+    font-size:22px;
+
+}
+
+
+/* ---------- Floating AI Button ---------- */
+
+.floating-ai-button{
+
+    position:fixed;
+
+    right:22px;
+
+    bottom:95px;
+
+    width:68px;
+
+    height:68px;
+
+    border:none;
+
+    border-radius:50%;
+
+    background:linear-gradient(
+        135deg,
+        #2563EB,
+        #7C3AED
+    );
+
+    color:#ffffff;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    cursor:pointer;
+
+    box-shadow:
+    0 18px 45px rgba(37,99,235,.40);
+
+    transition:.3s ease;
+
+    z-index:900;
+
+}
+
+
+.floating-ai-button:hover{
+
+    transform:scale(1.08);
+
+}
+
+
+.floating-ai-button
+.material-symbols-rounded{
+
+    font-size:34px;
+
+}
+
+
+/* ---------- Hidden Utility ---------- */
+
+.hidden{
+
+    display:none !important;
+
+}
+/* ==========================================
+   EchoCall AI
+   File: css/app.css
+   Part 3
+   Append below Part 2
+========================================== */
+
+
+/* ---------- Search Overlay ---------- */
+
+.search-overlay{
+
+    position:fixed;
+
+    inset:0;
+
+    background:rgba(2,6,23,.82);
+
+    backdrop-filter:blur(14px);
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:flex-start;
+
+    padding:24px 18px;
+
+    z-index:1500;
+
+}
+
+
+/* ---------- Search Panel ---------- */
+
+.search-panel{
+
+    width:100%;
+
+    max-width:700px;
+
+    border-radius:24px;
+
+    overflow:hidden;
+
+    background:rgba(15,23,42,.95);
+
+    border:1px solid rgba(255,255,255,.08);
+
+    box-shadow:0 25px 60px rgba(0,0,0,.35);
+
+}
+
+
+.search-input-wrapper{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    padding:18px;
+
+    border-bottom:1px solid rgba(255,255,255,.08);
+
+}
+
+
+.search-input-wrapper input{
+
+    flex:1;
+
+    border:none;
+
+    outline:none;
+
+    background:transparent;
+
+    color:#ffffff;
+
+    font-size:16px;
+
+}
+
+
+.search-input-wrapper input::placeholder{
+
+    color:#94A3B8;
+
+}
+
+
+.search-results{
+
+    max-height:450px;
+
+    overflow-y:auto;
+
+    padding:18px;
+
+}
+
+
+.empty-text{
+
+    text-align:center;
+
+    color:#94A3B8;
+
+}
+
+
+/* ---------- Notification Panel ---------- */
+
+.notification-panel{
+
+    position:fixed;
+
+    top:82px;
+
+    right:18px;
+
+    width:360px;
+
+    max-width:calc(100vw - 36px);
+
+    background:#0F172A;
+
+    border-radius:22px;
+
+    border:1px solid rgba(255,255,255,.08);
+
+    box-shadow:0 25px 55px rgba(0,0,0,.35);
+
+    overflow:hidden;
+
+    z-index:1600;
+
+}
+
+
+.panel-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:18px;
+
+    border-bottom:1px solid rgba(255,255,255,.08);
+
+}
+
+
+.notification-list{
+
+    max-height:420px;
+
+    overflow-y:auto;
+
+}
+
+
+.notification-item{
+
+    display:flex;
+
+    gap:14px;
+
+    padding:16px 18px;
+
+    border-bottom:1px solid rgba(255,255,255,.05);
+
+}
+
+
+.notification-item:last-child{
+
+    border-bottom:none;
+
+}
+
+
+.notification-item .material-symbols-rounded{
+
+    font-size:28px;
+
+    color:#3B82F6;
+
+}
+
+
+.notification-item h4{
+
+    font-size:15px;
+
+    margin-bottom:4px;
+
+}
+
+
+.notification-item p{
+
+    color:#94A3B8;
+
+    font-size:13px;
+
+    line-height:1.5;
+
+}
+
+
+/* ---------- AI Modal ---------- */
+
+.ai-modal{
+
+    position:fixed;
+
+    inset:0;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    background:rgba(2,6,23,.82);
+
+    backdrop-filter:blur(14px);
+
+    z-index:2000;
+
+}
+
+
+.ai-modal-content{
+
+    width:95%;
+
+    max-width:720px;
+
+    height:85vh;
+
+    display:flex;
+
+    flex-direction:column;
+
+    border-radius:28px;
+
+    overflow:hidden;
+
+    background:#0F172A;
+
+    border:1px solid rgba(255,255,255,.08);
+
+    box-shadow:0 25px 60px rgba(0,0,0,.40);
+
+}
+
+
+.ai-modal-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:18px 22px;
+
+    border-bottom:1px solid rgba(255,255,255,.08);
+
+}
+
+
+.ai-chat-container{
+
+    flex:1;
+
+    overflow-y:auto;
+
+    padding:20px;
+
+}
+
+
+.ai-message{
+
+    display:flex;
+
+    gap:12px;
+
+    margin-bottom:16px;
+
+}
+
+
+.ai-avatar{
+
+    width:42px;
+
+    height:42px;
+
+    border-radius:50%;
+
+    background:linear-gradient(135deg,#2563EB,#7C3AED);
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-size:20px;
+
+}
+
+
+.ai-bubble{
+
+    max-width:80%;
+
+    padding:14px 18px;
+
+    border-radius:18px;
+
+    background:rgba(255,255,255,.08);
+
+    line-height:1.6;
+
+}
+
+
+.ai-input-area{
+
+    display:flex;
+
+    gap:12px;
+
+    padding:18px;
+
+    border-top:1px solid rgba(255,255,255,.08);
+
+}
+
+
+.ai-input-area input{
+
+    flex:1;
+
+    height:54px;
+
+    padding:0 18px;
+
+    border:none;
+
+    outline:none;
+
+    border-radius:16px;
+
+    background:rgba(255,255,255,.08);
+
+    color:#ffffff;
+
+}
+
+
+.ai-input-area input::placeholder{
+
+    color:#94A3B8;
+
+}
+/* ==========================================
+   EchoCall AI
+   File: css/app.css
+   Part 4 (Final)
+========================================== */
+
+
+/* ---------- Bottom Navigation ---------- */
+
+.bottom-nav{
+
+    position:fixed;
+
+    left:16px;
+
+    right:16px;
+
+    bottom:16px;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:12px;
+
+    border-radius:24px;
+
+    background:rgba(15,23,42,.90);
+
+    backdrop-filter:blur(22px);
+
+    -webkit-backdrop-filter:blur(22px);
+
+    border:1px solid rgba(255,255,255,.08);
+
+    box-shadow:0 18px 45px rgba(0,0,0,.35);
+
+    z-index:1000;
+
+}
+
+.nav-item{
+
+    flex:1;
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:6px;
+
+    padding:12px 8px;
+
+    border:none;
+
+    border-radius:18px;
+
+    background:transparent;
+
+    color:#94A3B8;
+
+    cursor:pointer;
+
+    transition:.3s ease;
+
+}
+
+.nav-item:hover{
+
+    background:rgba(255,255,255,.08);
+
+    color:#ffffff;
+
+}
+
+.nav-item.active{
+
+    background:linear-gradient(135deg,#2563EB,#7C3AED);
+
+    color:#ffffff;
+
+    box-shadow:0 10px 30px rgba(37,99,235,.35);
+
+}
+
+.nav-item .material-symbols-rounded{
+
+    font-size:28px;
+
+}
+
+.nav-item span:last-child{
+
+    font-size:12px;
+
+    font-weight:700;
+
+}
+
+
+/* ---------- Settings Modal ---------- */
+
+.settings-modal{
+
+    position:fixed;
+
+    inset:0;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    background:rgba(2,6,23,.82);
+
+    backdrop-filter:blur(14px);
+
+    z-index:2100;
+
+}
+
+.settings-content{
+
+    width:92%;
+
+    max-width:420px;
+
+    border-radius:24px;
+
+    overflow:hidden;
+
+    background:#0F172A;
+
+    border:1px solid rgba(255,255,255,.08);
+
+}
+
+.settings-list{
+
+    padding:12px;
+
+}
+
+.settings-item{
+
+    width:100%;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:14px;
+
+    padding:16px;
+
+    border:none;
+
+    border-radius:16px;
+
+    background:transparent;
+
+    color:#ffffff;
+
+    cursor:pointer;
+
+    font-size:15px;
+
+    transition:.3s ease;
+
+}
+
+.settings-item:hover{
+
+    background:rgba(255,255,255,.08);
+
+}
+
+
+/* ---------- Offline Banner ---------- */
+
+.offline-banner{
+
+    position:fixed;
+
+    top:20px;
+
+    left:50%;
+
+    transform:translateX(-50%);
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    padding:14px 20px;
+
+    border-radius:18px;
+
+    background:#DC2626;
+
+    color:#ffffff;
+
+    font-weight:600;
+
+    z-index:3000;
+
+}
+
+
+/* ---------- Toast ---------- */
+
+.toast-container{
+
+    position:fixed;
+
+    right:18px;
+
+    bottom:105px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:12px;
+
+    z-index:2500;
+
+}
+
+
+/* ---------- Animations ---------- */
+
+@keyframes backgroundMove{
+
+    0%{background-position:0% 50%;}
+
+    50%{background-position:100% 50%;}
+
+    100%{background-position:0% 50%;}
+
+}
+
+@keyframes fadeUp{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(20px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0);
+
+    }
+
+}
+
+@keyframes spin{
+
+    from{
+
+        transform:rotate(0deg);
+
+    }
+
+    to{
+
+        transform:rotate(360deg);
+
+    }
+
+}
+
+
+/* ---------- Mobile ---------- */
+
+@media(max-width:600px){
+
+    .app-container{
+
+        padding:16px 16px 110px;
+
+    }
+
+    .header-logo{
+
+        width:50px;
+
+        height:50px;
+
+    }
+
+    .header-left h2{
+
+        font-size:20px;
+
+    }
+
+    .profile-avatar{
+
+        width:44px;
+
+        height:44px;
+
+    }
+
+    .icon-button{
+
+        width:44px;
+
+        height:44px;
+
+    }
+
+    .notification-panel{
+
+        width:calc(100% - 24px);
+
+        right:12px;
+
+    }
+
+    .floating-ai-button{
+
+        width:60px;
+
+        height:60px;
+
+        bottom:92px;
+
+    }
+
+    .bottom-nav{
+
+        left:10px;
+
+        right:10px;
+
+        bottom:10px;
+
+    }
+
+    .nav-item .material-symbols-rounded{
+
+        font-size:24px;
+
+    }
+
+    .nav-item span:last-child{
+
+        font-size:11px;
+
+    }
+
+    .ai-modal-content{
+
+        width:100%;
+
+        height:100vh;
+
+        border-radius:0;
+
+    }
+
+}
+
+
+/* ==========================================
+   End of app.css
+========================================== */

@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>EchoCall AI</title>
+
+<link rel="preconnect"
+href="https://fonts.googleapis.com">
+
+<link rel="preconnect"
+href="https://fonts.gstatic.com"
+crossorigin>
+
+<link
+href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+rel="stylesheet">
+
+<link
+href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded"
+rel="stylesheet">
+
+<link rel="stylesheet" href="css/app.css">
+
+</head>
+
+<body>
+
+<!-- Background -->
+
+<div class="background"></div>
+
+<!-- App -->
+
+<div class="app-container">
+
+<!-- =========================
+     TOP HEADER
+========================= -->
+
+<header class="app-header">
+
+<div class="header-left">
+
+<img
+src="assets/logo.png"
+alt="EchoCall AI"
+class="header-logo">
+
+<div>
+
+<h2>
+
+EchoCall AI
+
+</h2>
+
+<p id="welcomeText">
+
+Loading...
+
+</p>
+
+</div>
+
+</div>
+
+<div class="header-right">
+
+<button
+id="searchButton"
+class="icon-button">
+
+<span class="material-symbols-rounded">
+
+search
+
+</span>
+
+</button>
+
+<button
+id="notificationButton"
+class="icon-button">
+
+<span class="material-symbols-rounded">
+
+notifications
+
+</span>
+
+</button>
+
+<img
+src="assets/default-avatar.png"
+id="profileImage"
+class="profile-avatar"
+alt="Profile">
+
+</div>
+
+</header>
+
+<!-- =========================
+     PAGE CONTAINER
+========================= -->
+
+<main
+id="pageContainer"
+class="page-container">
+
+<!-- Home page loads here -->
+
+<div class="loading-screen">
+
+<div class="loader"></div>
+
+<h2>
+
+Loading EchoCall AI...
+
+</h2>
+
+<p>
+
+Preparing your assistant.
+
+</p>
+
+</div>
+
+</main>
+
+<!-- =========================
+     FLOATING AI BUTTON
+========================= -->
+
+<button
+id="floatingAiButton"
+class="floating-ai-button">
+
+<span class="material-symbols-rounded">
+
+smart_toy
+
+</span>
+
+</button>
+
+<!-- Part 2 starts below -->
+<!-- =========================
+     SEARCH OVERLAY
+========================= -->
+
+<div
+id="searchOverlay"
+class="search-overlay hidden">
+
+<div class="search-panel">
+
+<div class="search-input-wrapper">
+
+<span class="material-symbols-rounded">
+
+search
+
+</span>
+
+<input
+type="text"
+id="globalSearch"
+placeholder="Search contacts, calls, history...">
+
+<button
+id="closeSearch"
+class="icon-button">
+
+<span class="material-symbols-rounded">
+
+close
+
+</span>
+
+</button>
+
+</div>
+
+<div
+id="searchResults"
+class="search-results">
+
+<p class="empty-text">
+
+Start typing to search...
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- =========================
+     NOTIFICATION PANEL
+========================= -->
+
+<div
+id="notificationPanel"
+class="notification-panel hidden">
+
+<div class="panel-header">
+
+<h3>
+
+Notifications
+
+</h3>
+
+<button
+id="closeNotifications"
+class="icon-button">
+
+<span class="material-symbols-rounded">
+
+close
+
+</span>
+
+</button>
+
+</div>
+
+<div class="notification-list">
+
+<div class="notification-item">
+
+<span class="material-symbols-rounded">
+
+notifications
+
+</span>
+
+<div>
+
+<h4>
+
+Welcome to EchoCall AI
+
+</h4>
+
+<p>
+
+Your account is ready to use.
+
+</p>
+
+</div>
+
+</div>
+
+<div class="notification-item">
+
+<span class="material-symbols-rounded">
+
+cloud_done
+
+</span>
+
+<div>
+
+<h4>
+
+Cloud Sync Enabled
+
+</h4>
+
+<p>
+
+Your data is syncing securely.
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- =========================
+     BOTTOM NAVIGATION
+========================= -->
+
+<nav class="bottom-nav">
+
+<button
+class="nav-item active"
+data-page="home">
+
+<span class="material-symbols-rounded">
+
+home
+
+</span>
+
+<span>
+
+Home
+
+</span>
+
+</button>
+
+<button
+class="nav-item"
+data-page="calls">
+
+<span class="material-symbols-rounded">
+
+call
+
+</span>
+
+<span>
+
+Calls
+
+</span>
+
+</button>
+
+<button
+class="nav-item"
+data-page="history">
+
+<span class="material-symbols-rounded">
+
+history
+
+</span>
+
+<span>
+
+History
+
+</span>
+
+</button>
+
+<button
+class="nav-item"
+data-page="contacts">
+
+<span class="material-symbols-rounded">
+
+contacts
+
+</span>
+
+<span>
+
+Contacts
+
+</span>
+
+</button>
+
+<button
+class="nav-item"
+data-page="profile">
+
+<span class="material-symbols-rounded">
+
+person
+
+</span>
+
+<span>
+
+Profile
+
+</span>
+
+</button>
+
+</nav>
+
+<!-- Part 3 starts below -->
+<!-- =========================
+     AI ASSISTANT MODAL
+========================= -->
+
+<div
+id="aiModal"
+class="ai-modal hidden">
+
+<div class="ai-modal-content">
+
+<div class="ai-modal-header">
+
+<h2>
+
+EchoCall AI
+
+</h2>
+
+<button
+id="closeAiModal"
+class="icon-button">
+
+<span class="material-symbols-rounded">
+
+close
+
+</span>
+
+</button>
+
+</div>
+
+<div
+id="aiChatContainer"
+class="ai-chat-container">
+
+<div class="ai-message">
+
+<div class="ai-avatar">
+
+🤖
+
+</div>
+
+<div class="ai-bubble">
+
+Hello! I'm EchoCall AI.
+How can I help you today?
+
+</div>
+
+</div>
+
+</div>
+
+<div class="ai-input-area">
+
+<input
+type="text"
+id="aiInput"
+placeholder="Ask EchoCall AI...">
+
+<button
+id="sendAiMessage"
+class="primary-btn">
+
+<span class="material-symbols-rounded">
+
+send
+
+</span>
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- =========================
+     SETTINGS MODAL
+========================= -->
+
+<div
+id="settingsModal"
+class="settings-modal hidden">
+
+<div class="settings-content">
+
+<div class="panel-header">
+
+<h3>
+
+Settings
+
+</h3>
+
+<button
+id="closeSettings"
+class="icon-button">
+
+<span class="material-symbols-rounded">
+
+close
+
+</span>
+
+</button>
+
+</div>
+
+<div class="settings-list">
+
+<button class="settings-item">
+
+<span class="material-symbols-rounded">
+
+person
+
+</span>
+
+Account
+
+</button>
+
+<button class="settings-item">
+
+<span class="material-symbols-rounded">
+
+palette
+
+</span>
+
+Appearance
+
+</button>
+
+<button class="settings-item">
+
+<span class="material-symbols-rounded">
+
+notifications
+
+</span>
+
+Notifications
+
+</button>
+
+<button class="settings-item">
+
+<span class="material-symbols-rounded">
+
+security
+
+</span>
+
+Privacy & Security
+
+</button>
+
+<button class="settings-item">
+
+<span class="material-symbols-rounded">
+
+logout
+
+</span>
+
+Log Out
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- =========================
+     OFFLINE BANNER
+========================= -->
+
+<div
+id="offlineBanner"
+class="offline-banner hidden">
+
+<span class="material-symbols-rounded">
+
+wifi_off
+
+</span>
+
+<span>
+
+You're offline. Some features may be unavailable.
+
+</span>
+
+</div>
+
+<!-- =========================
+     TOAST CONTAINER
+========================= -->
+
+<div
+id="toastContainer"
+class="toast-container">
+
+</div>
+
+<!-- =========================
+     JAVASCRIPT
+========================= -->
+
+<script type="module" src="js/router.js"></script>
+
+<script type="module" src="js/app.js"></script>
+
+</div>
+
+</body>
+
+</html>
