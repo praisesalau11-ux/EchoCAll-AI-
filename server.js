@@ -18,7 +18,7 @@ import profileRoutes from "./routes/profileRoutes.js";
 import uploadRoutes from "./routes/uploadRoutes.js";
 import callRoutes from "./routes/callRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js";
-import contactsRoutes from "./routes/contactRoutes.js";
+import contactsRoutes from "./routes/contactsRoutes.js";
 import elevenLabsRoutes from "./routes/elevenLabsRoutes.js";
 
 // ==========================================
