@@ -1,9 +1,16 @@
 // ==========================================
 // EchoCall AI Backend
 // File: server/routes/authRoutes.js
+// Part 1
+// ==========================================
+
+// ==========================================
+// Imports
 // ==========================================
 
 import express from "express";
+
+import axios from "axios";
 
 import {
 
@@ -13,25 +20,258 @@ import {
 
 import {
 
+    admin,
+
     db
 
 } from "../services/firebaseAdmin.js";
 
+// ==========================================
+// Router
+// ==========================================
+
 const router = express.Router();
 
 // ==========================================
-// GET /api/auth/me
+// Firebase
 // ==========================================
 
-router.get(
+const FIREBASE_API_KEY =
+    process.env.FIREBASE_API_KEY;
 
-    "/me",
+// ==========================================
+// End Part 1
+// ==========================================
 
-    authenticateUser,
+const FIREBASE_API_KEY =
+    process.env.FIREBASE_API_KEY;
+    
+    // ==========================================
+// POST /api/auth/signup
+// ==========================================
+
+router.post(
+
+    "/signup",
 
     async(req,res)=>{
 
         try{
+
+            const {
+
+                firstName,
+
+                lastName,
+
+                email,
+
+                password,
+
+                phone,
+
+                country,
+
+                gender,
+
+                dateOfBirth
+
+            } = req.body;
+
+            if(
+
+                !firstName ||
+
+                !lastName ||
+
+                !email ||
+
+                !password
+
+            ){
+
+                return res.status(400).json({
+
+                    success:false,
+
+                    message:
+
+                    "Missing required fields."
+
+                });
+
+            }
+
+            const response =
+
+                await axios.post(
+
+                    `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${FIREBASE_API_KEY}`,
+
+                    {
+
+                        email,
+
+                        password,
+
+                        returnSecureToken:true
+
+                    }
+
+                );
+
+            const uid =
+
+                response.data.localId;
+
+            await db
+
+                .collection("users")
+
+                .doc(uid)
+
+                .set({
+
+                    uid,
+
+                    firstName,
+
+                    lastName,
+
+                    email,
+
+                    phone:
+
+                    phone || "",
+
+                    country:
+
+                    country || "",
+
+                    gender:
+
+                    gender || "",
+
+                    dateOfBirth:
+
+                    dateOfBirth || "",
+
+                    createdAt:
+
+                    admin.firestore.FieldValue.serverTimestamp()
+
+                });
+
+            return res.status(201).json({
+
+                success:true,
+
+                message:
+
+                "Account created successfully.",
+
+                uid,
+
+                idToken:
+
+                response.data.idToken,
+
+                refreshToken:
+
+                response.data.refreshToken
+
+            });
+
+        }
+
+        catch(error){
+
+            console.error(
+
+                error.response?.data ||
+
+                error.message
+
+            );
+
+            return res.status(400).json({
+
+                success:false,
+
+                message:
+
+                error.response?.data?.error?.message ||
+
+                "Signup failed."
+
+            });
+
+        }
+
+    }
+
+);
+
+// ==========================================
+// End Part 2
+// ==========================================
+// ==========================================
+// POST /api/auth/login
+// ==========================================
+
+router.post(
+
+    "/login",
+
+    async(req,res)=>{
+
+        try{
+
+            const {
+
+                email,
+
+                password
+
+            } = req.body;
+
+            if(
+
+                !email ||
+
+                !password
+
+            ){
+
+                return res.status(400).json({
+
+                    success:false,
+
+                    message:
+
+                    "Email and password are required."
+
+                });
+
+            }
+
+            const response =
+
+                await axios.post(
+
+                    `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${FIREBASE_API_KEY}`,
+
+                    {
+
+                        email,
+
+                        password,
+
+                        returnSecureToken:true
+
+                    }
+
+                );
 
             const userDoc =
 
@@ -39,27 +279,41 @@ router.get(
 
                 .collection("users")
 
-                .doc(req.user.uid)
+                .doc(response.data.localId)
 
                 .get();
-
-            if(!userDoc.exists){
-
-                return res.status(404).json({
-
-                    success:false,
-
-                    message:"User not found."
-
-                });
-
-            }
 
             return res.json({
 
                 success:true,
 
-                user:userDoc.data()
+                message:
+
+                "Login successful.",
+
+                uid:
+
+                response.data.localId,
+
+                idToken:
+
+                response.data.idToken,
+
+                refreshToken:
+
+                response.data.refreshToken,
+
+                expiresIn:
+
+                response.data.expiresIn,
+
+                user:
+
+                userDoc.exists ?
+
+                userDoc.data() :
+
+                null
 
             });
 
@@ -67,13 +321,23 @@ router.get(
 
         catch(error){
 
-            console.error(error);
+            console.error(
 
-            return res.status(500).json({
+                error.response?.data ||
+
+                error.message
+
+            );
+
+            return res.status(401).json({
 
                 success:false,
 
-                message:"Failed to load profile."
+                message:
+
+                error.response?.data?.error?.message ||
+
+                "Invalid email or password."
 
             });
 
@@ -84,13 +348,189 @@ router.get(
 );
 
 // ==========================================
-// POST /api/auth/profile
-// Save Profile
+// End Part 3
+// ==========================================
+
+// ==========================================
+// POST /api/auth/forgot-password
 // ==========================================
 
 router.post(
 
-    "/profile",
+    "/forgot-password",
+
+    async(req,res)=>{
+
+        try{
+
+            const {
+
+                email
+
+            } = req.body;
+
+            if(!email){
+
+                return res.status(400).json({
+
+                    success:false,
+
+                    message:"Email is required."
+
+                });
+
+            }
+
+            await axios.post(
+
+                `https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${FIREBASE_API_KEY}`,
+
+                {
+
+                    requestType:"PASSWORD_RESET",
+
+                    email
+
+                }
+
+            );
+
+            return res.json({
+
+                success:true,
+
+                message:
+
+                "Password reset email sent."
+
+            });
+
+        }
+
+        catch(error){
+
+            console.error(
+
+                error.response?.data ||
+
+                error.message
+
+            );
+
+            return res.status(400).json({
+
+                success:false,
+
+                message:
+
+                error.response?.data?.error?.message ||
+
+                "Unable to send password reset email."
+
+            });
+
+        }
+
+    }
+
+);
+
+// ==========================================
+// POST /api/auth/verify-token
+// ==========================================
+
+router.post(
+
+    "/verify-token",
+
+    async(req,res)=>{
+
+        try{
+
+            const {
+
+                idToken
+
+            } = req.body;
+
+            if(!idToken){
+
+                return res.status(400).json({
+
+                    success:false,
+
+                    message:"ID Token is required."
+
+                });
+
+            }
+
+            const decodedToken =
+
+                await admin.auth()
+
+                .verifyIdToken(idToken);
+
+            const userDoc =
+
+                await db
+
+                .collection("users")
+
+                .doc(decodedToken.uid)
+
+                .get();
+
+            return res.json({
+
+                success:true,
+
+                authenticated:true,
+
+                user:
+
+                userDoc.exists ?
+
+                userDoc.data() :
+
+                null,
+
+                decodedToken
+
+            });
+
+        }
+
+        catch(error){
+
+            console.error(error);
+
+            return res.status(401).json({
+
+                success:false,
+
+                authenticated:false,
+
+                message:"Invalid or expired token."
+
+            });
+
+        }
+
+    }
+
+);
+
+// ==========================================
+// End Part 4
+// ==========================================
+// ==========================================
+// DELETE /api/auth/delete-account
+// ==========================================
+
+router.delete(
+
+    "/delete-account",
 
     authenticateUser,
 
@@ -98,35 +538,27 @@ router.post(
 
         try{
 
-            const data = req.body;
-
-            data.updatedAt =
-
-                new Date();
+            const uid = req.user.uid;
 
             await db
 
                 .collection("users")
 
-                .doc(req.user.uid)
+                .doc(uid)
 
-                .set(
+                .delete();
 
-                    data,
+            await admin.auth()
 
-                    {
-
-                        merge:true
-
-                    }
-
-                );
+                .deleteUser(uid);
 
             return res.json({
 
                 success:true,
 
-                message:"Profile updated."
+                message:
+
+                "Account deleted successfully."
 
             });
 
@@ -140,7 +572,9 @@ router.post(
 
                 success:false,
 
-                message:"Unable to save profile."
+                message:
+
+                "Failed to delete account."
 
             });
 
@@ -151,80 +585,115 @@ router.post(
 );
 
 // ==========================================
-// GET /api/auth/session
+// GET /api/auth/refresh-profile
 // ==========================================
 
 router.get(
 
-    "/session",
+    "/refresh-profile",
 
     authenticateUser,
 
     async(req,res)=>{
 
-        return res.json({
+        try{
 
-            success:true,
+            const uid = req.user.uid;
 
-            authenticated:true,
+            const userRecord =
 
-            uid:req.user.uid,
+                await admin.auth()
 
-            email:req.user.email
+                .getUser(uid);
 
-        });
+            const userDoc =
+
+                await db
+
+                .collection("users")
+
+                .doc(uid)
+
+                .get();
+
+            return res.json({
+
+                success:true,
+
+                auth:{
+
+                    uid:userRecord.uid,
+
+                    email:userRecord.email,
+
+                    displayName:userRecord.displayName,
+
+                    phoneNumber:userRecord.phoneNumber,
+
+                    photoURL:userRecord.photoURL,
+
+                    emailVerified:userRecord.emailVerified,
+
+                    disabled:userRecord.disabled
+
+                },
+
+                profile:
+
+                    userDoc.exists ?
+
+                    userDoc.data() :
+
+                    null
+
+            });
+
+        }
+
+        catch(error){
+
+            console.error(error);
+
+            return res.status(500).json({
+
+                success:false,
+
+                message:
+
+                "Unable to refresh profile."
+
+            });
+
+        }
 
     }
 
 );
 
 // ==========================================
-// POST /api/auth/logout
+// End Part 5
 // ==========================================
-
-router.post(
-
-    "/logout",
-
-    authenticateUser,
-
-    async(req,res)=>{
-
-        return res.json({
-
-            success:true,
-
-            message:
-
-            "Logged out successfully."
-
-        });
-
-    }
-
-);
-
 // ==========================================
-// GET /api/auth/ping
+// GET /api/auth/status
 // ==========================================
 
 router.get(
 
-    "/ping",
+    "/status",
 
     (req,res)=>{
 
-        res.json({
+        return res.json({
 
             success:true,
 
-            server:"EchoCall AI",
+            service:"EchoCall AI Authentication",
 
-            status:"Running",
+            version:"1.0.0",
 
-            timestamp:
+            status:"Online",
 
-            Date.now()
+            timestamp:new Date().toISOString()
 
         });
 
@@ -233,7 +702,59 @@ router.get(
 );
 
 // ==========================================
-// Export
+// GET /api/auth/routes
+// ==========================================
+
+router.get(
+
+    "/routes",
+
+    (req,res)=>{
+
+        return res.json({
+
+            success:true,
+
+            routes:[
+
+                "POST /signup",
+
+                "POST /login",
+
+                "POST /forgot-password",
+
+                "POST /verify-token",
+
+                "GET /me",
+
+                "POST /profile",
+
+                "GET /session",
+
+                "POST /logout",
+
+                "DELETE /delete-account",
+
+                "GET /refresh-profile",
+
+                "GET /ping",
+
+                "GET /status"
+
+            ]
+
+        });
+
+    }
+
+);
+
+// ==========================================
+// Export Router
 // ==========================================
 
 export default router;
+
+// ==========================================
+// End of File
+// ==========================================
