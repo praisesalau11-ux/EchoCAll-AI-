@@ -176,9 +176,13 @@ async function loadUserProfile() {
         if (userSnap.exists()) {
 
             const data = userSnap.data();
-
+           
+            currentUserData = data;
+          
             welcomeText.textContent =
             "Welcome, " + data.firstName;
+            
+            await loadProfileImage();
 
         } else {
 
@@ -711,7 +715,9 @@ export {
 
     currentUser,
 
-    currentUserData
+    currentUserData,
+
+    loadUserProfile
 
 };
 

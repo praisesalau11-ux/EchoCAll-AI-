@@ -530,21 +530,6 @@ preloadPages();
 
 }
 
-// ==========================================
-// Auto Start Router
-// ==========================================
-
-document.addEventListener(
-
-"DOMContentLoaded",  
-
-() => {  
-
-    initializeRouter();  
-
-}
-
-);
 
 // ==========================================
 // Exports

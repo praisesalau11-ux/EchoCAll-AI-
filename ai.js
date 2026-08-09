@@ -14,7 +14,8 @@ import { showToast } from "./toast.js";
 // Configuration
 // ==========================================
 
-const API_URL = "/api/chat";
+const API_URL =
+"https://echocall-ai-backend.onrender.com/api/chat";
 
 // ==========================================
 // DOM Elements
