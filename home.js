@@ -149,10 +149,12 @@ voiceButton?.addEventListener(
                 "floatingAiButton"
             );
 
-        // Open the AI assistant first
-        floatingAiButton?.click();
+        if (floatingAiButton) {
 
-        // Then start microphone input
+            floatingAiButton.click();
+
+        }
+
         setTimeout(() => {
 
             startVoiceInput();

@@ -437,63 +437,164 @@ async function getAIResponse(
 
 ){
 
-    const response = await fetch(
+    try {
 
-        API_URL,
+        console.log("EchoCall AI → Sending request");
 
-        {
+        console.log("API:", API_URL);
 
-            method:"POST",
+        console.log("Message:", message);
 
-            headers:{
+        console.log(
+            "Conversation:",
+            conversation
+        );
 
-                "Content-Type":"application/json"
+        const response = await fetch(
 
-            },
+            API_URL,
 
-            body:JSON.stringify({
+            {
 
-                message,
+                method: "POST",
 
-                conversation
+                headers: {
 
-            })
+                    "Content-Type":
+                        "application/json",
 
-        }
+                    "Accept":
+                        "application/json"
 
-    );
+                },
 
-    if(!response.ok){
+                body: JSON.stringify({
 
-        throw new Error(
+                    message: message,
 
-            "Unable to contact AI server."
+                    conversation: conversation
+
+                })
+
+            }
 
         );
 
+        console.log(
+            "AI server status:",
+            response.status
+        );
+
+        // Get the response as text first.
+        // This lets us see errors even when
+        // the backend doesn't return JSON.
+
+        const rawResponse =
+            await response.text();
+
+        console.log(
+            "AI server response:",
+            rawResponse
+        );
+
+        if (!response.ok) {
+
+            throw new Error(
+
+                `AI server error ${response.status}: ${rawResponse}`
+
+            );
+
+        }
+
+        let data;
+
+        try {
+
+            data =
+                JSON.parse(rawResponse);
+
+        }
+
+        catch (jsonError) {
+
+            throw new Error(
+
+                "Backend did not return valid JSON: " +
+                rawResponse
+
+            );
+
+        }
+
+        console.log(
+            "AI data:",
+            data
+        );
+
+        typingBubble?.remove();
+
+        const reply =
+
+            data.reply ||
+
+            data.message ||
+
+            data.response;
+
+        if (!reply) {
+
+            throw new Error(
+
+                "Backend responded successfully, but no AI reply was found."
+
+            );
+
+        }
+
+        addAIMessage(reply);
+
+        conversation.push({
+
+            role: "assistant",
+
+            content: reply
+
+        });
+
+        // Automatically make EchoCall AI speak
+
+        speak(reply);
+
     }
 
-    const data =
+    catch(error) {
 
-    await response.json();
+        console.error(
+            "EchoCall AI ERROR:",
+            error
+        );
 
-    typingBubble.remove();
+        typingBubble?.remove();
 
-    const reply =
+        addAIMessage(
 
-        data.reply ||
+            "AI connection error: " +
+            error.message
 
-        "I couldn't generate a response.";
+        );
 
-    addAIMessage(reply);
+        showToast(
 
-    conversation.push({
+            "AI request failed. Check the console.",
 
-        role:"assistant",
+            "error"
 
-        content:reply
+        );
 
-    });
+        throw error;
+
+    }
 
 }
 
