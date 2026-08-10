@@ -35,25 +35,10 @@ import {
 // ==========================================
 
 import {
+    initializeAI,
     clearConversation,
     startVoiceInput
 } from "./ai.js";
-
-// ==========================================
-// App
-// ==========================================
-
-import {
-
-    currentUser,
-
-    currentUserData,
-
-    loadUserProfile,
-
-    logout
-
-} from "./app.js";
 
 // ==========================================
 // Firebase SDK
@@ -74,149 +59,757 @@ import {
 // ==========================================
 
 const API_URL =
-"https://echocall-ai-backend.onrender.com";
+    "https://echocall-ai-backend.onrender.com";
 
 // ==========================================
-// Current User
+// State
 // ==========================================
 
-let currentUser = null;
+let homeInitialized = false;
 
-let currentUserData = null;
+let homeUser = null;
+
+let homeUserData = null;
 
 // ==========================================
-// Page Elements
+// DOM Elements
 // ==========================================
 
-// Greeting
+let homeGreeting = null;
 
-const homeGreeting =
-document.getElementById(
-    "homeGreeting"
-);
+let homeSubtitle = null;
 
-const homeSubtitle =
-document.getElementById(
-    "homeSubtitle"
-);
+let homeProfileImage = null;
 
-const homeProfileImage =
-document.getElementById(
-    "homeProfileImage"
-);
+let startAiChatButton = null;
 
-// Hero Buttons
+let newCallButton = null;
 
-const startAiChatButton =
-document.getElementById(
-    "startAiChatButton"
-);
+let startVoiceInputButton = null;
 
-const newCallButton =
-document.getElementById(
-    "newCallButton"
-);
-
+// ==========================================
 // Quick Actions
-
-const quickAi =
-document.getElementById(
-    "quickAi"
-);
-
-const quickTranslate =
-document.getElementById(
-    "quickTranslate"
-);
-
-const quickVoiceClone =
-document.getElementById(
-    "quickVoiceClone"
-);
-
-const quickContacts =
-document.getElementById(
-    "quickContacts"
-);
-
-const quickCalls =
-document.getElementById(
-    "quickCalls"
-);
-
-const quickHistory =
-document.getElementById(
-    "quickHistory"
-);
-
-// Status
-
-const backendStatus =
-document.getElementById(
-    "backendStatus"
-);
-
-const networkStatus =
-document.getElementById(
-    "networkStatus"
-);
-
-const syncStatus =
-document.getElementById(
-    "syncStatus"
-);
-
-const securityStatus =
-document.getElementById(
-    "securityStatus"
-);
-
-// Dashboard Containers
-
-const recentAiChats =
-document.getElementById(
-    "recentAiChats"
-);
-
-const recentCalls =
-document.getElementById(
-    "recentCalls"
-);
-
-const favoriteContacts =
-document.getElementById(
-    "favoriteContacts"
-);
-
-const translationHistory =
-document.getElementById(
-    "translationHistory"
-);
-
-// ==========================================
-// Initialize Home Page
 // ==========================================
 
-export async function initializeHome(){
+let quickAi = null;
 
-    currentUser = auth.currentUser;
+let quickTranslate = null;
 
-    if(!currentUser){
+let quickVoiceClone = null;
 
-        window.location.href =
-        "login.html";
+let quickContacts = null;
+
+let quickCalls = null;
+
+let quickHistory = null;
+
+// ==========================================
+// Initialize Home
+// ==========================================
+
+export async function initializeHome() {
+
+    console.log(
+        "EchoCall AI: Initializing Home..."
+    );
+
+    if (homeInitialized) {
+
+        console.log(
+            "Home already initialized."
+        );
 
         return;
 
     }
 
-    await loadUserProfile();
+    homeInitialized = true;
 
-    initializeButtons();
+    // ======================================
+    // Get Home Elements
+    // ======================================
 
-    updateNetworkStatus();
+    cacheHomeElements();
 
-    checkBackendHealth();
+    // ======================================
+    // Initialize AI AFTER home.html loads
+    // ======================================
+
+    initializeAI();
+
+    // ======================================
+    // Authentication Check
+    // ======================================
+
+    if (!auth.currentUser) {
+
+        console.warn(
+            "No authenticated user."
+        );
+
+        return;
+
+    }
+
+    homeUser = auth.currentUser;
+
+    // ======================================
+    // Load User
+    // ======================================
+
+    await loadHomeUser();
+
+    // ======================================
+    // Initialize Buttons
+    // ======================================
+
+    initializeHomeButtons();
+
+    // ======================================
+    // Initialize Status
+    // ======================================
+
+    initializeNetworkStatus();
+
+    console.log(
+        "EchoCall AI: Home initialized."
+    );
+
+}
+
+// ==========================================
+// Cache Home Elements
+// ==========================================
+
+function cacheHomeElements() {
+
+    homeGreeting =
+        document.getElementById(
+            "homeGreeting"
+        );
+
+    homeSubtitle =
+        document.getElementById(
+            "homeSubtitle"
+        );
+
+    homeProfileImage =
+        document.getElementById(
+            "homeProfileImage"
+        );
+
+    startAiChatButton =
+        document.getElementById(
+            "startAiChatButton"
+        );
+
+    newCallButton =
+        document.getElementById(
+            "newCallButton"
+        );
+
+    startVoiceInputButton =
+        document.getElementById(
+            "startVoiceInput"
+        );
+
+    // ======================================
+    // Quick Actions
+    // ======================================
+
+    quickAi =
+        document.getElementById(
+            "quickAi"
+        );
+
+    quickTranslate =
+        document.getElementById(
+            "quickTranslate"
+        );
+
+    quickVoiceClone =
+        document.getElementById(
+            "quickVoiceClone"
+        );
+
+    quickContacts =
+        document.getElementById(
+            "quickContacts"
+        );
+
+    quickCalls =
+        document.getElementById(
+            "quickCalls"
+        );
+
+    quickHistory =
+        document.getElementById(
+            "quickHistory"
+        );
+
+}
+
+// ==========================================
+// Load Home User
+// ==========================================
+
+async function loadHomeUser() {
+
+    try {
+
+        const user = homeUser;
+
+        if (!user) {
+
+            return;
+
+        }
+
+        // ==================================
+        // Basic Firebase Auth Information
+        // ==================================
+
+        if (homeGreeting) {
+
+            homeGreeting.textContent =
+                "Welcome 👋";
+
+        }
+
+        if (homeSubtitle) {
+
+            homeSubtitle.textContent =
+                "Your intelligent communication assistant.";
+
+        }
+
+        // ==================================
+        // Firestore User Document
+        // ==================================
+
+        const userRef = doc(
+            db,
+            "users",
+            user.uid
+        );
+
+        const userSnap =
+            await getDoc(userRef);
+
+        if (userSnap.exists()) {
+
+            homeUserData =
+                userSnap.data();
+
+            const firstName =
+                homeUserData.firstName ||
+                homeUserData.name ||
+                "there";
+
+            if (homeGreeting) {
+
+                homeGreeting.textContent =
+                    `Welcome, ${firstName} 👋`;
+
+            }
+
+        }
+
+        // ==================================
+        // Load Profile Picture
+        // ==================================
+
+        await loadHomeProfileImage();
+
+        // ==================================
+        // Account Email
+        // ==================================
+
+        const accountEmail =
+            document.getElementById(
+                "accountEmail"
+            );
+
+        if (accountEmail) {
+
+            accountEmail.textContent =
+                user.email || "Not available";
+
+        }
+
+        // ==================================
+        // Joined Date
+        // ==================================
+
+        const joinedDate =
+            document.getElementById(
+                "joinedDate"
+            );
+
+        if (
+            joinedDate &&
+            user.metadata &&
+            user.metadata.creationTime
+        ) {
+
+            joinedDate.textContent =
+                formatDate(
+                    user.metadata.creationTime
+                );
+
+        }
+
+        // ==================================
+        // Last Login
+        // ==================================
+
+        const lastLogin =
+            document.getElementById(
+                "lastLogin"
+            );
+
+        if (
+            lastLogin &&
+            user.metadata &&
+            user.metadata.lastSignInTime
+        ) {
+
+            lastLogin.textContent =
+                formatDate(
+                    user.metadata.lastSignInTime
+                );
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Home user loading failed:",
+            error
+        );
+
+        showToast(
+            "Unable to load your profile.",
+            "error"
+        );
+
+    }
+
+}
+
+// ==========================================
+// Load Profile Picture
+// ==========================================
+
+async function loadHomeProfileImage() {
+
+    if (!homeProfileImage) {
+
+        return;
+
+    }
+
+    if (!homeUser) {
+
+        return;
+
+    }
+
+    // ======================================
+    // First: Firestore profile photo URL
+    // ======================================
+
+    if (
+        homeUserData &&
+        homeUserData.profilePhoto
+    ) {
+
+        homeProfileImage.src =
+            homeUserData.profilePhoto;
+
+        return;
+
+    }
+
+    if (
+        homeUserData &&
+        homeUserData.photoURL
+    ) {
+
+        homeProfileImage.src =
+            homeUserData.photoURL;
+
+        return;
+
+    }
+
+    // ======================================
+    // Second: Firebase Auth photoURL
+    // ======================================
+
+    if (homeUser.photoURL) {
+
+        homeProfileImage.src =
+            homeUser.photoURL;
+
+        return;
+
+    }
+
+    // ======================================
+    // Third: Firebase Storage
+    // ======================================
+
+    try {
+
+        const imageRef = ref(
+            storage,
+            `profilePictures/${homeUser.uid}`
+        );
+
+        const imageURL =
+            await getDownloadURL(
+                imageRef
+            );
+
+        homeProfileImage.src =
+            imageURL;
+
+        return;
+
+    }
+
+    catch (error) {
+
+        console.log(
+            "No custom profile image found."
+        );
+
+    }
+
+    // ======================================
+    // Final Fallback
+    // ======================================
+
+    homeProfileImage.src =
+        "assets/default-avatar.png";
+
+}
+
+// ==========================================
+// Initialize Home Buttons
+// ==========================================
+
+function initializeHomeButtons() {
+
+    // ======================================
+    // AI CHAT
+    // ======================================
+
+    startAiChatButton?.addEventListener(
+
+        "click",
+
+        () => {
+
+            openAIChat();
+
+        }
+
+    );
+
+    // ======================================
+    // VOICE CHAT
+    // ======================================
+
+    startVoiceInputButton?.addEventListener(
+
+        "click",
+
+        () => {
+
+            startVoiceChat();
+
+        }
+
+    );
+
+    // ======================================
+    // NEW CALL
+    // ======================================
+
+    newCallButton?.addEventListener(
+
+        "click",
+
+        () => {
+
+            navigate("calls");
+
+        }
+
+    );
+
+    // ======================================
+    // PROFILE
+    // ======================================
+
+    homeProfileImage?.addEventListener(
+
+        "click",
+
+        () => {
+
+            navigate("profile");
+
+        }
+
+    );
+
+    // ======================================
+    // QUICK AI
+    // ======================================
+
+    quickAi?.addEventListener(
+
+        "click",
+
+        () => {
+
+            openAIChat();
+
+        }
+
+    );
+
+    // ======================================
+    // QUICK CALLS
+    // ======================================
+
+    quickCalls?.addEventListener(
+
+        "click",
+
+        () => {
+
+            navigate("calls");
+
+        }
+
+    );
+
+    // ======================================
+    // QUICK CONTACTS
+    // ======================================
+
+    quickContacts?.addEventListener(
+
+        "click",
+
+        () => {
+
+            navigate("contacts");
+
+        }
+
+    );
+
+    // ======================================
+    // QUICK HISTORY
+    // ======================================
+
+    quickHistory?.addEventListener(
+
+        "click",
+
+        () => {
+
+            navigate("history");
+
+        }
+
+    );
+
+    // ======================================
+    // QUICK VOICE CLONE
+    // ======================================
+
+    quickVoiceClone?.addEventListener(
+
+        "click",
+
+        () => {
+
+            navigate("voiceClone");
+
+        }
+
+    );
+
+    // ======================================
+    // QUICK TRANSLATE
+    // ======================================
+
+    quickTranslate?.addEventListener(
+
+        "click",
+
+        () => {
+
+            showToast(
+                "Translation is coming soon.",
+                "warning"
+            );
+
+        }
+
+    );
+
+}
+
+// ==========================================
+// Open AI Chat
+// ==========================================
+
+function openAIChat() {
+
+    const aiModal =
+        document.getElementById(
+            "aiModal"
+        );
+
+    if (!aiModal) {
+
+        showToast(
+            "AI Assistant is not available.",
+            "error"
+        );
+
+        return;
+
+    }
+
+    aiModal.classList.remove(
+        "hidden"
+    );
+
+    const aiInput =
+        document.getElementById(
+            "aiInput"
+        );
+
+    aiInput?.focus();
+
+}
+
+// ==========================================
+// Start Voice Chat
+// ==========================================
+
+function startVoiceChat() {
+
+    openAIChat();
+
+    setTimeout(
+
+        () => {
+
+            startVoiceInput();
+
+        },
+
+        300
+
+    );
+
+}
+
+// ==========================================
+// Network Status
+// ==========================================
+
+function initializeNetworkStatus() {
+
+    const networkStatus =
+        document.getElementById(
+            "networkStatus"
+        );
+
+    if (!networkStatus) {
+
+        return;
+
+    }
+
+    function update() {
+
+        if (navigator.onLine) {
+
+            networkStatus.textContent =
+                "Online";
+
+        }
+
+        else {
+
+            networkStatus.textContent =
+                "Offline";
+
+        }
+
+    }
+
+    update();
+
+    window.addEventListener(
+        "online",
+        update
+    );
+
+    window.addEventListener(
+        "offline",
+        update
+    );
+
+}
+
+// ==========================================
+// Format Date
+// ==========================================
+
+function formatDate(date) {
+
+    try {
+
+        return new Date(date)
+            .toLocaleDateString(
+                undefined,
+                {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric"
+                }
+            );
+
+    }
+
+    catch {
+
+        return "Unknown";
+
+    }
+
+}
+
+// ==========================================
+// Backend URL Getter
+// ==========================================
+
+export function getBackendURL() {
+
+    return API_URL;
 
 }
 
@@ -231,1533 +824,546 @@ export async function initializeHome(){
 // ==========================================
 
 // ==========================================
-// Load User Profile
+// Dashboard Navigation Buttons
 // ==========================================
 
-async function loadUserProfile(){
+const viewAllAiChats =
+    document.getElementById("viewAllAiChats");
 
-    try{
+const viewAllCalls =
+    document.getElementById("viewAllCalls");
 
-        const userRef = doc(
+const viewContacts =
+    document.getElementById("viewContacts");
 
-            db,
+const viewTranslations =
+    document.getElementById("viewTranslations");
 
-            "users",
+const openVoiceClone =
+    document.getElementById("openVoiceClone");
 
-            currentUser.uid
+const createVoiceClone =
+    document.getElementById("createVoiceClone");
 
-        );
+const openImageStudio =
+    document.getElementById("openImageStudio");
 
-        const userSnap = await getDoc(userRef);
+const generateImageButton =
+    document.getElementById("generateImageButton");
 
-        if(userSnap.exists()){
+const viewFiles =
+    document.getElementById("viewFiles");
 
-            currentUserData = userSnap.data();
+const viewActivity =
+    document.getElementById("viewActivity");
 
-            homeGreeting.textContent =
-            `Welcome, ${currentUserData.firstName}`;
+const openProfile =
+    document.getElementById("openProfile");
 
-            homeSubtitle.textContent =
-            "Your intelligent communication assistant.";
+const openSettings =
+    document.getElementById("openSettings");
 
-        }
+const openSecurity =
+    document.getElementById("openSecurity");
 
-        else{
+const openPremium =
+    document.getElementById("openPremium");
 
-            currentUserData = {
+const openSecurityCenter =
+    document.getElementById("openSecurityCenter");
 
-                firstName:"User"
+const manageStorage =
+    document.getElementById("manageStorage");
 
-            };
+const viewAllNotifications =
+    document.getElementById("viewAllNotifications");
 
-            homeGreeting.textContent =
-            "Welcome";
-
-            homeSubtitle.textContent =
-            currentUser.email;
-
-        }
-
-        await loadProfilePhoto();
-
-    }
-
-    catch(error){
-
-        console.error(error);
-
-        showToast(
-
-            "Unable to load your profile.",
-
-            "error"
-
-        );
-
-    }
-
-}
 
 // ==========================================
-// Load Profile Photo
+// AI Chats
 // ==========================================
 
-async function loadProfilePhoto(){
-
-    if(!homeProfileImage){
-
-        return;
-
-    }
-
-    try{
-
-        const imageRef = ref(
-
-            storage,
-
-            `profilePictures/${currentUser.uid}`
-
-        );
-
-        const url =
-
-        await getDownloadURL(imageRef);
-
-        homeProfileImage.src = url;
-
-    }
-
-    catch{
-
-        if(
-
-            currentUserData &&
-
-            currentUserData.profilePhoto
-
-        ){
-
-            homeProfileImage.src =
-
-            currentUserData.profilePhoto;
-
-        }
-
-        else if(currentUser.photoURL){
-
-            homeProfileImage.src =
-
-            currentUser.photoURL;
-
-        }
-
-        else{
-
-            homeProfileImage.src =
-
-            "assets/default-avatar.png";
-
-        }
-
-    }
-
-}
-
-// ==========================================
-// Open Profile
-// ==========================================
-
-homeProfileImage?.addEventListener(
-
+viewAllAiChats?.addEventListener(
     "click",
+    () => {
 
-    ()=>{
-
-        navigate("profile");
+        openAIChat();
 
     }
-
 );
 
-// ==========================================
-// Update Greeting
-// ==========================================
-
-function updateGreeting(){
-
-    const hour =
-
-    new Date().getHours();
-
-    let greeting = "Welcome";
-
-    if(hour < 12){
-
-        greeting =
-
-        "Good Morning";
-
-    }
-
-    else if(hour < 18){
-
-        greeting =
-
-        "Good Afternoon";
-
-    }
-
-    else{
-
-        greeting =
-
-        "Good Evening";
-
-    }
-
-    if(currentUserData){
-
-        homeGreeting.textContent =
-
-        `${greeting}, ${currentUserData.firstName}`;
-
-    }
-
-}
 
 // ==========================================
-// End Part 2
-// ==========================================
-// ==========================================
-// EchoCall AI
-// File: js/home.js
-// Part 3
-// Append below Part 2
+// Calls
 // ==========================================
 
-// ==========================================
-// Initialize Buttons
-// ==========================================
-
-function initializeButtons(){
-
-    // AI Assistant
-
-    startAiChatButton?.addEventListener(
-
-        "click",
-
-        ()=>{
-
-            document
-
-                .getElementById("floatingAiButton")
-
-                ?.click();
-
-        }
-
-    );
-
-    quickAi?.addEventListener(
-
-        "click",
-
-        ()=>{
-
-            document
-
-                .getElementById("floatingAiButton")
-
-                ?.click();
-
-        }
-
-    );
-
-    // Calls
-
-    newCallButton?.addEventListener(
-
-        "click",
-
-        ()=>{
-
-            navigate("calls");
-
-        }
-
-    );
-
-    quickCalls?.addEventListener(
-
-        "click",
-
-        ()=>{
-
-            navigate("calls");
-
-        }
-
-    );
-
-    // Contacts
-
-    quickContacts?.addEventListener(
-
-        "click",
-
-        ()=>{
-
-            navigate("contacts");
-
-        }
-
-    );
-
-    // History
-
-    quickHistory?.addEventListener(
-
-        "click",
-
-        ()=>{
-
-            navigate("history");
-
-        }
-
-    );
-
-    // Voice Clone
-
-    quickVoiceClone?.addEventListener(
-
-        "click",
-
-        ()=>{
-
-            navigate("voiceClone");
-
-        }
-
-    );
-
-    // Translate
-
-    quickTranslate?.addEventListener(
-
-        "click",
-
-        ()=>{
-
-            showToast(
-
-                "Translator page coming soon.",
-
-                "success"
-
-            );
-
-        }
-
-    );
-
-}
-
-// ==========================================
-// Network Status
-// ==========================================
-
-function updateNetworkStatus(){
-
-    if(!networkStatus){
-
-        return;
-
-    }
-
-    if(navigator.onLine){
-
-        networkStatus.textContent =
-
-        "Online";
-
-        networkStatus.style.color =
-
-        "#4CAF50";
-
-    }
-
-    else{
-
-        networkStatus.textContent =
-
-        "Offline";
-
-        networkStatus.style.color =
-
-        "#F44336";
-
-    }
-
-}
-
-window.addEventListener(
-
-    "online",
-
-    ()=>{
-
-        updateNetworkStatus();
-
-        showToast(
-
-            "Internet connected."
-
-        );
-
-    }
-
-);
-
-window.addEventListener(
-
-    "offline",
-
-    ()=>{
-
-        updateNetworkStatus();
-
-        showToast(
-
-            "You're offline.",
-
-            "warning"
-
-        );
-
-    }
-
-);
-
-// ==========================================
-// Backend Health
-// ==========================================
-
-async function checkBackendHealth(){
-
-    if(!backendStatus){
-
-        return;
-
-    }
-
-    try{
-
-        backendStatus.textContent =
-
-        "Checking...";
-
-        const response =
-
-        await fetch(
-
-            `${API_URL}/health`
-
-        );
-
-        if(response.ok){
-
-            backendStatus.textContent =
-
-            "Online";
-
-            backendStatus.style.color =
-
-            "#4CAF50";
-
-            syncStatus.textContent =
-
-            "Connected";
-
-            securityStatus.textContent =
-
-            "Protected";
-
-        }
-
-        else{
-
-            throw new Error();
-
-        }
-
-    }
-
-    catch{
-
-        backendStatus.textContent =
-
-        "Offline";
-
-        backendStatus.style.color =
-
-        "#F44336";
-
-        syncStatus.textContent =
-
-        "Unavailable";
-
-    }
-
-}
-
-// ==========================================
-// End Part 3
-// ==========================================
-// ==========================================
-// EchoCall AI
-// File: js/home.js
-// Part 4
-// Append below Part 3
-// ==========================================
-
-// ==========================================
-// Load Dashboard
-// ==========================================
-
-async function loadDashboard(){
-
-    updateGreeting();
-
-    await Promise.all([
-
-        loadRecentAIChats(),
-
-        loadRecentCalls(),
-
-        loadFavoriteContacts(),
-
-        loadTranslationHistory(),
-
-        loadStatistics()
-
-    ]);
-
-}
-
-// ==========================================
-// Recent AI Chats
-// ==========================================
-
-async function loadRecentAIChats(){
-
-    if(!recentAiChats){
-
-        return;
-
-    }
-
-    recentAiChats.innerHTML = "";
-
-    const chats = [
-
-        {
-
-            title:"EchoCall AI",
-
-            message:"How can I help you today?",
-
-            time:"Now"
-
-        }
-
-    ];
-
-    chats.forEach(chat=>{
-
-        const item =
-
-        document.createElement("div");
-
-        item.className =
-
-        "chat-item";
-
-        item.innerHTML = `
-
-            <div class="chat-avatar">
-
-                🤖
-
-            </div>
-
-            <div class="chat-info">
-
-                <h3>${chat.title}</h3>
-
-                <p>${chat.message}</p>
-
-            </div>
-
-            <span class="chat-time">
-
-                ${chat.time}
-
-            </span>
-
-        `;
-
-        item.addEventListener(
-
-            "click",
-
-            ()=>{
-
-                document
-
-                .getElementById(
-
-                    "floatingAiButton"
-
-                )
-
-                ?.click();
-
-            }
-
-        );
-
-        recentAiChats.appendChild(item);
-
-    });
-
-}
-
-// ==========================================
-// Recent Calls
-// ==========================================
-
-async function loadRecentCalls(){
-
-    if(!recentCalls){
-
-        return;
-
-    }
-
-    recentCalls.innerHTML = "";
-
-    const empty =
-
-    document.createElement("div");
-
-    empty.className =
-
-    "empty-card glass";
-
-    empty.innerHTML = `
-
-        <span class="material-symbols-rounded">
-
-            call
-
-        </span>
-
-        <h3>
-
-            No recent calls
-
-        </h3>
-
-        <p>
-
-            Your calls will appear here.
-
-        </p>
-
-    `;
-
-    recentCalls.appendChild(
-
-        empty
-
-    );
-
-}
-
-// ==========================================
-// Favorite Contacts
-// ==========================================
-
-async function loadFavoriteContacts(){
-
-    if(!favoriteContacts){
-
-        return;
-
-    }
-
-    favoriteContacts.innerHTML = "";
-
-    const empty =
-
-    document.createElement("div");
-
-    empty.className =
-
-    "empty-card glass";
-
-    empty.innerHTML = `
-
-        <span class="material-symbols-rounded">
-
-            contacts
-
-        </span>
-
-        <h3>
-
-            No contacts yet
-
-        </h3>
-
-        <p>
-
-            Contacts created from calls will appear here.
-
-        </p>
-
-    `;
-
-    favoriteContacts.appendChild(
-
-        empty
-
-    );
-
-}
-
-// ==========================================
-// End Part 4
-// ==========================================
-// ==========================================
-// EchoCall AI
-// File: js/home.js
-// Part 5
-// Append below Part 4
-// ==========================================
-
-// ==========================================
-// Translation History
-// ==========================================
-
-async function loadTranslationHistory(){
-
-    if(!translationHistory){
-
-        return;
-
-    }
-
-    translationHistory.innerHTML = "";
-
-    const empty =
-
-    document.createElement("div");
-
-    empty.className =
-
-    "empty-card glass";
-
-    empty.innerHTML = `
-
-        <span class="material-symbols-rounded">
-
-            translate
-
-        </span>
-
-        <h3>
-
-            No translations
-
-        </h3>
-
-        <p>
-
-            Your translated conversations will appear here.
-
-        </p>
-
-    `;
-
-    translationHistory.appendChild(
-
-        empty
-
-    );
-
-}
-
-// ==========================================
-// Dashboard Statistics
-// ==========================================
-
-async function loadStatistics(){
-
-    setStatistic(
-
-        "totalContacts",
-
-        "0"
-
-    );
-
-    setStatistic(
-
-        "totalCalls",
-
-        "0"
-
-    );
-
-    setStatistic(
-
-        "totalChats",
-
-        "1"
-
-    );
-
-    setStatistic(
-
-        "totalTranslations",
-
-        "0"
-
-    );
-
-    setStatistic(
-
-        "todayChats",
-
-        "1"
-
-    );
-
-    setStatistic(
-
-        "todayCalls",
-
-        "0"
-
-    );
-
-    setStatistic(
-
-        "todayImages",
-
-        "0"
-
-    );
-
-    setStatistic(
-
-        "todayTranslations",
-
-        "0"
-
-    );
-
-}
-
-// ==========================================
-// Statistic Helper
-// ==========================================
-
-function setStatistic(
-
-    id,
-
-    value
-
-){
-
-    const element =
-
-    document.getElementById(id);
-
-    if(element){
-
-        element.textContent = value;
-
-    }
-
-}
-
-// ==========================================
-// Daily Insight
-// ==========================================
-
-function loadDailyInsight(){
-
-    const insight =
-
-    document.getElementById(
-
-        "dailyInsight"
-
-    );
-
-    if(!insight){
-
-        return;
-
-    }
-
-    insight.textContent =
-
-    "Complete your profile, add contacts and start using AI voice calls to unlock more EchoCall AI features.";
-
-}
-
-// ==========================================
-// Account Information
-// ==========================================
-
-function loadAccountInformation(){
-
-    document.getElementById(
-
-        "accountEmail"
-
-    ).textContent =
-
-    currentUser.email;
-
-    document.getElementById(
-
-        "membershipType"
-
-    ).textContent =
-
-    currentUserData?.premium ?
-
-    "Premium" :
-
-    "Free";
-
-    document.getElementById(
-
-        "joinedDate"
-
-    ).textContent =
-
-    currentUser.metadata
-
-    ?.creationTime ||
-
-    "Unknown";
-
-    document.getElementById(
-
-        "lastLogin"
-
-    ).textContent =
-
-    currentUser.metadata
-
-    ?.lastSignInTime ||
-
-    "Unknown";
-
-}
-
-// ==========================================
-// End Part 5
-// ==========================================
-// ==========================================
-// EchoCall AI
-// File: js/home.js
-// Part 6
-// Append below Part 5
-// ==========================================
-
-// ==========================================
-// Device Information
-// ==========================================
-
-function loadDeviceInformation(){
-
-    const deviceName =
-    document.getElementById("deviceName");
-
-    const browserName =
-    document.getElementById("browserName");
-
-    const osName =
-    document.getElementById("osName");
-
-    const deviceNetwork =
-    document.getElementById("deviceNetwork");
-
-    if(deviceName){
-
-        deviceName.textContent =
-        navigator.platform || "Unknown";
-
-    }
-
-    if(browserName){
-
-        browserName.textContent =
-        navigator.userAgent;
-
-    }
-
-    if(osName){
-
-        osName.textContent =
-        navigator.platform;
-
-    }
-
-    if(deviceNetwork){
-
-        deviceNetwork.textContent =
-
-        navigator.onLine ?
-
-        "Online" :
-
-        "Offline";
-
-    }
-
-}
-
-// ==========================================
-// Cloud Storage
-// ==========================================
-
-function loadStorageInformation(){
-
-    const usage =
-    document.getElementById("storageUsage");
-
-    const progress =
-    document.getElementById("storageProgressBar");
-
-    if(usage){
-
-        usage.textContent =
-        "0 MB used of 1 GB";
-
-    }
-
-    if(progress){
-
-        progress.style.width = "0%";
-
-    }
-
-}
-
-// ==========================================
-// Security Information
-// ==========================================
-
-function loadSecurityInformation(){
-
-    const authentication =
-    document.getElementById(
-
-        "authenticationStatus"
-
-    );
-
-    const securityScore =
-    document.getElementById(
-
-        "securityScore"
-
-    );
-
-    if(authentication){
-
-        authentication.textContent =
-
-        currentUser.emailVerified ?
-
-        "Verified" :
-
-        "Unverified";
-
-    }
-
-    if(securityScore){
-
-        securityScore.textContent =
-
-        currentUser.emailVerified ?
-
-        "100%" :
-
-        "75%";
-
-    }
-
-}
-
-// ==========================================
-// Refresh Dashboard
-// ==========================================
-
-async function refreshDashboard(){
-
-    showToast(
-
-        "Refreshing dashboard..."
-
-    );
-
-    await loadUserProfile();
-
-    await loadDashboard();
-
-    loadDailyInsight();
-
-    loadAccountInformation();
-
-    loadStorageInformation();
-
-    loadDeviceInformation();
-
-    loadSecurityInformation();
-
-    checkBackendHealth();
-
-    showToast(
-
-        "Dashboard updated."
-
-    );
-
-}
-
-// ==========================================
-// Refresh Button
-// ==========================================
-
-document
-
-.getElementById("refreshDashboard")
-
-?.addEventListener(
-
+viewAllCalls?.addEventListener(
     "click",
-
-    refreshDashboard
-
-);
-
-// ==========================================
-// Sync Button
-// ==========================================
-
-document
-
-.getElementById("syncNow")
-
-?.addEventListener(
-
-    "click",
-
-    ()=>{
-
-        showToast(
-
-            "Cloud sync completed."
-
-        );
-
-    }
-
-);
-
-// ==========================================
-// Voice Clone Button
-// ==========================================
-
-document
-
-.getElementById("createVoiceClone")
-
-?.addEventListener(
-
-    "click",
-
-    ()=>{
-
-        navigate("voiceClone");
-
-    }
-
-);
-
-// ==========================================
-// AI Voice Button
-// ==========================================
-
-document
-
-.getElementById("startVoiceInput")
-
-?.addEventListener(
-
-    "click",
-
-    ()=>{
-
-        startVoiceInput();
-
-    }
-
-);
-
-// ==========================================
-// End Part 6
-// ==========================================
-// ==========================================
-// EchoCall AI
-// File: js/home.js
-// Part 7
-// Append below Part 6
-// ==========================================
-
-// ==========================================
-// Hero Buttons
-// ==========================================
-
-startAiChatButton?.addEventListener(
-
-    "click",
-
-    ()=>{
-
-        document
-
-            .getElementById("floatingAiButton")
-
-            ?.click();
-
-    }
-
-);
-
-newCallButton?.addEventListener(
-
-    "click",
-
-    ()=>{
+    () => {
 
         navigate("calls");
 
     }
-
 );
 
-// ==========================================
-// Profile Picture
-// ==========================================
-
-homeProfileImage?.addEventListener(
-
-    "click",
-
-    ()=>{
-
-        navigate("profile");
-
-    }
-
-);
 
 // ==========================================
-// Quick Action Cards
+// Contacts
 // ==========================================
 
-quickAi?.addEventListener(
-
+viewContacts?.addEventListener(
     "click",
-
-    ()=>{
-
-        document
-
-            .getElementById("floatingAiButton")
-
-            ?.click();
-
-    }
-
-);
-
-quickCalls?.addEventListener(
-
-    "click",
-
-    ()=>{
-
-        navigate("calls");
-
-    }
-
-);
-
-quickContacts?.addEventListener(
-
-    "click",
-
-    ()=>{
+    () => {
 
         navigate("contacts");
 
     }
-
 );
 
-quickHistory?.addEventListener(
 
+// ==========================================
+// Translations
+// ==========================================
+
+viewTranslations?.addEventListener(
     "click",
+    () => {
 
-    ()=>{
-
-        navigate("history");
+        showToast(
+            "Translation history is coming soon.",
+            "warning"
+        );
 
     }
-
 );
 
-quickVoiceClone?.addEventListener(
 
+// ==========================================
+// Voice Clone
+// ==========================================
+
+openVoiceClone?.addEventListener(
     "click",
-
-    ()=>{
+    () => {
 
         navigate("voiceClone");
 
     }
-
 );
 
-quickTranslate?.addEventListener(
 
+createVoiceClone?.addEventListener(
     "click",
+    () => {
 
-    ()=>{
+        navigate("voiceClone");
+
+    }
+);
+
+
+// ==========================================
+// Image Studio
+// ==========================================
+
+openImageStudio?.addEventListener(
+    "click",
+    () => {
 
         showToast(
-
-            "Translation page coming soon."
-
+            "Image Studio is coming soon.",
+            "warning"
         );
 
     }
-
 );
 
+
+generateImageButton?.addEventListener(
+    "click",
+    () => {
+
+        showToast(
+            "Image generation is coming soon.",
+            "warning"
+        );
+
+    }
+);
+
+
+// ==========================================
+// Files
+// ==========================================
+
+viewFiles?.addEventListener(
+    "click",
+    () => {
+
+        showToast(
+            "File manager is coming soon.",
+            "warning"
+        );
+
+    }
+);
+
+
+// ==========================================
+// Activity
+// ==========================================
+
+viewActivity?.addEventListener(
+    "click",
+    () => {
+
+        showToast(
+            "Activity history is coming soon.",
+            "warning"
+        );
+
+    }
+);
+
+
+// ==========================================
+// Profile
+// ==========================================
+
+openProfile?.addEventListener(
+    "click",
+    () => {
+
+        navigate("profile");
+
+    }
+);
+
+
+// ==========================================
+// Settings
+// ==========================================
+
+openSettings?.addEventListener(
+    "click",
+    () => {
+
+        navigate("settings");
+
+    }
+);
+
+
+// ==========================================
+// Security
+// ==========================================
+
+openSecurity?.addEventListener(
+    "click",
+    () => {
+
+        navigate("security");
+
+    }
+);
+
+
+openSecurityCenter?.addEventListener(
+    "click",
+    () => {
+
+        navigate("security");
+
+    }
+);
 
 
 // ==========================================
 // Premium
 // ==========================================
 
-document
-
-.getElementById("openPremium")
-
-?.addEventListener(
-
+openPremium?.addEventListener(
     "click",
-
-    ()=>{
+    () => {
 
         navigate("premium");
 
     }
-
 );
 
+
 // ==========================================
-// Settings
+// Notifications
 // ==========================================
 
-document
-
-.getElementById("openSettings")
-
-?.addEventListener(
-
+viewAllNotifications?.addEventListener(
     "click",
-
-    ()=>{
-
-        navigate("settings");
-
-    }
-
-);
-
-// ==========================================
-// Security
-// ==========================================
-
-document
-
-.getElementById("openSecurity")
-
-?.addEventListener(
-
-    "click",
-
-    ()=>{
-
-        navigate("security");
-
-    }
-
-);
-
-// ==========================================
-// End Part 7
-// ==========================================
-// ==========================================
-// EchoCall AI
-// File: js/home.js
-// Part 8 (Final)
-// Append below Part 7
-// ==========================================
-
-// ==========================================
-// Initialize Home
-// ==========================================
-
-export async function initializeHome(){
-
-    try{
-
-        await loadUserProfile();
-
-        await loadDashboard();
-
-        loadDailyInsight();
-
-        loadAccountInformation();
-
-        loadStorageInformation();
-
-        loadDeviceInformation();
-
-        loadSecurityInformation();
-
-        updateNetworkStatus();
-
-        await checkBackendHealth();
+    () => {
 
         showToast(
-
-            "Home loaded successfully."
-
+            "Notification center is coming soon.",
+            "warning"
         );
 
     }
+);
 
-    catch(error){
 
-        console.error(
+// ==========================================
+// Cloud Storage
+// ==========================================
 
-            "Home initialization failed:",
-
-            error
-
-        );
+manageStorage?.addEventListener(
+    "click",
+    () => {
 
         showToast(
-
-            "Unable to load dashboard.",
-
-            "error"
-
+            "Storage manager is coming soon.",
+            "warning"
         );
 
     }
+);
 
-}
 
 // ==========================================
-// Logout Button
+// Backend Status Elements
 // ==========================================
 
-document
+const apiStatus =
+    document.getElementById("apiStatus");
 
-.getElementById("logoutAccount")
+const firebaseStatus =
+    document.getElementById("firebaseStatus");
 
-?.addEventListener(
+const openaiStatus =
+    document.getElementById("openaiStatus");
 
-    "click",
+const storageStatus =
+    document.getElementById("storageStatus");
 
-    async()=>{
+const backendStatus =
+    document.getElementById("backendStatus");
 
-        if(
+const refreshBackendStatus =
+    document.getElementById("refreshBackendStatus");
 
-            confirm(
 
-                "Are you sure you want to logout?"
+// ==========================================
+// Check Backend
+// ==========================================
 
-            )
+async function checkBackendStatus() {
 
-        ){
+    if (apiStatus) {
 
-            await logout();
+        apiStatus.textContent =
+            "Checking...";
+
+    }
+
+    if (backendStatus) {
+
+        backendStatus.textContent =
+            "Checking...";
+
+    }
+
+    try {
+
+        const response =
+            await fetch(
+                API_URL,
+                {
+                    method: "GET"
+                }
+            );
+
+        if (response.ok) {
+
+            if (apiStatus) {
+
+                apiStatus.textContent =
+                    "Online";
+
+            }
+
+            if (backendStatus) {
+
+                backendStatus.textContent =
+                    "Online";
+
+            }
+
+        }
+
+        else {
+
+            throw new Error(
+                "Backend unavailable"
+            );
 
         }
 
     }
 
+    catch (error) {
+
+        console.warn(
+            "Backend status check failed:",
+            error
+        );
+
+        if (apiStatus) {
+
+            apiStatus.textContent =
+                "Unavailable";
+
+        }
+
+        if (backendStatus) {
+
+            backendStatus.textContent =
+                "Unavailable";
+
+        }
+
+    }
+
+}
+
+
+// ==========================================
+// Firebase Status
+// ==========================================
+
+function updateFirebaseStatus() {
+
+    if (!firebaseStatus) {
+
+        return;
+
+    }
+
+    if (auth.currentUser) {
+
+        firebaseStatus.textContent =
+            "Connected";
+
+    }
+
+    else {
+
+        firebaseStatus.textContent =
+            "Disconnected";
+
+    }
+
+}
+
+
+// ==========================================
+// Storage Status
+// ==========================================
+
+function updateStorageStatus() {
+
+    if (!storageStatus) {
+
+        return;
+
+    }
+
+    if (storage) {
+
+        storageStatus.textContent =
+            "Ready";
+
+    }
+
+    else {
+
+        storageStatus.textContent =
+            "Unavailable";
+
+    }
+
+}
+
+
+// ==========================================
+// OpenAI Status
+// ==========================================
+//
+// IMPORTANT:
+// We do NOT put the OpenAI API key here.
+// The key remains on the Render backend.
+//
+// This checks the backend instead.
+//
+
+function updateOpenAIStatus() {
+
+    if (!openaiStatus) {
+
+        return;
+
+    }
+
+    openaiStatus.textContent =
+        "Via API";
+
+}
+
+
+// ==========================================
+// Refresh Backend Status
+// ==========================================
+
+refreshBackendStatus?.addEventListener(
+    "click",
+    async () => {
+
+        await checkBackendStatus();
+
+        updateFirebaseStatus();
+
+        updateStorageStatus();
+
+        updateOpenAIStatus();
+
+        showToast(
+            "Backend status refreshed."
+        );
+
+    }
 );
 
-// ==========================================
-// Auto Refresh Every Minute
-// ==========================================
-
-setInterval(
-
-    ()=>{
-
-        checkBackendHealth();
-
-        updateNetworkStatus();
-
-    },
-
-    60000
-
-);
 
 // ==========================================
-// Export
+// Initialize Backend Status
 // ==========================================
 
-export default {
+async function initializeBackendStatus() {
 
-    initializeHome
+    await checkBackendStatus();
 
-};
+    updateFirebaseStatus();
+
+    updateStorageStatus();
+
+    updateOpenAIStatus();
+
+}
+
 
 // ==========================================
-// End of home.js
+// Run Backend Status
+// ==========================================
+
+initializeBackendStatus();
+
+
+// ==========================================
+// End Part 2
 // ==========================================
