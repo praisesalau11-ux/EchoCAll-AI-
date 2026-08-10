@@ -105,9 +105,12 @@ document.addEventListener(
 
     async()=>{
 
-        initializeAI();
-
+        // Load the current page first
         await initializeRouter();
+
+        // Initialize AI AFTER the page/router
+        // has finished loading
+        initializeAI();
 
     }
 
