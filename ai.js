@@ -10,12 +10,14 @@
 
 import { showToast } from "./toast.js";
 
+import { auth } from "./firebase.js";
+
 // ==========================================
 // Configuration
 // ==========================================
 
 const API_URL =
-"https://echocall-ai-backend.onrender.com/api/chat";
+"https://echocall-ai-backend.onrender.com/api/ai/chat";
 
 // ==========================================
 // DOM Elements
@@ -439,16 +441,38 @@ async function getAIResponse(
 
     try {
 
-        console.log("EchoCall AI → Sending request");
+        console.log(
+            "EchoCall AI → Sending request"
+        );
 
-        console.log("API:", API_URL);
+        // ======================================
+        // Get Firebase authenticated user
+        // ======================================
 
-        console.log("Message:", message);
+        const user = auth.currentUser;
+
+        if (!user) {
+
+            throw new Error(
+                "You are not signed in."
+            );
+
+        }
+
+        // ======================================
+        // Get Firebase ID Token
+        // ======================================
+
+        const token =
+            await user.getIdToken();
 
         console.log(
-            "Conversation:",
-            conversation
+            "Firebase authentication token obtained."
         );
+
+        // ======================================
+        // Send request to backend
+        // ======================================
 
         const response = await fetch(
 
@@ -463,6 +487,9 @@ async function getAIResponse(
                     "Content-Type":
                         "application/json",
 
+                    "Authorization":
+                        `Bearer ${token}`,
+
                     "Accept":
                         "application/json"
 
@@ -472,7 +499,13 @@ async function getAIResponse(
 
                     message: message,
 
-                    conversation: conversation
+                    conversationId: null,
+
+                    personality:
+                        "professional",
+
+                    tone:
+                        "neutral"
 
                 })
 
@@ -484,10 +517,6 @@ async function getAIResponse(
             "AI server status:",
             response.status
         );
-
-        // Get the response as text first.
-        // This lets us see errors even when
-        // the backend doesn't return JSON.
 
         const rawResponse =
             await response.text();
@@ -516,43 +545,55 @@ async function getAIResponse(
 
         }
 
-        catch (jsonError) {
+        catch {
 
             throw new Error(
 
-                "Backend did not return valid JSON: " +
-                rawResponse
+                "Backend returned invalid JSON."
 
             );
 
         }
 
-        console.log(
-            "AI data:",
-            data
-        );
+        if (!data.success) {
 
-        typingBubble?.remove();
+            throw new Error(
+
+                data.message ||
+                "AI request failed."
+
+            );
+
+        }
 
         const reply =
-
-            data.reply ||
-
-            data.message ||
-
-            data.response;
+            data.reply;
 
         if (!reply) {
 
             throw new Error(
 
-                "Backend responded successfully, but no AI reply was found."
+                "Backend returned no AI reply."
 
             );
 
         }
 
+        // ======================================
+        // Remove typing indicator
+        // ======================================
+
+        typingBubble?.remove();
+
+        // ======================================
+        // Display AI response
+        // ======================================
+
         addAIMessage(reply);
+
+        // ======================================
+        // Save response in local conversation
+        // ======================================
 
         conversation.push({
 
@@ -562,7 +603,9 @@ async function getAIResponse(
 
         });
 
-        // Automatically make EchoCall AI speak
+        // ======================================
+        // Speak AI response
+        // ======================================
 
         speak(reply);
 
@@ -586,7 +629,7 @@ async function getAIResponse(
 
         showToast(
 
-            "AI request failed. Check the console.",
+            "AI request failed.",
 
             "error"
 
