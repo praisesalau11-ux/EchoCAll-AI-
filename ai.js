@@ -28,6 +28,10 @@ import {
 
 let currentAuthUser = null;
 
+let aiInitialized = false;
+
+let conversationRestoreStarted = false;
+
 onAuthStateChanged(
 
     auth,
@@ -53,12 +57,27 @@ onAuthStateChanged(
             user.uid
         );
 
-        // AI UI may not be initialized yet.
-        // initializeAI() will restore the conversation.
-        
-        if (aiChatContainer) {
+        // ======================================
+        // Restore conversation if AI is ready
+        // ======================================
 
-            await loadSavedConversation();
+        if (
+            aiInitialized &&
+            !conversationRestoreStarted
+        ) {
+
+            conversationRestoreStarted = true;
+
+            loadSavedConversation().catch(
+                error => {
+
+                    console.error(
+                        "AI conversation restore error:",
+                        error
+                    );
+
+                }
+            );
 
         }
 
@@ -164,9 +183,43 @@ export function initializeAI() {
 
     }
 
+    // ======================================
+    // Initialize buttons/events
+    // ======================================
+
     initializeEvents();
 
-   await loadSavedConversation();
+    // ======================================
+    // Tell Firebase listener AI is ready
+    // ======================================
+
+    aiInitialized = true;
+
+    // ======================================
+    // Firebase may have authenticated
+    // before initializeAI() finished.
+    // Check again here.
+    // ======================================
+
+    if (
+        currentAuthUser &&
+        !conversationRestoreStarted
+    ) {
+
+        conversationRestoreStarted = true;
+
+        loadSavedConversation().catch(
+            error => {
+
+                console.error(
+                    "AI conversation restore error:",
+                    error
+                );
+
+            }
+        );
+
+    }
 
 }
 
