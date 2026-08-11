@@ -499,15 +499,18 @@ async function getAIResponse(
 
                     message: message,
 
-                    conversationId: null,
+                  conversationId:
+                 localStorage.getItem(
+                "echoCallConversationId"
+               ),
 
                     personality:
-                        "professional",
+                     "professional",
 
-                    tone:
-                        "neutral"
+                          tone:
+                  "neutral"
 
-                })
+                  })
 
             }
 
@@ -554,6 +557,18 @@ async function getAIResponse(
             );
 
         }
+
+if (data.conversationId) {
+
+    localStorage.setItem(
+
+        "echoCallConversationId",
+
+        data.conversationId
+
+    );
+
+}
 
         if (!data.success) {
 
