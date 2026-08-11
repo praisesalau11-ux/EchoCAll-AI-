@@ -47,14 +47,22 @@ export function initializeHome() {
         "EchoCall AI Home initialized."
     );
 
+    // Initialize AI
+    initializeAI();
+
+    // Initialize Home buttons
     initializeHeroButtons();
 
+    // Initialize Quick Actions
     initializeQuickActions();
 
+    // Initialize Quick Settings
     initializeQuickSettings();
 
+    // Initialize System Status
     initializeHomeStatus();
 
+    // Initialize Home utilities
     initializeHomeUtilities();
 
 }
@@ -89,34 +97,39 @@ function initializeHeroButtons() {
     // Chat With AI
     // ======================================
 
-    startAiChatButton?.addEventListener(
+startAiChatButton?.addEventListener(
 
-        "click",
+    "click",
 
-        () => {
+    () => {
 
-            const floatingAiButton =
-                document.getElementById(
-                    "floatingAiButton"
-                );
+        const aiModal =
+            document.getElementById(
+                "aiModal"
+            );
 
-            if (floatingAiButton) {
+        if (!aiModal) {
 
-                floatingAiButton.click();
+            showToast(
+                "AI Assistant is unavailable.",
+                "error"
+            );
 
-            }
-            else {
-
-                showToast(
-                    "AI Assistant is unavailable.",
-                    "error"
-                );
-
-            }
+            return;
 
         }
 
-    );
+        aiModal.classList.remove(
+            "hidden"
+        );
+
+        document
+            .getElementById("aiInput")
+            ?.focus();
+
+    }
+
+);
 
     // ======================================
     // New Call

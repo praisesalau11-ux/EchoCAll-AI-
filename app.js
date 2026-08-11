@@ -100,17 +100,12 @@ let currentUserData = null;
 // ==========================================
 
 document.addEventListener(
-
     "DOMContentLoaded",
-
     async()=>{
 
         await initializeRouter();
 
-        initializeAI();
-
     }
-
 );
 
 // ==========================================
