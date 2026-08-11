@@ -10,14 +10,71 @@
 
 import { showToast } from "./toast.js";
 
-import { auth } from "./firebase.js";
+// ==========================================
+// Firebase Authentication
+// ==========================================
+
+import {
+    auth
+} from "./firebase.js";
+
+import {
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+
+// ==========================================
+// Firebase Authentication State
+// ==========================================
+
+let currentAuthUser = null;
+
+onAuthStateChanged(
+
+    auth,
+
+    async (user) => {
+
+        if (!user) {
+
+            currentAuthUser = null;
+
+            console.warn(
+                "EchoCall AI: No authenticated user."
+            );
+
+            return;
+
+        }
+
+        currentAuthUser = user;
+
+        console.log(
+            "EchoCall AI authenticated:",
+            user.uid
+        );
+
+        // AI UI may not be initialized yet.
+        // initializeAI() will restore the conversation.
+        
+        if (aiChatContainer) {
+
+            await loadSavedConversation();
+
+        }
+
+    }
+
+);
 
 // ==========================================
 // Configuration
 // ==========================================
 
+const API_BASE_URL =
+"https://echocall-ai-backend.onrender.com/api/ai";
+
 const API_URL =
-"https://echocall-ai-backend.onrender.com/api/ai/chat";
+`${API_BASE_URL}/chat`;
 
 // ==========================================
 // DOM Elements
@@ -42,6 +99,24 @@ let closeAiModal = null;
 let isSending = false;
 
 const conversation = [];
+
+// ==========================================
+// User-Specific Conversation Storage Key
+// ==========================================
+
+function getConversationStorageKey() {
+
+    const user = auth.currentUser;
+
+    if (!user) {
+
+        return null;
+
+    }
+
+    return `echoCallConversationId_${user.uid}`;
+
+}
 
 // ==========================================
 // Initialize AI
@@ -90,6 +165,208 @@ export function initializeAI() {
     }
 
     initializeEvents();
+
+   await loadSavedConversation();
+
+}
+
+// ==========================================
+// Load Saved Conversation
+// ==========================================
+
+async function loadSavedConversation() {
+
+    try {
+
+        const user = auth.currentUser;
+
+        if (!user) {
+
+            console.log(
+                "AI: No authenticated user yet."
+            );
+
+            return;
+
+        }
+
+        if (!aiChatContainer) {
+
+            console.warn(
+                "AI: Chat container is not initialized yet."
+            );
+
+            return;
+
+        }
+
+        const storageKey =
+            getConversationStorageKey();
+
+        if (!storageKey) {
+
+            return;
+
+        }
+
+        const conversationId =
+            localStorage.getItem(storageKey);
+
+        if (!conversationId) {
+
+            console.log(
+                "AI: No saved conversation for this user."
+            );
+
+            return;
+
+        }
+
+        console.log(
+            "AI: Restoring conversation:",
+            conversationId
+        );
+
+        const token =
+            await user.getIdToken();
+
+        const response = await fetch(
+
+            `${API_BASE_URL}/conversations/${conversationId}/messages`,
+
+            {
+
+                method: "GET",
+
+                headers: {
+
+                    "Authorization":
+                        `Bearer ${token}`,
+
+                    "Accept":
+                        "application/json"
+
+                }
+
+            }
+
+        );
+
+        const rawResponse =
+            await response.text();
+
+        console.log(
+            "AI restore status:",
+            response.status
+        );
+
+        console.log(
+            "AI restore response:",
+            rawResponse
+        );
+
+        if (!response.ok) {
+
+            throw new Error(
+
+                `Unable to load conversation: ${response.status} ${rawResponse}`
+
+            );
+
+        }
+
+        const data =
+            JSON.parse(rawResponse);
+
+        if (!data.success) {
+
+            throw new Error(
+
+                data.message ||
+                "Unable to load conversation."
+
+            );
+
+        }
+
+        // ======================================
+        // Clear current conversation
+        // ======================================
+
+        conversation.length = 0;
+
+        // ======================================
+        // Clear chat UI
+        // ======================================
+
+        aiChatContainer.innerHTML = "";
+
+        // ======================================
+        // Restore messages
+        // ======================================
+
+        for (
+            const message of data.messages || []
+        ) {
+
+            if (
+                message.role !== "user" &&
+                message.role !== "assistant"
+            ) {
+
+                continue;
+
+            }
+
+            conversation.push({
+
+                role:
+                    message.role,
+
+                content:
+                    message.content
+
+            });
+
+            if (
+                message.role === "user"
+            ) {
+
+                addUserMessage(
+                    message.content
+                );
+
+            }
+            else {
+
+                addAIMessage(
+                    message.content
+                );
+
+            }
+
+        }
+
+        console.log(
+
+            `AI: Restored ${
+                data.messages?.length || 0
+            } messages.`
+
+        );
+
+        scrollToBottom();
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "AI conversation restore error:",
+            error
+        );
+
+    }
 
 }
 
@@ -470,51 +747,62 @@ async function getAIResponse(
             "Firebase authentication token obtained."
         );
 
-        // ======================================
-        // Send request to backend
-        // ======================================
 
-        const response = await fetch(
+// ======================================
+// Get Saved Conversation ID
+// ======================================
 
-            API_URL,
+const storageKey =
+    getConversationStorageKey();
 
-            {
+const savedConversationId =
+    storageKey
+        ? localStorage.getItem(storageKey)
+        : null;
 
-                method: "POST",
+// ======================================
+// Send request to backend
+// ======================================
 
-                headers: {
+const response = await fetch(
 
-                    "Content-Type":
-                        "application/json",
+    API_URL,
 
-                    "Authorization":
-                        `Bearer ${token}`,
+    {
 
-                    "Accept":
-                        "application/json"
+        method: "POST",
 
-                },
+        headers: {
 
-                body: JSON.stringify({
+            "Content-Type":
+                "application/json",
 
-                    message: message,
+            "Authorization":
+                `Bearer ${token}`,
 
-                  conversationId:
-                 localStorage.getItem(
-                "echoCallConversationId"
-               ),
+            "Accept":
+                "application/json"
 
-                    personality:
-                     "professional",
+        },
 
-                          tone:
-                  "neutral"
+        body: JSON.stringify({
 
-                  })
+            message: message,
 
-            }
+            conversationId:
+                savedConversationId,
 
-        );
+            personality:
+                "professional",
+
+            tone:
+                "neutral"
+
+        })
+
+    }
+
+);
 
         console.log(
             "AI server status:",
@@ -560,13 +848,20 @@ async function getAIResponse(
 
 if (data.conversationId) {
 
-    localStorage.setItem(
+    const storageKey =
+        getConversationStorageKey();
 
-        "echoCallConversationId",
+    if (storageKey) {
 
-        data.conversationId
+        localStorage.setItem(
 
-    );
+            storageKey,
+
+            data.conversationId
+
+        );
+
+    }
 
 }
 
@@ -628,31 +923,16 @@ if (data.conversationId) {
 
     catch(error) {
 
-        console.error(
-            "EchoCall AI ERROR:",
-            error
-        );
+    console.error(
+        "EchoCall AI ERROR:",
+        error
+    );
 
-        typingBubble?.remove();
+    typingBubble?.remove();
 
-        addAIMessage(
+    throw error;
 
-            "AI connection error: " +
-            error.message
-
-        );
-
-        showToast(
-
-            "AI request failed.",
-
-            "error"
-
-        );
-
-        throw error;
-
-    }
+}
 
 }
 
@@ -887,6 +1167,7 @@ export function destroyAI(){
     }
 
 }
+
 
 // ==========================================
 // End of ai.js
