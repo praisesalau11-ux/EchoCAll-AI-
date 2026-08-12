@@ -43,8 +43,6 @@ const FIREBASE_API_KEY =
 // End Part 1
 // ==========================================
 
-const FIREBASE_API_KEY =
-    process.env.FIREBASE_API_KEY;
     
     // ==========================================
 // POST /api/auth/signup
@@ -754,6 +752,9 @@ router.get(
 // ==========================================
 
 export default router;
+
+//
+
 
 // ==========================================
 // End of File

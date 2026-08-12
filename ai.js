@@ -141,7 +141,7 @@ function getConversationStorageKey() {
 // Initialize AI
 // ==========================================
 
-export function initializeAI() {
+export async function initializeAI() {
 
     aiModal =
     document.getElementById("aiModal");
