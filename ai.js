@@ -903,6 +903,16 @@ if (data.conversationId) {
 
     const storageKey =
         getConversationStorageKey();
+        
+        console.log(
+    "AI Saved Conversation ID:",
+    data.conversationId
+);
+
+console.log(
+    "AI Storage Key:",
+    storageKey
+);
 
     if (storageKey) {
 
