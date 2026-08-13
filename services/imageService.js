@@ -3,58 +3,10 @@
 // File: server/services/imageService.js
 // ==========================================
 
-// ==========================================
-// Imports
-// ==========================================
-
-import { openai, MODEL } from "./openaiService.js";
-
-// ==========================================
-// Image Generation
-// ==========================================
-
-export async function generateImage(
-
-    prompt,
-
-    size = "1024x1024"
-
-){
-
-    try{
-
-        const response =
-
-            await openai.images.generate({
-
-                model: "gpt-image-1",
-
-                prompt,
-
-                size
-
-            });
-
-        return response;
-
-    }
-
-    catch(error){
-
-        console.error(
-
-            "Image Generation Error:",
-
-            error
-
-        );
-
-        throw error;
-
-    }
-
-}
-
+import {
+    openai,
+    MODEL
+} from "./openaiService.js";
 
 // ==========================================
 // Image Generation
@@ -63,9 +15,9 @@ export async function generateImage(
 export async function generateImage(
     prompt,
     size = "1024x1024"
-){
+) {
 
-    try{
+    try {
 
         const response =
             await openai.images.generate({
@@ -82,7 +34,7 @@ export async function generateImage(
 
     }
 
-    catch(error){
+    catch (error) {
 
         console.error(
             "Image Generation Error:",
@@ -97,18 +49,17 @@ export async function generateImage(
 
 // ==========================================
 // Image Analysis
-// Accepts a browser-uploaded image buffer
 // ==========================================
 
 export async function analyzeImage(
     imageBuffer,
     mimeType,
     prompt = "Describe this image."
-){
+) {
 
-    try{
+    try {
 
-        if(!imageBuffer){
+        if (!imageBuffer) {
 
             throw new Error(
                 "Image buffer is required."
@@ -116,7 +67,7 @@ export async function analyzeImage(
 
         }
 
-        if(!mimeType){
+        if (!mimeType) {
 
             throw new Error(
                 "Image MIME type is required."
@@ -124,8 +75,9 @@ export async function analyzeImage(
 
         }
 
-        // Convert uploaded image into a
-        // data URL that OpenAI can read.
+        // ======================================
+        // Convert image to Base64
+        // ======================================
 
         const base64Image =
             imageBuffer.toString("base64");
@@ -133,34 +85,39 @@ export async function analyzeImage(
         const imageDataURL =
             `data:${mimeType};base64,${base64Image}`;
 
+        // ======================================
+        // Send image to OpenAI
+        // ======================================
+
         const response =
             await openai.chat.completions.create({
 
                 model: MODEL,
 
-                messages:[
+                messages: [
 
                     {
 
-                        role:"user",
+                        role: "user",
 
-                        content:[
+                        content: [
 
                             {
 
-                                type:"text",
+                                type: "text",
 
-                                text:prompt
+                                text: prompt
 
                             },
 
                             {
 
-                                type:"image_url",
+                                type: "image_url",
 
-                                image_url:{
+                                image_url: {
 
-                                    url:imageDataURL
+                                    url:
+                                        imageDataURL
 
                                 }
 
@@ -181,7 +138,7 @@ export async function analyzeImage(
 
     }
 
-    catch(error){
+    catch (error) {
 
         console.error(
             "Image Analysis Error:",
