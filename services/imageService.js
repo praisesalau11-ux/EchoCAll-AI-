@@ -55,12 +55,6 @@ export async function generateImage(
 
 }
 
-// ==========================================
-// EchoCall AI Backend
-// File: server/services/imageService.js
-// ==========================================
-
-import { openai, MODEL } from "./openaiService.js";
 
 // ==========================================
 // Image Generation
