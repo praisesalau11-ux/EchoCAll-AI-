@@ -56,21 +56,90 @@ export async function generateImage(
 }
 
 // ==========================================
-// Image Analysis
+// EchoCall AI Backend
+// File: server/services/imageService.js
 // ==========================================
 
-export async function analyzeImage(
+import { openai, MODEL } from "./openaiService.js";
 
-    imageURL,
+// ==========================================
+// Image Generation
+// ==========================================
 
-    prompt = "Describe this image."
-
+export async function generateImage(
+    prompt,
+    size = "1024x1024"
 ){
 
     try{
 
         const response =
+            await openai.images.generate({
 
+                model: "gpt-image-1",
+
+                prompt,
+
+                size
+
+            });
+
+        return response;
+
+    }
+
+    catch(error){
+
+        console.error(
+            "Image Generation Error:",
+            error
+        );
+
+        throw error;
+
+    }
+
+}
+
+// ==========================================
+// Image Analysis
+// Accepts a browser-uploaded image buffer
+// ==========================================
+
+export async function analyzeImage(
+    imageBuffer,
+    mimeType,
+    prompt = "Describe this image."
+){
+
+    try{
+
+        if(!imageBuffer){
+
+            throw new Error(
+                "Image buffer is required."
+            );
+
+        }
+
+        if(!mimeType){
+
+            throw new Error(
+                "Image MIME type is required."
+            );
+
+        }
+
+        // Convert uploaded image into a
+        // data URL that OpenAI can read.
+
+        const base64Image =
+            imageBuffer.toString("base64");
+
+        const imageDataURL =
+            `data:${mimeType};base64,${base64Image}`;
+
+        const response =
             await openai.chat.completions.create({
 
                 model: MODEL,
@@ -97,7 +166,7 @@ export async function analyzeImage(
 
                                 image_url:{
 
-                                    url:imageURL
+                                    url:imageDataURL
 
                                 }
 
@@ -112,11 +181,8 @@ export async function analyzeImage(
             });
 
         return response
-
             .choices[0]
-
             .message
-
             .content;
 
     }
@@ -124,11 +190,8 @@ export async function analyzeImage(
     catch(error){
 
         console.error(
-
             "Image Analysis Error:",
-
             error
-
         );
 
         throw error;
@@ -136,4 +199,3 @@ export async function analyzeImage(
     }
 
 }
-
