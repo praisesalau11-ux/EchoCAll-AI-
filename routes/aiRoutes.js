@@ -1254,6 +1254,7 @@ router.post(
 
 // ==========================================
 // Image Analysis
+// Uploaded Image → OpenAI Vision
 // ==========================================
 
 router.post(
@@ -1262,69 +1263,145 @@ router.post(
 
     authenticateUser,
 
-    async(req,res)=>{
+    upload.single("image"),
 
-        try{
+    async (req, res) => {
 
-            const {
+        try {
 
-                imageURL,
+            // ======================================
+            // Validate Uploaded Image
+            // ======================================
 
-                prompt
-
-            } = req.body;
-
-            if(!imageURL){
+            if (!req.file) {
 
                 return res.status(400).json({
 
-                    success:false,
+                    success: false,
 
                     message:
-
-                    "imageURL is required."
+                        "Image file is required."
 
                 });
 
             }
 
+            // ======================================
+            // Validate MIME Type
+            // ======================================
+
+            if (
+                !req.file.mimetype ||
+                !req.file.mimetype.startsWith("image/")
+            ) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "Only image files can be analyzed."
+
+                });
+
+            }
+
+            // ======================================
+            // Prompt
+            // ======================================
+
+            const prompt =
+
+                req.body.prompt ||
+
+                "Describe this image in detail.";
+
+            // ======================================
+            // Log Upload Information
+            // ======================================
+
+            console.log(
+                "AI Image Analysis:"
+            );
+
+            console.log(
+                "Filename:",
+                req.file.originalname
+            );
+
+            console.log(
+                "MIME Type:",
+                req.file.mimetype
+            );
+
+            console.log(
+                "File Size:",
+                req.file.size
+            );
+
+            console.log(
+                "Prompt:",
+                prompt
+            );
+
+            // ======================================
+            // Send Image To OpenAI Vision
+            // ======================================
+
             const analysis =
 
                 await analyzeImage(
 
-                    imageURL,
+                    req.file.buffer,
 
-                    prompt || "Describe this image."
+                    req.file.mimetype,
+
+                    prompt
 
                 );
 
+            // ======================================
+            // Validate OpenAI Response
+            // ======================================
+
+            if (!analysis) {
+
+                throw new Error(
+                    "OpenAI returned no image analysis."
+                );
+
+            }
+
+            // ======================================
+            // Return Result
+            // ======================================
+
             return res.json({
 
-                success:true,
+                success: true,
 
-                analysis
+                analysis,
+
+                filename:
+                    req.file.originalname
 
             });
 
         }
 
-        catch(error){
+        catch (error) {
 
             console.error(
-
                 "Image Analysis Error:",
-
                 error
-
             );
 
             return res.status(500).json({
 
-                success:false,
+                success: false,
 
                 message:
-
-                "Image analysis failed."
+                    "Image analysis failed."
 
             });
 
