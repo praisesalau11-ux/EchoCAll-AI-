@@ -449,24 +449,83 @@ How can I help you today?
 
 </div>
 
+<!-- ==========================================
+     AI INPUT AREA
+========================================== -->
+
 <div class="ai-input-area">
 
-<input
-type="text"
-id="aiInput"
-placeholder="Ask EchoCall AI...">
+    <!-- Hidden file picker -->
+    <input
+        type="file"
+        id="aiFileInput"
+        hidden
+        accept="image/*,.pdf,.txt,.doc,.docx,.csv"
+    >
 
+    <!-- Attach File -->
+    <button
+        id="aiAttachButton"
+        class="icon-button"
+        type="button"
+        title="Attach file">
+
+        <span class="material-symbols-rounded">
+            attach_file
+        </span>
+
+    </button>
+
+<!-- Take Photo -->
 <button
-id="sendAiMessage"
-class="primary-btn">
+    id="aiCameraButton"
+    class="icon-button"
+    type="button"
+    title="Take a photo">
 
-<span class="material-symbols-rounded">
-
-send
-
-</span>
+    <span class="material-symbols-rounded">
+        photo_camera
+    </span>
 
 </button>
+
+<!-- Camera input -->
+<input
+    type="file"
+    id="aiCameraInput"
+    hidden
+    accept="image/*"
+    capture="environment">
+  
+    <!-- Text Input -->
+    <input
+        type="text"
+        id="aiInput"
+        placeholder="Ask EchoCall AI..."
+        autocomplete="off"
+    >
+
+    <!-- Send -->
+    <button
+        id="sendAiMessage"
+        class="primary-btn"
+        type="button">
+
+        <span class="material-symbols-rounded">
+            send
+        </span>
+
+    </button>
+
+</div>
+
+<!-- ==========================================
+     SELECTED FILE PREVIEW
+========================================== -->
+
+<div
+    id="aiFilePreview"
+    class="ai-file-preview hidden">
 
 </div>
 
