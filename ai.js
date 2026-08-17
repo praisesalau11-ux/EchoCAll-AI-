@@ -93,7 +93,7 @@ const API_BASE_URL =
 "https://echocall-ai-backend.onrender.com/api/ai";
 
 const API_URL =
-`${API_BASE_URL}/chat`;
+    `${API_BASE_URL}/chat`;
 
 // ==========================================
 // DOM Elements
@@ -116,6 +116,10 @@ let aiAttachButton = null;
 let aiFileInput = null;
 
 let aiFilePreview = null;
+
+let aiCameraButton = null;
+
+let aiCameraInput = null;
 
 // ==========================================
 // State
@@ -148,75 +152,59 @@ function getConversationStorageKey() {
 // ==========================================
 // Initialize AI
 // ==========================================
-
 export async function initializeAI() {
 
     aiModal =
-    document.getElementById("aiModal");
+        document.getElementById("aiModal");
 
     aiChatContainer =
-    document.getElementById("aiChatContainer");
+        document.getElementById("aiChatContainer");
 
     aiInput =
-    document.getElementById("aiInput");
+        document.getElementById("aiInput");
 
     sendAiMessage =
-    document.getElementById("sendAiMessage");
-    
+        document.getElementById("sendAiMessage");
+
     aiAttachButton =
-    document.getElementById("aiAttachButton");
+        document.getElementById("aiAttachButton");
 
-   aiFileInput =
-    document.getElementById("aiFileInput");
+    aiFileInput =
+        document.getElementById("aiFileInput");
 
-   aiFilePreview =
-    document.getElementById("aiFilePreview");
+    aiFilePreview =
+        document.getElementById("aiFilePreview");
+
+    aiCameraButton =
+        document.getElementById("aiCameraButton");
+
+    aiCameraInput =
+        document.getElementById("aiCameraInput");
 
     floatingAiButton =
-    document.getElementById("floatingAiButton");
+        document.getElementById("floatingAiButton");
 
     closeAiModal =
-    document.getElementById("closeAiModal");
+        document.getElementById("closeAiModal");
 
     if (
-
         !aiModal ||
-
         !aiChatContainer ||
-
         !aiInput ||
-
         !sendAiMessage
-
     ) {
 
         console.warn(
-
             "AI elements not found."
-
         );
 
         return;
 
     }
 
-    // ======================================
-    // Initialize buttons/events
-    // ======================================
-
     initializeEvents();
 
-    // ======================================
-    // Tell Firebase listener AI is ready
-    // ======================================
-
     aiInitialized = true;
-
-    // ======================================
-    // Firebase may have authenticated
-    // before initializeAI() finished.
-    // Check again here.
-    // ======================================
 
     if (
         currentAuthUser &&
@@ -447,54 +435,65 @@ async function loadSavedConversation() {
 function initializeEvents() {
 
     floatingAiButton?.addEventListener(
-
         "click",
-
         openAI
-
     );
 
     closeAiModal?.addEventListener(
-
         "click",
-
         closeAI
-
     );
 
     sendAiMessage?.addEventListener(
-
         "click",
-
         sendMessage
-
     );
 
-   aiAttachButton?.addEventListener(
-    "click",
-    () => {
+    // ======================================
+    // Attach File
+    // ======================================
 
-        aiFileInput?.click();
+    aiAttachButton?.addEventListener(
+        "click",
+        () => {
 
-    }
-);
+            aiFileInput?.click();
 
-aiFileInput?.addEventListener(
-    "change",
-    handleAIFileSelection
-);
-   
+        }
+    );
+
+    aiFileInput?.addEventListener(
+        "change",
+        handleAIFileSelection
+    );
+
+    // ======================================
+    // Camera
+    // ======================================
+
+    aiCameraButton?.addEventListener(
+        "click",
+        () => {
+
+            aiCameraInput?.click();
+
+        }
+    );
+
+    aiCameraInput?.addEventListener(
+        "change",
+        handleAICameraCapture
+    );
+
+    // ======================================
+    // Enter Key
+    // ======================================
+
     aiInput?.addEventListener(
-
         "keydown",
+        (event) => {
 
-        (event)=>{
-
-            if(
-
-                event.key==="Enter"
-
-            ){
+            if (event.key === "Enter") {
 
                 event.preventDefault();
 
@@ -503,7 +502,6 @@ aiFileInput?.addEventListener(
             }
 
         }
-
     );
 
 }
@@ -612,6 +610,84 @@ function handleAIFileSelection(event){
 }
 
 // ==========================================
+// AI Camera Capture
+// ==========================================
+
+function handleAICameraCapture(event) {
+
+    const file =
+        event.target.files?.[0];
+
+    if (!file) {
+
+        return;
+
+    }
+
+    console.log(
+        "EchoCall AI camera photo:",
+        file.name,
+        file.type,
+        file.size
+    );
+
+    selectedAIFile = file;
+
+    if (!aiFilePreview) {
+
+        return;
+
+    }
+
+    aiFilePreview.classList.remove(
+        "hidden"
+    );
+
+    aiFilePreview.innerHTML = `
+
+        <div class="ai-selected-file">
+
+            <span class="material-symbols-rounded">
+                photo_camera
+            </span>
+
+            <div>
+
+                <strong>
+                    Camera photo
+                </strong>
+
+                <small>
+                    ${formatFileSize(file.size)}
+                </small>
+
+            </div>
+
+            <button
+                type="button"
+                id="removeAIFile"
+                class="icon-button">
+
+                <span class="material-symbols-rounded">
+                    close
+                </span>
+
+            </button>
+
+        </div>
+
+    `;
+
+    document
+        .getElementById("removeAIFile")
+        ?.addEventListener(
+            "click",
+            clearAIFile
+        );
+
+}
+
+// ==========================================
 // Format File Size
 // ==========================================
 
@@ -641,17 +717,23 @@ function formatFileSize(bytes) {
 // Clear Selected AI File
 // ==========================================
 
-function clearAIFile(){
+function clearAIFile() {
 
     selectedAIFile = null;
 
-    if(aiFileInput){
+    if (aiFileInput) {
 
         aiFileInput.value = "";
 
     }
 
-    if(aiFilePreview){
+    if (aiCameraInput) {
+
+        aiCameraInput.value = "";
+
+    }
+
+    if (aiFilePreview) {
 
         aiFilePreview.innerHTML = "";
 
@@ -1492,18 +1574,17 @@ console.log(
 
 }
 
+
 // ==========================================
 // Clear Conversation
 // ==========================================
 
-export function clearConversation(){
+export function clearConversation() {
 
     conversation.length = 0;
 
-    if(!aiChatContainer){
-
+    if (!aiChatContainer) {
         return;
-
     }
 
     aiChatContainer.innerHTML = `
@@ -1511,9 +1592,7 @@ export function clearConversation(){
         <div class="ai-message">
 
             <div class="ai-avatar">
-
                 🤖
-
             </div>
 
             <div class="ai-bubble">
@@ -1529,6 +1608,9 @@ export function clearConversation(){
     `;
 
 }
+
+            
+
 
 // ==========================================
 // Conversation Getter

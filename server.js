@@ -20,6 +20,7 @@ import callRoutes from "./routes/callRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js";
 import contactsRoutes from "./routes/contactsRoutes.js";
 import elevenLabsRoutes from "./routes/elevenLabsRoutes.js";
+import twilioRoutes from "./routes/twilioRoutes.js";
 
 // ==========================================
 // Load Environment Variables
@@ -105,7 +106,7 @@ app.get("/health", (req, res) => {
  app.use("/api/calls", callRoutes);
  app.use("/api/contacts", contactsRoutes);
  app.use("/api/ai", aiRoutes);
-// app.use("/api/twilio", twilioRoutes);
+ app.use("/api/twilio", twilioRoutes);
  app.use("/api/voice-clone", elevenLabsRoutes);
 
 // ==========================================
