@@ -1816,23 +1816,46 @@ export async function debugFirebaseToken() {
 
     if (!user) {
 
-        console.log(
-            "No user is currently signed in."
+        showToast(
+            "No user is currently signed in.",
+            "error"
         );
 
         return;
 
     }
 
-    const token =
-        await user.getIdToken();
+    try {
 
-    console.log(
-        "Firebase ID token:",
-        token
-    );
+        const token =
+            await user.getIdToken();
+
+        console.log(
+            "Firebase ID token obtained successfully."
+        );
+
+        showToast(
+            "Firebase authentication token obtained.",
+            "success"
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Firebase token error:",
+            error
+        );
+
+        showToast(
+            "Could not get Firebase token.",
+            "error"
+        );
+
+    }
 
 }
+
+debugFirebaseToken();
 
 // ==========================================
 // End of ai.js
