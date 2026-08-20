@@ -1806,6 +1806,33 @@ export function destroyAI(){
 
 }
 
+// ==========================================
+// TEMPORARY Firebase Token Test
+// ==========================================
+
+export async function debugFirebaseToken() {
+
+    const user = auth.currentUser;
+
+    if (!user) {
+
+        console.log(
+            "No user is currently signed in."
+        );
+
+        return;
+
+    }
+
+    const token =
+        await user.getIdToken();
+
+    console.log(
+        "Firebase ID token:",
+        token
+    );
+
+}
 
 // ==========================================
 // End of ai.js
