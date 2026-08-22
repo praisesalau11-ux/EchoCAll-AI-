@@ -407,81 +407,7 @@ router.get(
 
 );
 
-// ==========================================
-// Get Single Call
-// ==========================================
 
-router.get(
-
-    "/:callSid",
-
-    authenticateUser,
-
-    async(req,res)=>{
-
-        try{
-
-            const document =
-
-                await db
-
-                .collection("users")
-
-                .doc(req.user.uid)
-
-                .collection("calls")
-
-                .doc(
-
-                    req.params.callSid
-
-                )
-
-                .get();
-
-            if(!document.exists){
-
-                return res.status(404).json({
-
-                    success:false,
-
-                    message:
-
-                    "Call not found."
-
-                });
-
-            }
-
-            return res.json({
-
-                success:true,
-
-                call:document.data()
-
-            });
-
-        }
-
-        catch(error){
-
-            console.error(error);
-
-            return res.status(500).json({
-
-                success:false,
-
-                message:
-
-                "Unable to load call."
-
-            });
-
-        }
-
-    }
-
-);
 
 // ==========================================
 // End Part 2
@@ -1930,6 +1856,82 @@ router.get(
             "Running"
 
         });
+
+    }
+
+);
+
+// ==========================================
+// Get Single Call
+// ==========================================
+
+router.get(
+
+    "/:callSid",
+
+    authenticateUser,
+
+    async(req,res)=>{
+
+        try{
+
+            const document =
+
+                await db
+
+                .collection("users")
+
+                .doc(req.user.uid)
+
+                .collection("calls")
+
+                .doc(
+
+                    req.params.callSid
+
+                )
+
+                .get();
+
+            if(!document.exists){
+
+                return res.status(404).json({
+
+                    success:false,
+
+                    message:
+
+                    "Call not found."
+
+                });
+
+            }
+
+            return res.json({
+
+                success:true,
+
+                call:document.data()
+
+            });
+
+        }
+
+        catch(error){
+
+            console.error(error);
+
+            return res.status(500).json({
+
+                success:false,
+
+                message:
+
+                "Unable to load call."
+
+            });
+
+        }
 
     }
 
