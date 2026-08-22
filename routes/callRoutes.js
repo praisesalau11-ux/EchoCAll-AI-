@@ -1483,54 +1483,55 @@ router.delete(
 // ==========================================
 
 router.get(
-
     "/statistics",
-
     authenticateUser,
+    async (req, res) => {
 
-    async(req,res)=>{
-
-        try{
+        try {
 
             const snapshot =
-
                 await db
-
-                .collection("users")
-
-                .doc(req.user.uid)
-
-                .collection("calls")
-
-                .get();
+                    .collection("users")
+                    .doc(req.user.uid)
+                    .collection("calls")
+                    .get();
 
             let totalCalls = 0;
-
-            let totalDuration = 0;
-
             let completedCalls = 0;
+            let totalDuration = 0;
+            let todayCalls = 0;
 
-            snapshot.forEach(doc=>{
+            const today = new Date();
 
-                const data =
+            today.setHours(0, 0, 0, 0);
 
-                    doc.data();
+            snapshot.forEach(doc => {
+
+                const data = doc.data();
 
                 totalCalls++;
 
-                totalDuration +=
-
-                    data.duration || 0;
-
-                if(
-
-                    data.status ===
-
-                    "completed"
-
-                ){
-
+                if (
+                    data.status === "completed"
+                ) {
                     completedCalls++;
+                }
+
+                totalDuration +=
+                    Number(data.duration) || 0;
+
+                if (data.createdAt) {
+
+                    const callDate =
+                        data.createdAt.toDate
+                            ? data.createdAt.toDate()
+                            : new Date(data.createdAt);
+
+                    if (
+                        callDate >= today
+                    ) {
+                        todayCalls++;
+                    }
 
                 }
 
@@ -1538,11 +1539,13 @@ router.get(
 
             return res.json({
 
-                success:true,
+                success: true,
 
-                statistics:{
+                statistics: {
 
                     totalCalls,
+
+                    todayCalls,
 
                     completedCalls,
 
@@ -1553,27 +1556,27 @@ router.get(
             });
 
         }
+        catch (error) {
 
-        catch(error){
-
-            console.error(error);
+            console.error(
+                "Call Statistics Error:",
+                error
+            );
 
             return res.status(500).json({
 
-                success:false,
+                success: false,
 
                 message:
-
-                "Unable to load statistics."
+                    "Unable to load call statistics."
 
             });
 
         }
 
     }
-
 );
-
+ 
 // ==========================================
 // End Part 5
 // ==========================================
