@@ -434,6 +434,14 @@ async function loadSavedConversation() {
 
 function initializeEvents() {
 
+  const debugTokenBtn =
+    document.getElementById("debugTokenBtn");
+
+debugTokenBtn?.addEventListener(
+    "click",
+    debugFirebaseToken
+);
+
     floatingAiButton?.addEventListener(
         "click",
         openAI
@@ -1806,56 +1814,6 @@ export function destroyAI(){
 
 }
 
-// ==========================================
-// TEMPORARY Firebase Token Test
-// ==========================================
-
-export async function debugFirebaseToken() {
-
-    const user = auth.currentUser;
-
-    if (!user) {
-
-        showToast(
-            "No user is currently signed in.",
-            "error"
-        );
-
-        return;
-
-    }
-
-    try {
-
-        const token =
-            await user.getIdToken();
-
-        console.log(
-            "Firebase ID token obtained successfully."
-        );
-
-        showToast(
-            "Firebase authentication token obtained.",
-            "success"
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Firebase token error:",
-            error
-        );
-
-        showToast(
-            "Could not get Firebase token.",
-            "error"
-        );
-
-    }
-
-}
-
-debugFirebaseToken();
 
 // ==========================================
 // End of ai.js
