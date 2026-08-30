@@ -1649,88 +1649,216 @@ export function isAIBusy(){
 // Part 4 (Final)
 // Append below Part 3
 // ==========================================
-
-// ==========================================
 // Speech Recognition
 // ==========================================
 
 const SpeechRecognition =
-
     window.SpeechRecognition ||
-
     window.webkitSpeechRecognition;
 
 let recognition = null;
+let isRecognizing = false;
 
-if(SpeechRecognition){
+if (SpeechRecognition) {
 
-    recognition =
-
-    new SpeechRecognition();
+    recognition = new SpeechRecognition();
 
     recognition.lang = "en-US";
-
     recognition.interimResults = false;
-
     recognition.continuous = false;
+    recognition.maxAlternatives = 1;
 
-    recognition.onresult = (event)=>{
+    recognition.onstart = () => {
+
+        isRecognizing = true;
+
+        console.log(
+            "EchoCall AI microphone started."
+        );
+
+        showToast(
+            "Listening... Speak now.",
+            "success"
+        );
+
+    };
+
+    recognition.onresult = (event) => {
 
         const text =
+            event.results?.[0]?.[0]?.transcript?.trim();
 
-        event.results[0][0].transcript;
+        console.log(
+            "Voice recognition result:",
+            text
+        );
 
-        aiInput.value = text;
+        if (!text) {
+
+            showToast(
+                "I didn't hear anything.",
+                "warning"
+            );
+
+            return;
+
+        }
+
+        if (aiInput) {
+
+            aiInput.value = text;
+
+        }
 
         sendMessage();
 
     };
 
-    recognition.onerror = ()=>{
+    recognition.onerror = (event) => {
 
-        showToast(
+        console.error(
+            "Speech recognition error:",
+            event.error
+        );
 
-            "Voice recognition failed.",
+        isRecognizing = false;
 
-            "error"
+        switch (event.error) {
 
+            case "not-allowed":
+            case "service-not-allowed":
+
+                showToast(
+                    "Microphone permission was denied. Allow microphone access for EchoCall AI.",
+                    "error"
+                );
+
+                break;
+
+            case "no-speech":
+
+                showToast(
+                    "I didn't hear you. Tap Voice Chat and speak.",
+                    "warning"
+                );
+
+                break;
+
+            case "audio-capture":
+
+                showToast(
+                    "The microphone could not be accessed.",
+                    "error"
+                );
+
+                break;
+
+            case "network":
+
+                showToast(
+                    "Voice recognition needs a network connection.",
+                    "error"
+                );
+
+                break;
+
+            case "aborted":
+
+                console.log(
+                    "Speech recognition aborted."
+                );
+
+                break;
+
+            default:
+
+                showToast(
+                    `Voice recognition failed: ${event.error}`,
+                    "error"
+                );
+
+        }
+
+    };
+
+    recognition.onend = () => {
+
+        isRecognizing = false;
+
+        console.log(
+            "EchoCall AI microphone stopped."
         );
 
     };
 
 }
 
+
 // ==========================================
 // Start Voice Input
 // ==========================================
 
-export function startVoiceInput(){
+export function startVoiceInput() {
 
-    if(!recognition){
+    if (!recognition) {
 
         showToast(
-
-            "Voice recognition is not supported on this device.",
-
+            "Voice recognition is not supported by this browser.",
             "warning"
+        );
 
+        console.error(
+            "SpeechRecognition API unavailable."
         );
 
         return;
 
     }
 
-    recognition.start();
+    if (isRecognizing) {
+
+        console.log(
+            "Voice recognition is already running."
+        );
+
+        return;
+
+    }
+
+    try {
+
+        recognition.start();
+
+        console.log(
+            "Starting EchoCall AI voice recognition..."
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Unable to start voice recognition:",
+            error
+        );
+
+        showToast(
+            "Could not start the microphone.",
+            "error"
+        );
+
+    }
 
 }
+
 
 // ==========================================
 // Text To Speech
 // ==========================================
 
-export function speak(text){
+export function speak(text) {
 
-    if(!("speechSynthesis" in window)){
+    if (!("speechSynthesis" in window)) {
 
         return;
 
@@ -1739,58 +1867,50 @@ export function speak(text){
     speechSynthesis.cancel();
 
     const utterance =
-
-    new SpeechSynthesisUtterance(text);
+        new SpeechSynthesisUtterance(text);
 
     utterance.rate = 1;
-
     utterance.pitch = 1;
-
     utterance.volume = 1;
 
     speechSynthesis.speak(
-
         utterance
-
     );
 
 }
+
 
 // ==========================================
 // Speak Latest AI Reply
 // ==========================================
 
-export function speakLatestReply(){
+export function speakLatestReply() {
 
     const replies =
+        conversation.filter(
+            item => item.role === "assistant"
+        );
 
-    conversation.filter(
-
-        item=>item.role==="assistant"
-
-    );
-
-    if(!replies.length){
+    if (!replies.length) {
 
         return;
 
     }
 
     speak(
-
-        replies[replies.length-1].content
-
+        replies[replies.length - 1].content
     );
 
 }
+
 
 // ==========================================
 // Stop Speaking
 // ==========================================
 
-export function stopSpeaking(){
+export function stopSpeaking() {
 
-    if("speechSynthesis" in window){
+    if ("speechSynthesis" in window) {
 
         speechSynthesis.cancel();
 
@@ -1798,22 +1918,23 @@ export function stopSpeaking(){
 
 }
 
+
 // ==========================================
 // Destroy AI
 // ==========================================
 
-export function destroyAI(){
+export function destroyAI() {
 
     stopSpeaking();
 
-    if(recognition){
+    if (recognition) {
 
         recognition.abort();
 
     }
 
-}
-
+}                
+        
 
 // ==========================================
 // End of ai.js

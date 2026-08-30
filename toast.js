@@ -1,35 +1,94 @@
-// ==========================
+// ==========================================
 // EchoCall AI Toast System
-// ==========================
+// File: js/toast.js
+// ==========================================
 
-export function showToast(message, type = "success") {
+export function showToast(
+    message,
+    type = "success"
+) {
 
-    let toast = document.createElement("div");
+    if (!message) {
+        return;
+    }
 
-    toast.className = `toast ${type}`;
 
-    toast.innerHTML = `
-        <span>${message}</span>
-    `;
+    const toastContainer =
+        document.getElementById(
+            "toastContainer"
+        );
 
-    document.body.appendChild(toast);
 
-    setTimeout(() => {
+    const toast =
+        document.createElement("div");
 
-        toast.classList.add("show");
 
-    }, 100);
+    toast.className =
+        `toast ${type}`;
 
-    setTimeout(() => {
 
-        toast.classList.remove("show");
+    // Don't use innerHTML for the message.
+    // This prevents HTML injection.
 
-        setTimeout(() => {
+    const text =
+        document.createElement("span");
 
-            toast.remove();
+    text.textContent =
+        message;
 
-        }, 400);
 
-    }, 3000);
+    toast.appendChild(
+        text
+    );
+
+
+    if (toastContainer) {
+
+        toastContainer.appendChild(
+            toast
+        );
+
+    }
+
+    else {
+
+        document.body.appendChild(
+            toast
+        );
+
+    }
+
+
+    requestAnimationFrame(
+        () => {
+
+            toast.classList.add(
+                "show"
+            );
+
+        }
+    );
+
+
+    setTimeout(
+        () => {
+
+            toast.classList.remove(
+                "show"
+            );
+
+
+            setTimeout(
+                () => {
+
+                    toast.remove();
+
+                },
+                400
+            );
+
+        },
+        3000
+    );
 
 }

@@ -1,1759 +1,701 @@
 <!-- ==========================================
 EchoCall AI
 File: pages/home.html
-Part 1
+Home Dashboard
 ========================================== -->
 
 <section class="home-page">
 
-<!-- ==========================================
-WELCOME CARD
-========================================== -->
+    <!-- ======================================
+    WELCOME / HERO
+    ====================================== -->
 
-<section class="hero-card glass">
+    <section class="hero-card glass">
 
-<div class="hero-left">
+        <div class="hero-left">
 
-<h1 id="homeGreeting">
+            <span class="hero-eyebrow">
+                ECHOCALL AI
+            </span>
 
-Welcome 👋
+            <h1 id="homeGreeting">
+                Welcome 👋
+            </h1>
 
-</h1>
+            <p id="homeSubtitle">
+                Your intelligent communication assistant.
+            </p>
 
-<p id="homeSubtitle">
+            <div class="hero-actions">
 
-Your intelligent communication assistant.
+                <button
+                    id="startAiChatButton"
+                    class="primary-button">
 
-</p>
+                    <span class="material-symbols-rounded">
+                        smart_toy
+                    </span>
 
-<div class="hero-actions">
+                    Chat with AI
 
-<button
-id="startAiChatButton"
-class="primary-button">
+                </button>
 
-<span class="material-symbols-rounded">
+                <button
+                    id="newCallButton"
+                    class="secondary-button">
 
-smart_toy
+                    <span class="material-symbols-rounded">
+                        call
+                    </span>
 
-</span>
+                    New Call
 
-Chat with AI
+                </button>
 
-</button>
+                <button
+                    id="startVoiceInput"
+                    class="secondary-button">
 
-<button
-id="newCallButton"
-class="secondary-button">
+                    <span class="material-symbols-rounded">
+                        mic
+                    </span>
 
-<span class="material-symbols-rounded">
+                    Voice Chat
 
-call
+                </button>
 
-</span>
+            </div>
 
-New Call
+        </div>
 
-</button>
+        <div class="hero-right">
 
-<button
-id="startVoiceInput"
-class="primary-button">
+            <div class="hero-profile-ring">
 
-<span class="material-symbols-rounded">
-mic
-</span>
+                <img
+                    id="homeProfileImage"
+                    src="assets/default-avatar.png"
+                    alt="Profile"
+                    class="hero-profile-image">
 
-Voice Chat
+            </div>
 
-</button>
+        </div>
 
-</div>
+    </section>
 
-</div>
 
-<div class="hero-right">
+    <!-- ======================================
+    QUICK ACTIONS
+    ====================================== -->
 
-<img
+    <section class="dashboard-section">
 
-id="homeProfileImage"
+        <div class="section-header">
 
-src="assets/default-avatar.png"
+            <div>
 
-alt="Profile"
+                <span class="section-label">
+                    SHORTCUTS
+                </span>
 
-class="hero-profile-image">
+                <h2>
+                    Quick Actions
+                </h2>
 
-</div>
+            </div>
 
-</section>
+        </div>
 
-<!-- ==========================================
-QUICK ACTIONS
-========================================== -->
+        <div class="quick-actions-grid">
 
-<section class="dashboard-section">
+            <!-- AI -->
 
-<div class="section-header">
+            <button
+                id="quickAi"
+                class="quick-action-card glass">
 
-<h2>
+                <div class="action-icon">
+                    <span class="material-symbols-rounded">
+                        smart_toy
+                    </span>
+                </div>
 
-Quick Actions
+                <div>
 
-</h2>
+                    <h3>
+                        AI Assistant
+                    </h3>
 
-</div>
+                    <p>
+                        Ask EchoCall anything.
+                    </p>
 
-<div class="quick-actions-grid">
+                </div>
 
-<button
+            </button>
 
-id="quickAi"
 
-class="quick-action-card glass">
+            <!-- Translate -->
 
-<span class="material-symbols-rounded">
+            <button
+                id="quickTranslate"
+                class="quick-action-card glass">
 
-smart_toy
+                <div class="action-icon">
+                    <span class="material-symbols-rounded">
+                        translate
+                    </span>
+                </div>
 
-</span>
+                <div>
 
-<h3>
+                    <h3>
+                        Translate
+                    </h3>
 
-AI Assistant
+                    <p>
+                        Translate voice or text.
+                    </p>
 
-</h3>
+                </div>
 
-<p>
+            </button>
 
-Ask Echo anything.
 
-</p>
+            <!-- Contacts -->
 
-</button>
+            <button
+                id="quickContacts"
+                class="quick-action-card glass">
 
-<button
+                <div class="action-icon">
+                    <span class="material-symbols-rounded">
+                        contacts
+                    </span>
+                </div>
 
-id="quickTranslate"
+                <div>
 
-class="quick-action-card glass">
+                    <h3>
+                        Contacts
+                    </h3>
 
-<span class="material-symbols-rounded">
+                    <p>
+                        Find people quickly.
+                    </p>
 
-translate
+                </div>
 
-</span>
+            </button>
 
-<h3>
 
-Translate
+            <!-- Calls -->
 
-</h3>
+            <button
+                id="quickCalls"
+                class="quick-action-card glass">
 
-<p>
+                <div class="action-icon">
+                    <span class="material-symbols-rounded">
+                        call
+                    </span>
+                </div>
 
-Voice & text translation.
+                <div>
 
-</p>
+                    <h3>
+                        Calls
+                    </h3>
 
-</button>
+                    <p>
+                        Make a voice or video call.
+                    </p>
 
-<button
+                </div>
 
-id="quickVoiceClone"
+            </button>
 
-class="quick-action-card glass">
 
-<span class="material-symbols-rounded">
+            <!-- History -->
 
-mic
+            <button
+                id="quickHistory"
+                class="quick-action-card glass">
 
-</span>
+                <div class="action-icon">
+                    <span class="material-symbols-rounded">
+                        history
+                    </span>
+                </div>
 
-<h3>
+                <div>
 
-Voice Clone
+                    <h3>
+                        History
+                    </h3>
 
-</h3>
+                    <p>
+                        View recent activity.
+                    </p>
 
-<p>
+                </div>
 
-Generate AI voices.
+            </button>
 
-</p>
 
-</button>
+            <!-- Notifications -->
 
-<button
+            <button
+                id="quickNotifications"
+                class="quick-action-card glass">
 
-id="quickContacts"
+                <div class="action-icon">
+                    <span class="material-symbols-rounded">
+                        notifications
+                    </span>
+                </div>
 
-class="quick-action-card glass">
+                <div>
 
-<span class="material-symbols-rounded">
+                    <h3>
+                        Notifications
+                    </h3>
 
-contacts
+                    <p>
+                        Check your latest alerts.
+                    </p>
 
-</span>
+                </div>
 
-<h3>
+            </button>
 
-Contacts
+        </div>
 
-</h3>
+    </section>
 
-<p>
 
-View your contacts.
+    <!-- ======================================
+    RECENT AI CHATS
+    ====================================== -->
 
-</p>
+    <section class="dashboard-section">
 
-</button>
+        <div class="section-header">
 
-<button
+            <div>
 
-id="quickCalls"
+                <span class="section-label">
+                    AI
+                </span>
 
-class="quick-action-card glass">
+                <h2>
+                    Recent AI Chats
+                </h2>
 
-<span class="material-symbols-rounded">
+            </div>
 
-call
+            <button
+                id="viewAllAiChats"
+                class="text-button">
 
-</span>
+                View All
 
-<h3>
+            </button>
 
-Calls
+        </div>
 
-</h3>
+        <div
+            id="recentAiChats"
+            class="chat-list">
 
-<p>
+            <div class="empty-card glass">
 
-Start secure calling.
+                <span class="material-symbols-rounded">
+                    forum
+                </span>
 
-</p>
+                <h3>
+                    No AI conversations yet
+                </h3>
 
-</button>
+                <p>
+                    Start a conversation with EchoCall AI.
+                </p>
 
-<button
+                <button
+                    id="emptyAiChatButton"
+                    class="small-primary-button">
 
-id="quickHistory"
+                    Start Chat
 
-class="quick-action-card glass">
+                </button>
 
-<span class="material-symbols-rounded">
+            </div>
 
-history
+        </div>
 
-</span>
+    </section>
 
-<h3>
 
-History
+    <!-- ======================================
+    RECENT CALLS
+    ====================================== -->
 
-</h3>
+    <section class="dashboard-section">
 
-<p>
+        <div class="section-header">
 
-Recent activity.
+            <div>
 
-</p>
+                <span class="section-label">
+                    COMMUNICATION
+                </span>
 
-</button>
+                <h2>
+                    Recent Calls
+                </h2>
 
-</div>
+            </div>
 
-</section>
+            <button
+                id="viewAllCalls"
+                class="text-button">
 
-<!-- ==========================================
-LIVE STATUS
-========================================== -->
+                View All
 
-<section class="dashboard-section">
+            </button>
 
-<div class="section-header">
+        </div>
 
-<h2>
+        <div
+            id="recentCalls"
+            class="call-list">
 
-System Status
+            <div class="empty-card glass">
 
-</h2>
+                <span class="material-symbols-rounded">
+                    call
+                </span>
 
-</div>
+                <h3>
+                    No recent calls
+                </h3>
 
-<div class="status-grid">
+                <p>
+                    Your recent calls will appear here.
+                </p>
 
-<div class="status-card glass">
+                <button
+                    id="emptyCallButton"
+                    class="small-primary-button">
 
-<span class="material-symbols-rounded">
+                    Make a Call
 
-cloud_done
+                </button>
 
-</span>
+            </div>
 
-<h3>
+        </div>
 
-Backend
+    </section>
 
-</h3>
 
-<p id="backendStatus">
+    <!-- ======================================
+    FAVORITE CONTACTS
+    ====================================== -->
 
-Checking...
+    <section class="dashboard-section">
 
-</p>
+        <div class="section-header">
 
-</div>
+            <div>
 
-<div class="status-card glass">
+                <span class="section-label">
+                    PEOPLE
+                </span>
 
-<span class="material-symbols-rounded">
+                <h2>
+                    Favorite Contacts
+                </h2>
 
-wifi
+            </div>
 
-</span>
+            <button
+                id="viewContacts"
+                class="text-button">
 
-<h3>
+                View All
 
-Connection
+            </button>
 
-</h3>
+        </div>
 
-<p id="networkStatus">
+        <div
+            id="favoriteContacts"
+            class="contacts-grid">
 
-Checking...
+            <div class="empty-card glass">
 
-</p>
+                <span class="material-symbols-rounded">
+                    contacts
+                </span>
 
-</div>
+                <h3>
+                    No favorite contacts
+                </h3>
 
-<div class="status-card glass">
+                <p>
+                    Your favorite contacts will appear here.
+                </p>
 
-<span class="material-symbols-rounded">
+                <button
+                    id="emptyContactsButton"
+                    class="small-primary-button">
 
-storage
+                    Add Contact
 
-</span>
+                </button>
 
-<h3>
+            </div>
 
-Cloud Sync
+        </div>
 
-</h3>
+    </section>
 
-<p id="syncStatus">
 
-Checking...
+    <!-- ======================================
+    VOICE CLONE
+    ====================================== -->
 
-</p>
+    <section class="dashboard-section">
 
-</div>
+        <div class="section-header">
 
-<div class="status-card glass">
+            <div>
 
-<span class="material-symbols-rounded">
+                <span class="section-label">
+                    AI VOICE
+                </span>
 
-security
+                <h2>
+                    Voice Clone
+                </h2>
 
-</span>
+            </div>
 
-<h3>
+            <button
+                id="openVoiceClone"
+                class="text-button">
 
-Security
+                Open Studio
 
-</h3>
+            </button>
 
-<p id="securityStatus">
+        </div>
 
-Protected
+        <div class="feature-card glass">
 
-</p>
+            <div class="feature-icon">
 
-</div>
+                <span class="material-symbols-rounded">
+                    record_voice_over
+                </span>
 
-</div>
+            </div>
 
-</section>
+            <div class="feature-content">
 
-<!-- ==========================================
-PART 2 STARTS HERE
-========================================== -->
-<!-- ==========================================
-RECENT AI CONVERSATIONS
-========================================== -->
+                <span class="feature-badge">
+                    VOICE STUDIO
+                </span>
 
-<section class="dashboard-section">
+                <h3>
+                    Create your AI voice
+                </h3>
 
-<div class="section-header">
+                <p>
+                    Create, manage and use your available AI voices.
+                </p>
 
-<h2>
+            </div>
 
-Recent AI Chats
+            <button
+                id="createVoiceClone"
+                class="primary-button">
 
-</h2>
+                <span class="material-symbols-rounded">
+                    add
+                </span>
 
-<button
-id="viewAllAiChats"
-class="text-button">
+                Create Voice
 
-View All
+            </button>
 
-</button>
+        </div>
 
-</div>
+    </section>
 
-<div
-id="recentAiChats"
-class="chat-list">
 
-<div class="empty-card glass">
+    <!-- ======================================
+    IMAGE STUDIO
+    ====================================== -->
 
-<span class="material-symbols-rounded">
+    <section class="dashboard-section">
 
-forum
+        <div class="section-header">
 
-</span>
+            <div>
 
-<h3>
+                <span class="section-label">
+                    AI CREATIVE
+                </span>
 
-No AI conversations yet
+                <h2>
+                    Image Studio
+                </h2>
 
-</h3>
+            </div>
 
-<p>
+            <button
+                id="openImageStudio"
+                class="text-button">
 
-Start chatting with EchoCall AI.
+                Open Studio
 
-</p>
+            </button>
 
-</div>
+        </div>
 
-</div>
+        <div class="feature-card glass">
 
-</section>
+            <div class="feature-icon">
 
-<!-- ==========================================
-RECENT CALLS
-========================================== -->
+                <span class="material-symbols-rounded">
+                    imagesmode
+                </span>
 
-<section class="dashboard-section">
+            </div>
 
-<div class="section-header">
+            <div class="feature-content">
 
-<h2>
+                <span class="feature-badge">
+                    IMAGE STUDIO
+                </span>
 
-Recent Calls
+                <h3>
+                    Create AI images
+                </h3>
 
-</h2>
+                <p>
+                    Turn your ideas into images using AI.
+                </p>
 
-<button
-id="viewAllCalls"
-class="text-button">
+            </div>
 
-View All
+            <button
+                id="generateImageButton"
+                class="primary-button">
 
-</button>
+                <span class="material-symbols-rounded">
+                    auto_awesome
+                </span>
 
-</div>
+                Generate
 
-<div
-id="recentCalls"
-class="call-list">
+            </button>
 
-<div class="empty-card glass">
+        </div>
 
-<span class="material-symbols-rounded">
+    </section>
 
-call
 
-</span>
+    <!-- ======================================
+    RECENT NOTIFICATIONS
+    ====================================== -->
 
-<h3>
+    <section class="dashboard-section">
 
-No recent calls
+        <div class="section-header">
 
-</h3>
+            <div>
 
-<p>
+                <span class="section-label">
+                    UPDATES
+                </span>
 
-Your recent calls will appear here.
+                <h2>
+                    Recent Notifications
+                </h2>
 
-</p>
+            </div>
 
-</div>
+            <button
+                id="viewAllNotifications"
+                class="text-button">
 
-</div>
+                View All
 
-</section>
+            </button>
 
-<!-- ==========================================
-RECENT CONTACTS
-========================================== -->
+        </div>
 
-<section class="dashboard-section">
+        <div
+            id="homeNotifications"
+            class="notification-list">
 
-<div class="section-header">
+            <div class="empty-card glass">
 
-<h2>
+                <span class="material-symbols-rounded">
+                    notifications_none
+                </span>
 
-Favorite Contacts
+                <h3>
+                    You're all caught up
+                </h3>
 
-</h2>
+                <p>
+                    New notifications will appear here.
+                </p>
 
-<button
-id="viewContacts"
-class="text-button">
+            </div>
 
-Open
+        </div>
 
-</button>
+    </section>
 
-</div>
 
-<div
-id="favoriteContacts"
-class="contacts-grid">
+    <!-- ======================================
+    HOME FOOTER
+    ====================================== -->
 
-<div class="empty-card glass">
+    <section class="home-footer">
 
-<span class="material-symbols-rounded">
+        <button
+            id="refreshDashboard"
+            class="secondary-button">
 
-contacts
+            <span class="material-symbols-rounded">
+                refresh
+            </span>
 
-</span>
+            Refresh
 
-<h3>
+        </button>
 
-No contacts yet
+        <button
+            id="logoutAccount"
+            class="danger-button">
 
-</h3>
+            <span class="material-symbols-rounded">
+                logout
+            </span>
 
-<p>
+            Logout
 
-Your favorite contacts will appear here.
+        </button>
 
-</p>
-
-</div>
-
-</div>
-
-</section>
-
-<!-- ==========================================
-RECENT TRANSLATIONS
-========================================== -->
-
-<section class="dashboard-section">
-
-<div class="section-header">
-
-<h2>
-
-Recent Translations
-
-</h2>
-
-<button
-id="viewTranslations"
-class="text-button">
-
-View All
-
-</button>
-
-</div>
-
-<div
-id="translationHistory"
-class="translation-list">
-
-<div class="empty-card glass">
-
-<span class="material-symbols-rounded">
-
-translate
-
-</span>
-
-<h3>
-
-No translations yet
-
-</h3>
-
-<p>
-
-Your translated messages will appear here.
-
-</p>
-
-</div>
-
-</div>
-
-</section>
-
-<!-- ==========================================
-PART 3 STARTS HERE
-========================================== -->
-<!-- ==========================================
-VOICE CLONE
-========================================== -->
-
-<section class="dashboard-section">
-
-<div class="section-header">
-
-<h2>
-
-Voice Clone
-
-</h2>
-
-<button
-id="openVoiceClone"
-class="text-button">
-
-Open
-
-</button>
-
-</div>
-
-<div class="voice-clone-card glass">
-
-<div class="voice-clone-info">
-
-<span class="material-symbols-rounded">
-
-mic
-
-</span>
-
-<div>
-
-<h3>
-
-AI Voice Studio
-
-</h3>
-
-<p>
-
-Create, manage and use your cloned voices.
-
-</p>
-
-</div>
-
-</div>
-
-<button
-id="createVoiceClone"
-class="primary-button">
-
-Create Voice Clone
-
-</button>
-
-</div>
-
-</section>
-
-<!-- ==========================================
-AI IMAGE STUDIO
-========================================== -->
-
-<section class="dashboard-section">
-
-<div class="section-header">
-
-<h2>
-
-Image Studio
-
-</h2>
-
-<button
-id="openImageStudio"
-class="text-button">
-
-Open
-
-</button>
-
-</div>
-
-<div class="image-studio-card glass">
-
-<div class="image-studio-info">
-
-<span class="material-symbols-rounded">
-
-imagesmode
-
-</span>
-
-<div>
-
-<h3>
-
-AI Image Generator
-
-</h3>
-
-<p>
-
-Generate beautiful AI images from text prompts.
-
-</p>
-
-</div>
-
-</div>
-
-<button
-id="generateImageButton"
-class="primary-button">
-
-Generate Image
-
-</button>
-
-</div>
-
-</section>
-
-<!-- ==========================================
-RECENT FILES
-========================================== -->
-
-<section class="dashboard-section">
-
-<div class="section-header">
-
-<h2>
-
-Recent Files
-
-</h2>
-
-<button
-id="viewFiles"
-class="text-button">
-
-View All
-
-</button>
-
-</div>
-
-<div
-id="recentFiles"
-
-class="file-list">
-
-<div class="empty-card glass">
-
-<span class="material-symbols-rounded">
-
-folder
-
-</span>
-
-<h3>
-
-No files yet
-
-</h3>
-
-<p>
-
-Generated images, recordings and exports will appear here.
-
-</p>
-
-</div>
-
-</div>
-
-</section>
-
-<!-- ==========================================
-AI USAGE
-========================================== -->
-
-<section class="dashboard-section">
-
-<div class="section-header">
-
-<h2>
-
-Today's AI Usage
-
-</h2>
-
-</div>
-
-<div class="usage-grid">
-
-<div class="usage-card glass">
-
-<h3 id="todayChats">
-
-0
-
-</h3>
-
-<p>
-
-AI Chats
-
-</p>
-
-</div>
-
-<div class="usage-card glass">
-
-<h3 id="todayCalls">
-
-0
-
-</h3>
-
-<p>
-
-Voice Calls
-
-</p>
-
-</div>
-
-<div class="usage-card glass">
-
-<h3 id="todayImages">
-
-0
-
-</h3>
-
-<p>
-
-Images
-
-</p>
-
-</div>
-
-<div class="usage-card glass">
-
-<h3 id="todayTranslations">
-
-0
-
-</h3>
-
-<p>
-
-Translations
-
-</p>
-
-</div>
-
-</div>
-
-</section>
-
-<!-- ==========================================
-PART 4 STARTS HERE
-========================================== -->
-<!-- ==========================================
-RECENT ACTIVITY
-========================================== -->
-
-<section class="dashboard-section">
-
-<div class="section-header">
-
-<h2>
-
-Recent Activity
-
-</h2>
-
-<button
-id="viewActivity"
-class="text-button">
-
-View All
-
-</button>
-
-</div>
-
-<div
-id="recentActivity"
-
-class="activity-list">
-
-<div class="empty-card glass">
-
-<span class="material-symbols-rounded">
-
-schedule
-
-</span>
-
-<h3>
-
-No activity yet
-
-</h3>
-
-<p>
-
-Your latest EchoCall AI activity will appear here.
-
-</p>
-
-</div>
-
-</div>
-
-</section>
-
-<!-- ==========================================
-SMART RECOMMENDATIONS
-========================================== -->
-
-<section class="dashboard-section">
-
-<div class="section-header">
-
-<h2>
-
-Recommended For You
-
-</h2>
-
-</div>
-
-<div
-id="recommendationContainer"
-
-class="recommendation-grid">
-
-<div class="recommendation-card glass">
-
-<span class="material-symbols-rounded">
-
-auto_awesome
-
-</span>
-
-<h3>
-
-AI Suggestions
-
-</h3>
-
-<p>
-
-EchoCall AI will recommend useful features based on your activity.
-
-</p>
-
-</div>
-
-</div>
-
-</section>
-
-<!-- ==========================================
-ACCOUNT SUMMARY
-========================================== -->
-
-<section class="dashboard-section">
-
-<div class="section-header">
-
-<h2>
-
-Account Summary
-
-</h2>
-
-</div>
-
-<div class="summary-grid">
-
-<div class="summary-card glass">
-
-<h2 id="totalContacts">
-
-0
-
-</h2>
-
-<p>
-
-Contacts
-
-</p>
-
-</div>
-
-<div class="summary-card glass">
-
-<h2 id="totalCalls">
-
-0
-
-</h2>
-
-<p>
-
-Calls
-
-</p>
-
-</div>
-
-<div class="summary-card glass">
-
-<h2 id="totalChats">
-
-0
-
-</h2>
-
-<p>
-
-AI Chats
-
-</p>
-
-</div>
-
-<div class="summary-card glass">
-
-<h2 id="totalTranslations">
-
-0
-
-</h2>
-
-<p>
-
-Translations
-
-</p>
-
-</div>
-
-</div>
-
-</section>
-
-<!-- ==========================================
-QUICK SETTINGS
-========================================== -->
-
-<section class="dashboard-section">
-
-<div class="section-header">
-
-<h2>
-
-Quick Settings
-
-</h2>
-
-</div>
-
-<div class="quick-settings-grid">
-
-<button
-id="openProfile"
-
-class="settings-card glass">
-
-<span class="material-symbols-rounded">
-
-person
-
-</span>
-
-<span>
-
-Profile
-
-</span>
-
-</button>
-
-<button
-id="openSettings"
-
-class="settings-card glass">
-
-<span class="material-symbols-rounded">
-
-settings
-
-</span>
-
-<span>
-
-Settings
-
-</span>
-
-</button>
-
-<button
-id="openSecurity"
-
-class="settings-card glass">
-
-<span class="material-symbols-rounded">
-
-shield
-
-</span>
-
-<span>
-
-Security
-
-</span>
-
-</button>
-
-<button
-id="openPremium"
-
-class="settings-card glass">
-
-<span class="material-symbols-rounded">
-
-workspace_premium
-
-</span>
-
-<span>
-
-Premium
-
-</span>
-
-</button>
-
-</div>
-
-</section>
-
-<!-- ==========================================
-PART 5 STARTS HERE
-========================================== -->
-<!-- ==========================================
-BACKEND STATUS
-========================================== -->
-
-<section class="dashboard-section">
-
-<div class="section-header">
-
-<h2>
-
-Backend Services
-
-</h2>
-
-<button
-id="refreshBackendStatus"
-class="text-button">
-
-Refresh
-
-</button>
-
-</div>
-
-<div class="backend-grid">
-
-<div class="backend-card glass">
-
-<span class="material-symbols-rounded">
-
-dns
-
-</span>
-
-<h3>
-
-API Server
-
-</h3>
-
-<p id="apiStatus">
-
-Checking...
-
-</p>
-
-</div>
-
-<div class="backend-card glass">
-
-<span class="material-symbols-rounded">
-
-cloud
-
-</span>
-
-<h3>
-
-Firebase
-
-</h3>
-
-<p id="firebaseStatus">
-
-Checking...
-
-</p>
-
-</div>
-
-<div class="backend-card glass">
-
-<span class="material-symbols-rounded">
-
-psychology
-
-</span>
-
-<h3>
-
-OpenAI
-
-</h3>
-
-<p id="openaiStatus">
-
-Checking...
-
-</p>
-
-</div>
-
-<div class="backend-card glass">
-
-<span class="material-symbols-rounded">
-
-storage
-
-</span>
-
-<h3>
-
-Storage
-
-</h3>
-
-<p id="storageStatus">
-
-Checking...
-
-</p>
-
-</div>
-
-</div>
-
-</section>
-
-<!-- ==========================================
-TODAY'S INSIGHTS
-========================================== -->
-
-<section class="dashboard-section">
-
-<div class="section-header">
-
-<h2>
-
-Today's Insights
-
-</h2>
-
-</div>
-
-<div
-id="insightContainer"
-
-class="insight-card glass">
-
-<span class="material-symbols-rounded">
-
-tips_and_updates
-
-</span>
-
-<div>
-
-<h3>
-
-AI Insight
-
-</h3>
-
-<p id="dailyInsight">
-
-Your personalized AI insights will appear here.
-
-</p>
-
-</div>
-
-</div>
-
-</section>
-
-<!-- ==========================================
-RECENT NOTIFICATIONS
-========================================== -->
-
-<section class="dashboard-section">
-
-<div class="section-header">
-
-<h2>
-
-Recent Notifications
-
-</h2>
-
-<button
-id="viewAllNotifications"
-
-class="text-button">
-
-View All
-
-</button>
-
-</div>
-
-<div
-id="homeNotifications"
-
-class="notification-list">
-
-<div class="empty-card glass">
-
-<span class="material-symbols-rounded">
-
-notifications
-
-</span>
-
-<h3>
-
-No notifications
-
-</h3>
-
-<p>
-
-New notifications will appear here.
-
-</p>
-
-</div>
-
-</div>
-
-</section>
-
-<!-- ==========================================
-ACCOUNT INFORMATION
-========================================== -->
-
-<section class="dashboard-section">
-
-<div class="section-header">
-
-<h2>
-
-Account Information
-
-</h2>
-
-</div>
-
-<div class="account-card glass">
-
-<div class="account-item">
-
-<span>Email</span>
-
-<strong id="accountEmail">
-
-Loading...
-
-</strong>
-
-</div>
-
-<div class="account-item">
-
-<span>Membership</span>
-
-<strong id="membershipType">
-
-Free
-
-</strong>
-
-</div>
-
-<div class="account-item">
-
-<span>Joined</span>
-
-<strong id="joinedDate">
-
-Loading...
-
-</strong>
-
-</div>
-
-<div class="account-item">
-
-<span>Last Login</span>
-
-<strong id="lastLogin">
-
-Loading...
-
-</strong>
-
-</div>
-
-</div>
-
-</section>
-
-<!-- ==========================================
-PART 6 STARTS HERE
-========================================== -->
-<!-- ==========================================
-CLOUD STORAGE
-========================================== -->
-
-<section class="dashboard-section">
-
-<div class="section-header">
-
-<h2>
-
-Cloud Storage
-
-</h2>
-
-<button
-id="manageStorage"
-class="text-button">
-
-Manage
-
-</button>
-
-</div>
-
-<div class="storage-card glass">
-
-<div class="storage-header">
-
-<span class="material-symbols-rounded">
-
-cloud_upload
-
-</span>
-
-<div>
-
-<h3>
-
-EchoCall Cloud
-
-</h3>
-
-<p id="storageUsage">
-
-Loading storage usage...
-
-</p>
-
-</div>
-
-</div>
-
-<div class="storage-progress">
-
-<div
-id="storageProgressBar"
-class="storage-progress-bar">
-
-</div>
-
-</div>
-
-</div>
-
-</section>
-
-<!-- ==========================================
-DEVICE INFORMATION
-========================================== -->
-
-<section class="dashboard-section">
-
-<div class="section-header">
-
-<h2>
-
-Current Device
-
-</h2>
-
-</div>
-
-<div class="device-card glass">
-
-<div class="device-item">
-
-<span>
-
-Device
-
-</span>
-
-<strong id="deviceName">
-
-Loading...
-
-</strong>
-
-</div>
-
-<div class="device-item">
-
-<span>
-
-Browser
-
-</span>
-
-<strong id="browserName">
-
-Loading...
-
-</strong>
-
-</div>
-
-<div class="device-item">
-
-<span>
-
-Operating System
-
-</span>
-
-<strong id="osName">
-
-Loading...
-
-</strong>
-
-</div>
-
-<div class="device-item">
-
-<span>
-
-Network
-
-</span>
-
-<strong id="deviceNetwork">
-
-Checking...
-
-</strong>
-
-</div>
-
-</div>
-
-</section>
-
-<!-- ==========================================
-SECURITY STATUS
-========================================== -->
-
-<section class="dashboard-section">
-
-<div class="section-header">
-
-<h2>
-
-Security Center
-
-</h2>
-
-<button
-id="openSecurityCenter"
-class="text-button">
-
-Open
-
-</button>
-
-</div>
-
-<div class="security-grid">
-
-<div class="security-card glass">
-
-<span class="material-symbols-rounded">
-
-verified_user
-
-</span>
-
-<h3>
-
-Authentication
-
-</h3>
-
-<p id="authenticationStatus">
-
-Verified
-
-</p>
-
-</div>
-
-<div class="security-card glass">
-
-<span class="material-symbols-rounded">
-
-lock
-
-</span>
-
-<h3>
-
-Encryption
-
-</h3>
-
-<p>
-
-Enabled
-
-</p>
-
-</div>
-
-<div class="security-card glass">
-
-<span class="material-symbols-rounded">
-
-shield
-
-</span>
-
-<h3>
-
-Security Score
-
-</h3>
-
-<p id="securityScore">
-
-100%
-
-</p>
-
-</div>
-
-</div>
-
-</section>
-
-<!-- ==========================================
-FOOTER ACTIONS
-========================================== -->
-
-<section class="dashboard-section">
-
-<div class="footer-actions">
-
-<button
-id="refreshDashboard"
-class="primary-button">
-
-<span class="material-symbols-rounded">
-
-refresh
-
-</span>
-
-Refresh Dashboard
-
-</button>
-
-<button
-id="syncNow"
-class="secondary-button">
-
-<span class="material-symbols-rounded">
-
-sync
-
-</span>
-
-Sync Now
-
-</button>
-
-<button
-id="logoutAccount"
-class="danger-button">
-
-<span class="material-symbols-rounded">
-
-logout
-
-</span>
-
-Logout
-
-</button>
-
-</div>
-
-</section>
+    </section>
 
 </section>
 

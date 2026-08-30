@@ -1,7 +1,6 @@
 // ==========================================
 // EchoCall AI
 // File: js/app.js
-// Part 1
 // ==========================================
 
 // ==========================================
@@ -32,6 +31,14 @@ import {
 } from "./ai.js";
 
 // ==========================================
+// Toast
+// ==========================================
+
+import {
+    showToast
+} from "./toast.js";
+
+// ==========================================
 // Firebase Modules
 // ==========================================
 
@@ -50,211 +57,302 @@ import {
     getDownloadURL
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-storage.js";
 
+
 // ==========================================
-// Global Elements
+// DOM ELEMENTS
 // ==========================================
 
 const welcomeText =
-document.getElementById("welcomeText");
+    document.getElementById("welcomeText");
 
 const profileImage =
-document.getElementById("profileImage");
+    document.getElementById("profileImage");
 
 const searchButton =
-document.getElementById("searchButton");
+    document.getElementById("searchButton");
 
 const notificationButton =
-document.getElementById("notificationButton");
+    document.getElementById("notificationButton");
 
 const floatingAiButton =
-document.getElementById("floatingAiButton");
+    document.getElementById("floatingAiButton");
 
 const searchOverlay =
-document.getElementById("searchOverlay");
+    document.getElementById("searchOverlay");
 
 const notificationPanel =
-document.getElementById("notificationPanel");
+    document.getElementById("notificationPanel");
 
 const aiModal =
-document.getElementById("aiModal");
+    document.getElementById("aiModal");
 
 const settingsModal =
-document.getElementById("settingsModal");
+    document.getElementById("settingsModal");
 
 const offlineBanner =
-document.getElementById("offlineBanner");
+    document.getElementById("offlineBanner");
 
-const toastContainer =
-document.getElementById("toastContainer");
 
 // ==========================================
-// Global State
+// ADDITIONAL ELEMENTS
+// ==========================================
+
+const closeSearch =
+    document.getElementById("closeSearch");
+
+const closeNotifications =
+    document.getElementById("closeNotifications");
+
+const closeAiModal =
+    document.getElementById("closeAiModal");
+
+const closeSettings =
+    document.getElementById("closeSettings");
+
+
+// ==========================================
+// GLOBAL STATE
 // ==========================================
 
 let currentUser = null;
 
 let currentUserData = null;
 
+
 // ==========================================
-// Start Application
+// START APPLICATION
 // ==========================================
 
 document.addEventListener(
     "DOMContentLoaded",
-    async()=>{
+    async () => {
 
-        await initializeRouter();
+        try {
+
+            // Initialize router
+            await initializeRouter();
+
+            // Initialize AI
+            await initializeAI();
+
+            // Initialize network state
+            updateNetworkStatus();
+
+            console.log(
+                "EchoCall AI initialized successfully."
+            );
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "EchoCall initialization error:",
+                error
+            );
+
+            showToast(
+                "Unable to initialize EchoCall AI.",
+                "error"
+            );
+
+        }
 
     }
 );
 
+
 // ==========================================
-// Authentication
+// AUTHENTICATION
 // ==========================================
 
 onAuthStateChanged(
-
     auth,
+    async (user) => {
 
-    async(user)=>{
+        if (!user) {
 
-        if(!user){
+            currentUser = null;
+            currentUserData = null;
 
             window.location.replace(
-
                 "login.html"
-
             );
 
             return;
-
         }
 
         currentUser = user;
 
+        console.log(
+            "Authenticated user:",
+            user.uid
+        );
+
         await loadUserProfile();
 
     }
-
 );
 
-// ==========================================
-// End Part 1
-// ==========================================
-// ==========================================
-// EchoCall AI
-// File: js/app.js
-// Part 2
-// Append below Part 1
-// ==========================================
 
 // ==========================================
-// Load User Profile
+// LOAD USER PROFILE
 // ==========================================
 
 async function loadUserProfile() {
 
-    console.log("1. loadUserProfile started");
+    if (!currentUser) {
+        return;
+    }
 
     try {
 
-        console.log("2. UID:", currentUser.uid);
+        console.log(
+            "Loading user:",
+            currentUser.uid
+        );
 
-        const userRef = doc(db, "users", currentUser.uid);
+        const userRef =
+            doc(
+                db,
+                "users",
+                currentUser.uid
+            );
 
-        const userSnap = await getDoc(userRef);
+        const userSnap =
+            await getDoc(userRef);
 
-        console.log("3. Document exists:", userSnap.exists());
-
-        console.log("4. Data:", userSnap.data());
 
         if (userSnap.exists()) {
 
-            const data = userSnap.data();
-           
-            currentUserData = data;
-          
-            welcomeText.textContent =
-            "Welcome, " + data.firstName;
-            
+            currentUserData =
+                userSnap.data();
+
+
+            const firstName =
+                currentUserData.firstName ||
+                currentUserData.name ||
+                currentUser.displayName ||
+                "there";
+
+
+            if (welcomeText) {
+
+                welcomeText.textContent =
+                    `Welcome, ${firstName}`;
+
+            }
+
+
             await loadProfileImage();
 
-        } else {
+        }
 
-            welcomeText.textContent =
-            "Welcome, " + currentUser.email;
+        else {
+
+            currentUserData = null;
+
+
+            if (welcomeText) {
+
+                welcomeText.textContent =
+                    `Welcome, ${
+                        currentUser.displayName ||
+                        currentUser.email ||
+                        "there"
+                    }`;
+
+            }
+
+
+            await loadProfileImage();
 
         }
 
-    } catch (error) {
-
-        console.error(error);
-
-        welcomeText.textContent = "Error Loading";
-
     }
 
-}
+    catch (error) {
 
-// ==========================================
-// Load Profile Image
-// ==========================================
-
-async function loadProfileImage(){
-
-    if(!profileImage){
-
-        return;
-
-    }
-
-    try{
-
-        const imageRef = ref(
-
-            storage,
-
-            `profilePictures/${currentUser.uid}`
-
+        console.error(
+            "Load user profile error:",
+            error
         );
 
-        const imageURL =
 
-        await getDownloadURL(imageRef);
+        if (welcomeText) {
 
-        profileImage.src = imageURL;
+            welcomeText.textContent =
+                "Welcome back";
+
+        }
+
+        showToast(
+            "Unable to load your profile.",
+            "error"
+        );
 
     }
 
-    catch{
+}
 
-        if(currentUser.photoURL){
+
+// ==========================================
+// LOAD PROFILE IMAGE
+// ==========================================
+
+async function loadProfileImage() {
+
+    if (!profileImage || !currentUser) {
+        return;
+    }
+
+
+    try {
+
+        const imageRef =
+            ref(
+                storage,
+                `profilePictures/${currentUser.uid}`
+            );
+
+
+        const imageURL =
+            await getDownloadURL(imageRef);
+
+
+        profileImage.src =
+            imageURL;
+
+    }
+
+    catch (error) {
+
+        console.log(
+            "No Storage profile image found."
+        );
+
+
+        if (currentUser.photoURL) {
 
             profileImage.src =
-
-            currentUser.photoURL;
+                currentUser.photoURL;
 
         }
 
-        else if(
-
+        else if (
             currentUserData &&
-
             currentUserData.profilePhoto
-
-        ){
+        ) {
 
             profileImage.src =
-
-            currentUserData.profilePhoto;
+                currentUserData.profilePhoto;
 
         }
 
-        else{
+        else {
 
             profileImage.src =
-
-            "assets/default-avatar.png";
+                "assets/default-avatar.png";
 
         }
 
@@ -262,460 +360,1027 @@ async function loadProfileImage(){
 
 }
 
+
 // ==========================================
-// Open Profile Page
+// PROFILE BUTTON
 // ==========================================
 
 profileImage?.addEventListener(
-
     "click",
+    async () => {
 
-    ()=>{
+        try {
 
-        navigate("profile");
+            await navigate(
+                "profile"
+            );
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Profile navigation error:",
+                error
+            );
+
+            showToast(
+                "Unable to open profile.",
+                "error"
+            );
+
+        }
 
     }
-
 );
 
-// ==========================================
-// End Part 2
-// ==========================================
-// ==========================================
-// EchoCall AI
-// File: js/app.js
-// Part 3
-// ==========================================
 
 // ==========================================
-// Additional Elements
-// ==========================================
-
-const closeSearch =
-document.getElementById("closeSearch");
-
-const closeNotifications =
-document.getElementById("closeNotifications");
-
-const closeAiModal =
-document.getElementById("closeAiModal");
-
-const closeSettings =
-document.getElementById("closeSettings");
-
-// ==========================================
-// Search Overlay
+// SEARCH
 // ==========================================
 
 searchButton?.addEventListener(
-
     "click",
-
-    ()=>{
+    () => {
 
         searchOverlay?.classList.remove(
-
             "hidden"
-
         );
 
         notificationPanel?.classList.add(
-
             "hidden"
-
         );
+
 
         document
-        .getElementById("globalSearch")
-        ?.focus();
+            .getElementById("globalSearch")
+            ?.focus();
 
     }
-
 );
 
+
+// ==========================================
+// CLOSE SEARCH
+// ==========================================
+
 closeSearch?.addEventListener(
-
     "click",
-
-    ()=>{
+    () => {
 
         searchOverlay?.classList.add(
-
             "hidden"
-
         );
 
     }
-
 );
 
+
 // ==========================================
-// Notifications
+// NOTIFICATIONS
 // ==========================================
 
 notificationButton?.addEventListener(
-
     "click",
-
-    ()=>{
+    () => {
 
         notificationPanel?.classList.toggle(
-
             "hidden"
-
         );
 
         searchOverlay?.classList.add(
-
             "hidden"
-
         );
 
     }
-
 );
 
-closeNotifications?.addEventListener(
-
-    "click",
-
-    ()=>{
-
-        notificationPanel?.classList.add(
-
-            "hidden"
-
-        );
-
-    }
-
-);
 
 // ==========================================
-// Floating AI
+// CLOSE NOTIFICATIONS
+// ==========================================
+
+closeNotifications?.addEventListener(
+    "click",
+    () => {
+
+        notificationPanel?.classList.add(
+            "hidden"
+        );
+
+    }
+);
+
+
+// ==========================================
+// AI BUTTON
 // ==========================================
 
 floatingAiButton?.addEventListener(
-
     "click",
+    () => {
 
-    ()=>{
+        if (!aiModal) {
+            return;
+        }
 
-        aiModal?.classList.remove(
-
+        aiModal.classList.remove(
             "hidden"
-
         );
 
-    }
+        document
+            .getElementById("aiInput")
+            ?.focus();
 
+    }
 );
+
+
+// ==========================================
+// CLOSE AI
+// ==========================================
 
 closeAiModal?.addEventListener(
-
     "click",
-
-    ()=>{
+    () => {
 
         aiModal?.classList.add(
-
             "hidden"
-
         );
 
     }
-
 );
 
+
 // ==========================================
-// Settings
+// SETTINGS
 // ==========================================
 
 profileImage?.addEventListener(
-
     "dblclick",
-
-    ()=>{
+    () => {
 
         settingsModal?.classList.remove(
-
             "hidden"
-
         );
 
     }
-
 );
+
+
+// ==========================================
+// CLOSE SETTINGS
+// ==========================================
 
 closeSettings?.addEventListener(
-
     "click",
-
-    ()=>{
+    () => {
 
         settingsModal?.classList.add(
-
             "hidden"
-
         );
 
     }
-
 );
 
-// ==========================================
-// Open Profile
-// ==========================================
-
-profileImage?.addEventListener(
-
-    "click",
-
-    ()=>{
-
-        navigate("profile");
-
-    }
-
-);
 
 // ==========================================
-// Close Panels
+// CLOSE PANELS BY BACKDROP
 // ==========================================
 
 window.addEventListener(
-
     "click",
+    (event) => {
 
-    (event)=>{
-
-        if(event.target===searchOverlay){
+        if (
+            searchOverlay &&
+            event.target === searchOverlay
+        ) {
 
             searchOverlay.classList.add(
-
                 "hidden"
-
             );
 
         }
 
-        if(event.target===aiModal){
+
+        if (
+            aiModal &&
+            event.target === aiModal
+        ) {
 
             aiModal.classList.add(
-
                 "hidden"
-
             );
 
         }
 
-        if(event.target===settingsModal){
+
+        if (
+            settingsModal &&
+            event.target === settingsModal
+        ) {
 
             settingsModal.classList.add(
-
                 "hidden"
-
             );
 
         }
 
     }
-
 );
 
-// ==========================================
-// End Part 3
-// ==========================================
-// ==========================================
-// EchoCall AI
-// File: js/app.js
-// Part 4 (Final)
-// ==========================================
 
 // ==========================================
-// Toast
+// NETWORK STATUS
 // ==========================================
 
-export function showToast(
+function updateNetworkStatus() {
 
-    message,
-
-    type = "success"
-
-){
-
-    if(!toastContainer){
-
+    if (!offlineBanner) {
         return;
-
     }
 
-    const toast =
 
-    document.createElement("div");
-
-    toast.className =
-
-    `toast ${type}`;
-
-    toast.textContent =
-
-    message;
-
-    toastContainer.appendChild(toast);
-
-    requestAnimationFrame(()=>{
-
-        toast.classList.add("show");
-
-    });
-
-    setTimeout(()=>{
-
-        toast.classList.remove("show");
-
-        setTimeout(()=>{
-
-            toast.remove();
-
-        },300);
-
-    },3000);
-
-}
-
-// ==========================================
-// Network Status
-// ==========================================
-
-function updateNetworkStatus(){
-
-    if(!offlineBanner){
-
-        return;
-
-    }
-
-    if(navigator.onLine){
+    if (navigator.onLine) {
 
         offlineBanner.classList.add(
-
             "hidden"
-
         );
 
     }
 
-    else{
+    else {
 
         offlineBanner.classList.remove(
-
             "hidden"
-
         );
 
     }
 
 }
 
-window.addEventListener(
 
+// ==========================================
+// ONLINE
+// ==========================================
+
+window.addEventListener(
     "online",
-
-    ()=>{
+    () => {
 
         updateNetworkStatus();
 
         showToast(
-
-            "Back online."
-
+            "Back online.",
+            "success"
         );
 
     }
-
 );
+
+
+// ==========================================
+// OFFLINE
+// ==========================================
 
 window.addEventListener(
-
     "offline",
-
-    ()=>{
+    () => {
 
         updateNetworkStatus();
 
         showToast(
-
             "You're offline.",
-
             "warning"
-
         );
 
     }
-
 );
 
+
 // ==========================================
-// Logout
+// LOGOUT
 // ==========================================
 
-export async function logout(){
+export async function logout() {
 
-    try{
+    try {
 
         await signOut(auth);
 
-        window.location.replace(
+        showToast(
+            "Logged out successfully.",
+            "success"
+        );
 
-            "login.html"
 
+        setTimeout(
+            () => {
+
+                window.location.replace(
+                    "login.html"
+                );
+
+            },
+            500
         );
 
     }
 
-    catch(error){
+    catch (error) {
 
-        console.error(error);
+        console.error(
+            "Logout error:",
+            error
+        );
 
         showToast(
-
             "Unable to logout.",
-
             "error"
-
         );
 
     }
 
 }
 
+
 // ==========================================
-// Initialize App
+// GET CURRENT USER
 // ==========================================
 
-function initializeApp(){
+export function getCurrentUser() {
 
-    updateNetworkStatus();
+    return currentUser;
 
 }
 
-initializeApp();
 
 // ==========================================
-// Exports
+// GET CURRENT USER DATA
+// ==========================================
+
+export function getCurrentUserData() {
+
+    return currentUserData;
+
+}
+
+
+// ==========================================
+// LOAD PROFILE EXPORT
 // ==========================================
 
 export {
-
-    currentUser,
-
-    currentUserData,
-
     loadUserProfile
-
 };
 
 // ==========================================
-// End of app.js
+// EchoCall AI
+// REAL VOICE CHAT
+// ==========================================
+
+let voiceRecognition = null;
+let voiceChatActive = false;
+let voiceConversationId =
+    localStorage.getItem("echoCallVoiceConversationId") ||
+    `voice-${Date.now()}`;
+
+// ==========================================
+// Browser Speech Recognition
+// ==========================================
+
+function createVoiceRecognition() {
+
+    const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+
+        showToast(
+            "Voice recognition is not supported in this browser.",
+            "error"
+        );
+
+        return null;
+    }
+
+    const recognition = new SpeechRecognition();
+
+    recognition.lang = "en-US";
+
+    recognition.continuous = false;
+
+    recognition.interimResults = false;
+
+    recognition.maxAlternatives = 1;
+
+    // ======================================
+    // Started listening
+    // ======================================
+
+    recognition.onstart = () => {
+
+        voiceChatActive = true;
+
+        updateVoiceButtons(true);
+
+        showToast(
+            "Listening...",
+            "success"
+        );
+
+    };
+
+    // ======================================
+    // Speech detected
+    // ======================================
+
+    recognition.onresult = async (event) => {
+
+        const transcript =
+            event.results[0][0].transcript.trim();
+
+        console.log(
+            "Voice transcript:",
+            transcript
+        );
+
+        if (!transcript) {
+
+            showToast(
+                "I didn't hear anything.",
+                "warning"
+            );
+
+            return;
+        }
+
+        // Show user's message inside AI chat
+        addVoiceMessage(
+            transcript,
+            "user"
+        );
+
+        // Send to EchoCall AI
+        await sendVoiceMessage(
+            transcript
+        );
+
+    };
+
+    // ======================================
+    // Recognition ended
+    // ======================================
+
+    recognition.onend = () => {
+
+        voiceChatActive = false;
+
+        updateVoiceButtons(false);
+
+    };
+
+    // ======================================
+    // Recognition error
+    // ======================================
+
+    recognition.onerror = (event) => {
+
+        console.error(
+            "Speech recognition error:",
+            event.error
+        );
+
+        voiceChatActive = false;
+
+        updateVoiceButtons(false);
+
+        if (
+            event.error === "not-allowed" ||
+            event.error === "service-not-allowed"
+        ) {
+
+            showToast(
+                "Microphone permission was denied.",
+                "error"
+            );
+
+            return;
+        }
+
+        if (
+            event.error === "no-speech"
+        ) {
+
+            showToast(
+                "I didn't hear you. Try again.",
+                "warning"
+            );
+
+            return;
+        }
+
+        showToast(
+            "Voice recognition failed.",
+            "error"
+        );
+
+    };
+
+    return recognition;
+}
+
+// ==========================================
+// Start / Stop Voice Chat
+// ==========================================
+
+function toggleVoiceChat() {
+
+    if (!voiceRecognition) {
+
+        voiceRecognition =
+            createVoiceRecognition();
+
+        if (!voiceRecognition) {
+
+            return;
+        }
+
+    }
+
+    if (voiceChatActive) {
+
+        try {
+
+            voiceRecognition.stop();
+
+        }
+
+        catch (error) {
+
+            console.warn(error);
+
+        }
+
+        return;
+    }
+
+    try {
+
+        voiceRecognition.start();
+
+    }
+
+    catch (error) {
+
+        console.warn(
+            "Could not start recognition:",
+            error
+        );
+
+        // Recognition can throw if start()
+        // is called twice.
+
+        voiceRecognition =
+            createVoiceRecognition();
+
+    }
+
+}
+
+// ==========================================
+// Update All Voice Buttons
+// ==========================================
+
+function updateVoiceButtons(active) {
+
+    const buttons =
+        document.querySelectorAll(
+            "#startVoiceInput, #voiceChatButton, .voice-chat-button"
+        );
+
+    buttons.forEach(button => {
+
+        if (!button) return;
+
+        const icon =
+            button.querySelector(
+                ".material-symbols-rounded"
+            );
+
+        if (active) {
+
+            button.classList.add(
+                "voice-active"
+            );
+
+            button.setAttribute(
+                "aria-label",
+                "Stop listening"
+            );
+
+            if (icon) {
+
+                icon.textContent =
+                    "mic_off";
+
+            }
+
+            const text =
+                button.querySelector(
+                    ".voice-button-text"
+                );
+
+            if (text) {
+
+                text.textContent =
+                    "Listening...";
+
+            }
+
+        }
+
+        else {
+
+            button.classList.remove(
+                "voice-active"
+            );
+
+            button.setAttribute(
+                "aria-label",
+                "Start voice chat"
+            );
+
+            if (icon) {
+
+                icon.textContent =
+                    "mic";
+
+            }
+
+            const text =
+                button.querySelector(
+                    ".voice-button-text"
+                );
+
+            if (text) {
+
+                text.textContent =
+                    "Voice Chat";
+
+            }
+
+        }
+
+    });
+
+}
+
+// ==========================================
+// IMPORTANT:
+// Event delegation works even though
+// home.html is loaded dynamically.
+// ==========================================
+
+document.addEventListener(
+    "click",
+    (event) => {
+
+        const voiceButton =
+            event.target.closest(
+                "#startVoiceInput, #voiceChatButton, .voice-chat-button"
+            );
+
+        if (!voiceButton) {
+
+            return;
+        }
+
+        event.preventDefault();
+
+        event.stopPropagation();
+
+        console.log(
+            "Voice Chat button clicked"
+        );
+
+        toggleVoiceChat();
+
+    },
+    true
+);
+
+// ==========================================
+// Send Voice Transcript To EchoCall AI
+// ==========================================
+
+async function sendVoiceMessage(message) {
+
+    if (!currentUser) {
+
+        showToast(
+            "Please log in first.",
+            "error"
+        );
+
+        return;
+    }
+
+    try {
+
+        showToast(
+            "EchoCall AI is thinking...",
+            "success"
+        );
+
+        const token =
+            await currentUser.getIdToken();
+
+        const response =
+            await fetch(
+                "https://echocall-ai-backend.onrender.com/api/ai/chat",
+                {
+
+                    method: "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json",
+
+                        "Authorization":
+                            `Bearer ${token}`
+
+                    },
+
+                    body: JSON.stringify({
+
+                        message: message,
+
+                        conversationId:
+                            voiceConversationId,
+
+                        personality:
+                            "helpful",
+
+                        tone:
+                            "natural"
+
+                    })
+
+                }
+            );
+
+        if (!response.ok) {
+
+            const errorText =
+                await response.text();
+
+            console.error(
+                "AI server error:",
+                errorText
+            );
+
+            throw new Error(
+                `AI server returned ${response.status}`
+            );
+
+        }
+
+        const data =
+            await response.json();
+
+        console.log(
+            "Voice AI response:",
+            data
+        );
+
+        if (data.conversationId) {
+
+            voiceConversationId =
+                data.conversationId;
+
+            localStorage.setItem(
+                "echoCallVoiceConversationId",
+                voiceConversationId
+            );
+
+        }
+
+        const reply =
+            data.reply ||
+            data.message ||
+            data.response;
+
+        if (!reply) {
+
+            throw new Error(
+                "AI returned no response."
+            );
+
+        }
+
+        // Display AI response
+        addVoiceMessage(
+            reply,
+            "ai"
+        );
+
+        // Speak response
+        speakAIResponse(
+            reply
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Voice AI error:",
+            error
+        );
+
+        showToast(
+            "Unable to connect to EchoCall AI.",
+            "error"
+        );
+
+    }
+
+}
+
+// ==========================================
+// Add Message To AI Modal
+// ==========================================
+
+function addVoiceMessage(
+    message,
+    type
+) {
+
+    const container =
+        document.getElementById(
+            "aiChatContainer"
+        );
+
+    if (!container) {
+
+        console.warn(
+            "aiChatContainer not found"
+        );
+
+        return;
+    }
+
+    const wrapper =
+        document.createElement("div");
+
+    if (type === "user") {
+
+        wrapper.className =
+            "user-message";
+
+        wrapper.innerHTML = `
+            <div class="user-bubble">
+                ${escapeVoiceHTML(message)}
+            </div>
+        `;
+
+    }
+
+    else {
+
+        wrapper.className =
+            "ai-message";
+
+        wrapper.innerHTML = `
+            <div class="ai-avatar">
+                🤖
+            </div>
+
+            <div class="ai-bubble">
+                ${escapeVoiceHTML(message)}
+            </div>
+        `;
+
+    }
+
+    container.appendChild(
+        wrapper
+    );
+
+    container.scrollTop =
+        container.scrollHeight;
+
+}
+
+// ==========================================
+// Prevent HTML injection
+// ==========================================
+
+function escapeVoiceHTML(value) {
+
+    const div =
+        document.createElement("div");
+
+    div.textContent =
+        value;
+
+    return div.innerHTML;
+
+}
+
+// ==========================================
+// AI Voice Output
+// ==========================================
+
+function speakAIResponse(text) {
+
+    if (
+        !("speechSynthesis" in window)
+    ) {
+
+        console.warn(
+            "Speech synthesis not supported."
+        );
+
+        return;
+
+    }
+
+    window.speechSynthesis.cancel();
+
+    const utterance =
+        new SpeechSynthesisUtterance(
+            text
+        );
+
+    utterance.lang =
+        "en-US";
+
+    utterance.rate =
+        1;
+
+    utterance.pitch =
+        1;
+
+    utterance.volume =
+        1;
+
+    utterance.onstart = () => {
+
+        console.log(
+            "AI started speaking"
+        );
+
+    };
+
+    utterance.onend = () => {
+
+        console.log(
+            "AI finished speaking"
+        );
+
+    };
+
+    utterance.onerror = (error) => {
+
+        console.error(
+            "Speech synthesis error:",
+            error
+        );
+
+    };
+
+    window.speechSynthesis.speak(
+        utterance
+    );
+
+}
+
+// ==========================================
+// Reset Voice Conversation
+// ==========================================
+
+export function resetVoiceConversation() {
+
+    voiceConversationId =
+        `voice-${Date.now()}`;
+
+    localStorage.setItem(
+        "echoCallVoiceConversationId",
+        voiceConversationId
+    );
+
+}
+
+// ==========================================
+// End Voice Chat
+// ==========================================
+
+
+// ==========================================
+// END OF APP.JS
 // ==========================================
