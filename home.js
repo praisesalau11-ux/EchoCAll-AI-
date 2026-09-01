@@ -1,2988 +1,1061 @@
 // ==========================================
 // EchoCall AI
 // File: js/home.js
+// Home Dashboard
 // Part 1
 // ==========================================
 
-import { navigate } from "./router.js";
 
-import { showToast } from "./toast.js";
-
-import {
-    initializeAI,
-    startVoiceInput
-} from "./ai.js";
-
-import { auth } from "./firebase.js";
+// ==========================================
+// Firebase Authentication
+// ==========================================
 
 import {
-    onAuthStateChanged,
-    signOut
+    auth
+} from "./firebase.js";
+
+import {
+    onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
 
-// ==========================================
-// BACKEND
-// ==========================================
+import {
+    showToast
+} from "./toast.js";
 
-const API_URL =
-    "https://echocall-ai-backend.onrender.com";
-
-const CALLS_API =
-    `${API_URL}/api/calls`;
 
 // ==========================================
-// STATE
+// State
 // ==========================================
-
-let initialized = false;
-
-let authUnsubscribe = null;
-
-let homeAbortController = null;
 
 let currentUser = null;
 
+let homeInitialized = false;
+
+
 // ==========================================
-// INITIALIZE HOME
+// DOM Elements
 // ==========================================
 
-export function initializeHome(){
+// ------------------------------------------
+// Hero
+// ------------------------------------------
 
-    if(initialized){
+let homeGreeting = null;
+let homeSubtitle = null;
+let homeProfileImage = null;
 
-        refreshDashboard();
+let startAiChatButton = null;
+let newCallButton = null;
+let startVoiceInputButton = null;
 
-        return;
-    }
 
-    initialized = true;
+// ------------------------------------------
+// Quick Actions
+// ------------------------------------------
 
-    // --------------------------------------
-    // AI
-    // --------------------------------------
+let quickAi = null;
+let quickTranslate = null;
+let quickContacts = null;
+let quickCalls = null;
+let quickHistory = null;
+let quickNotifications = null;
 
-    initializeAI();
 
-    // --------------------------------------
-    // UI
-    // --------------------------------------
+// ------------------------------------------
+// Recent Sections
+// ------------------------------------------
 
-    initializeHeroButtons();
+let recentAiChats = null;
+let recentCalls = null;
+let favoriteContacts = null;
+let homeNotifications = null;
 
-    initializeQuickActions();
 
-    initializeQuickSettings();
+// ------------------------------------------
+// Voice Clone
+// ------------------------------------------
 
-    initializeDashboardButtons();
+let openVoiceClone = null;
+let createVoiceClone = null;
 
-    initializeRefreshButtons();
 
-    initializeSecurityCenter();
+// ------------------------------------------
+// Image Studio
+// ------------------------------------------
 
-    initializeCloudStorage();
+let openImageStudio = null;
+let generateImageButton = null;
 
-    initializeNotifications();
 
-    initializeDeviceInformation();
+// ------------------------------------------
+// Dashboard Controls
+// ------------------------------------------
 
-    // --------------------------------------
-    // NETWORK
-    // --------------------------------------
+let viewAllAiChats = null;
+let viewAllCalls = null;
+let viewContacts = null;
+let viewAllNotifications = null;
 
-    updateNetworkStatus();
+let refreshDashboard = null;
+let logoutAccount = null;
 
-    window.addEventListener(
-        "online",
-        updateNetworkStatus
+
+// ==========================================
+// Initialize Home
+// ==========================================
+
+export function initializeHome() {
+
+    console.log(
+        "EchoCall AI → Initializing Home"
     );
 
-    window.addEventListener(
-        "offline",
-        updateNetworkStatus
-    );
 
-    // --------------------------------------
-    // AUTH
-    // --------------------------------------
+    // ======================================
+    // Prevent Duplicate Initialization
+    // ======================================
 
-    initializeAuthentication();
+    if (homeInitialized) {
 
-    // --------------------------------------
-    // BACKEND
-    // --------------------------------------
-
-    checkBackendStatus();
-
-    return cleanupHome;
-}
-
-// ==========================================
-// CLEANUP
-// ==========================================
-
-export function cleanupHome(){
-
-    homeAbortController?.abort();
-
-    homeAbortController = null;
-
-    authUnsubscribe?.();
-
-    authUnsubscribe = null;
-
-    window.removeEventListener(
-        "online",
-        updateNetworkStatus
-    );
-
-    window.removeEventListener(
-        "offline",
-        updateNetworkStatus
-    );
-
-    initialized = false;
-}
-
-// ==========================================
-// AUTHENTICATION
-// ==========================================
-
-function initializeAuthentication(){
-
-    if(!auth){
-
-        setText(
-            "accountEmail",
-            "Authentication unavailable"
-        );
-
-        setText(
-            "authenticationStatus",
-            "Unavailable"
-        );
-
-        setText(
-            "securityScore",
-            "0%"
+        console.log(
+            "EchoCall Home → Already initialized."
         );
 
         return;
+
     }
 
-    authUnsubscribe = onAuthStateChanged(
 
-        auth,
+    // ======================================
+    // Find Hero Elements
+    // ======================================
 
-        async(user)=>{
+    homeGreeting =
+        document.getElementById(
+            "homeGreeting"
+        );
 
-            currentUser =
-                user || null;
+    homeSubtitle =
+        document.getElementById(
+            "homeSubtitle"
+        );
 
-            // ----------------------------------
-            // SIGNED OUT
-            // ----------------------------------
+    homeProfileImage =
+        document.getElementById(
+            "homeProfileImage"
+        );
 
-            if(!user){
-
-                clearDashboardForSignedOutUser();
-
-                return;
-            }
-
-            // ----------------------------------
-            // ACCOUNT
-            // ----------------------------------
-
-            populateAccountInformation(
-                user
-            );
-
-            populateProfile(
-                user
-            );
-
-            // ----------------------------------
-            // DASHBOARD
-            // ----------------------------------
-
-            await refreshDashboard();
-
-        }
-
-    );
-}
-
-// ==========================================
-// HERO BUTTONS
-// ==========================================
-
-function initializeHeroButtons(){
-
-    document
-        .getElementById(
+    startAiChatButton =
+        document.getElementById(
             "startAiChatButton"
-        )
-        ?.addEventListener(
-            "click",
-            openAI
         );
 
-    document
-        .getElementById(
+    newCallButton =
+        document.getElementById(
             "newCallButton"
-        )
-        ?.addEventListener(
-            "click",
-            ()=>navigate("calls")
         );
 
-    document
-        .getElementById(
+    startVoiceInputButton =
+        document.getElementById(
             "startVoiceInput"
-        )
-        ?.addEventListener(
-            "click",
-            ()=>{
-
-                openAI();
-
-                setTimeout(
-                    ()=>{
-
-                        try{
-
-                            startVoiceInput();
-
-                        }
-                        catch(error){
-
-                            console.error(
-                                error
-                            );
-
-                            showToast(
-                                "Voice input could not be started.",
-                                "error"
-                            );
-
-                        }
-
-                    },
-                    300
-                );
-
-            }
         );
 
-    document
-        .getElementById(
-            "homeProfileImage"
-        )
-        ?.addEventListener(
-            "click",
-            ()=>navigate("profile")
-        );
-}
 
-// ==========================================
-// OPEN AI
-// ==========================================
+    // ======================================
+    // Find Quick Actions
+    // ======================================
 
-function openAI(){
-
-    const modal =
+    quickAi =
         document.getElementById(
-            "aiModal"
+            "quickAi"
         );
 
-    if(modal){
-
-        modal.classList.remove(
-            "hidden"
-        );
-
-        document
-            .getElementById(
-                "aiInput"
-            )
-            ?.focus();
-
-        return;
-    }
-
-    const floating =
+    quickTranslate =
         document.getElementById(
-            "floatingAiButton"
+            "quickTranslate"
         );
 
-    if(floating){
-
-        floating.click();
-
-        return;
-    }
-
-    showToast(
-        "AI Assistant is unavailable.",
-        "error"
-    );
-}
-
-// ==========================================
-// QUICK ACTIONS
-// ==========================================
-
-function initializeQuickActions(){
-
-    document
-        .getElementById("quickAi")
-        ?.addEventListener(
-            "click",
-            openAI
-        );
-
-    document
-        .getElementById("quickTranslate")
-        ?.addEventListener(
-            "click",
-            ()=>navigate("translate")
-        );
-
-    document
-        .getElementById("quickVoiceClone")
-        ?.addEventListener(
-            "click",
-            ()=>navigate("voiceClone")
-        );
-
-    document
-        .getElementById("quickContacts")
-        ?.addEventListener(
-            "click",
-            ()=>navigate("contacts")
-        );
-
-    document
-        .getElementById("quickCalls")
-        ?.addEventListener(
-            "click",
-            ()=>navigate("calls")
-        );
-
-    document
-        .getElementById("quickHistory")
-        ?.addEventListener(
-            "click",
-            ()=>navigate("history")
-        );
-}
-
-// ==========================================
-// QUICK SETTINGS
-// ==========================================
-
-function initializeQuickSettings(){
-
-    document
-        .getElementById("openProfile")
-        ?.addEventListener(
-            "click",
-            ()=>navigate("profile")
-        );
-
-    document
-        .getElementById("openSettings")
-        ?.addEventListener(
-            "click",
-            ()=>navigate("settings")
-        );
-
-    document
-        .getElementById("openSecurity")
-        ?.addEventListener(
-            "click",
-            ()=>navigate("security")
-        );
-
-    document
-        .getElementById("openPremium")
-        ?.addEventListener(
-            "click",
-            ()=>navigate("premium")
-        );
-}
-
-// ==========================================
-// DASHBOARD BUTTONS
-// ==========================================
-
-function initializeDashboardButtons(){
-
-    document
-        .getElementById("viewAllAiChats")
-        ?.addEventListener(
-            "click",
-            ()=>navigate("history")
-        );
-
-    document
-        .getElementById("viewAllCalls")
-        ?.addEventListener(
-            "click",
-            ()=>navigate("calls")
-        );
-
-    document
-        .getElementById("viewContacts")
-        ?.addEventListener(
-            "click",
-            ()=>navigate("contacts")
-        );
-
-    document
-        .getElementById("viewTranslations")
-        ?.addEventListener(
-            "click",
-            ()=>navigate("translate")
-        );
-
-    document
-        .getElementById("openVoiceClone")
-        ?.addEventListener(
-            "click",
-            ()=>navigate("voiceClone")
-        );
-
-    document
-        .getElementById("createVoiceClone")
-        ?.addEventListener(
-            "click",
-            ()=>navigate("voiceClone")
-        );
-
-    document
-        .getElementById("openImageStudio")
-        ?.addEventListener(
-            "click",
-            ()=>navigate("imageStudio")
-        );
-
-    document
-        .getElementById("generateImageButton")
-        ?.addEventListener(
-            "click",
-            ()=>navigate("imageStudio")
-        );
-
-    document
-        .getElementById("viewFiles")
-        ?.addEventListener(
-            "click",
-            ()=>navigate("files")
-        );
-
-    document
-        .getElementById("viewActivity")
-        ?.addEventListener(
-            "click",
-            ()=>navigate("activity")
-        );
-}
-
-// ==========================================
-// REFRESH BUTTONS
-// ==========================================
-
-function initializeRefreshButtons(){
-
-    document
-        .getElementById(
-            "refreshBackendStatus"
-        )
-        ?.addEventListener(
-            "click",
-            ()=>checkBackendStatus(true)
-        );
-
-    document
-        .getElementById(
-            "refreshDashboard"
-        )
-        ?.addEventListener(
-            "click",
-            ()=>refreshDashboard(true)
-        );
-
-    document
-        .getElementById(
-            "syncNow"
-        )
-        ?.addEventListener(
-            "click",
-            async()=>{
-
-                await refreshDashboard(
-                    true
-                );
-
-                showToast(
-                    "Dashboard synced.",
-                    "success"
-                );
-
-            }
-        );
-
-    document
-        .getElementById(
-            "logoutAccount"
-        )
-        ?.addEventListener(
-            "click",
-            logoutAccount
-        );
-}
-
-// ==========================================
-// LOGOUT
-// ==========================================
-
-async function logoutAccount(){
-
-    if(!auth){
-
-        showToast(
-            "Authentication is unavailable.",
-            "error"
-        );
-
-        return;
-    }
-
-    try{
-
-        await signOut(auth);
-
-        showToast(
-            "Logged out successfully.",
-            "success"
-        );
-
-        navigate("login");
-
-    }
-    catch(error){
-
-        console.error(
-            error
-        );
-
-        showToast(
-            "Logout failed.",
-            "error"
-        );
-
-    }
-}
-
-// ==========================================
-// EchoCall AI
-// File: js/home.js
-// Part 2A — Dashboard Core
-// ==========================================
-
-// ==========================================
-// TEXT HELPER
-// ==========================================
-
-function setText(id, value){
-
-    const element =
-        document.getElementById(id);
-
-    if(element){
-
-        element.textContent =
-            value ?? "";
-
-    }
-
-}
-
-// ==========================================
-// INITIAL DASHBOARD REFRESH
-// ==========================================
-
-async function refreshDashboard(
-    force = false
-){
-
-    if(!currentUser){
-
-        clearDashboardForSignedOutUser();
-
-        return;
-
-    }
-
-    try{
-
-        setText(
-            "syncStatus",
-            "Syncing..."
-        );
-
-        populateAccountInformation(
-            currentUser
-        );
-
-        populateProfile(
-            currentUser
-        );
-
-        updateDeviceInformation();
-
-        updateNetworkStatus();
-
-        updateSecurityStatus(
-            currentUser
-        );
-
-        await loadBackendInformation();
-
-        await loadRecentCalls();
-
-        await loadFavoriteContacts();
-
-        await loadCallStatistics();
-
-        loadLocalDashboardData();
-
-        generateDashboardInsight();
-
-        generateRecommendations();
-
-        updateRecentActivity();
-
-        setText(
-            "syncStatus",
-            "Synced"
-        );
-
-    }
-
-    catch(error){
-
-        console.error(
-            "Dashboard refresh error:",
-            error
-        );
-
-        setText(
-            "syncStatus",
-            "Sync failed"
-        );
-
-    }
-
-}
-
-// ==========================================
-// ACCOUNT INFORMATION
-// ==========================================
-
-function populateAccountInformation(
-    user
-){
-
-    if(!user){
-
-        return;
-
-    }
-
-    setText(
-        "accountEmail",
-        user.email ||
-        "No email"
-    );
-
-    setText(
-        "membershipType",
-        "Free"
-    );
-
-    setText(
-        "joinedDate",
-        formatDate(
-            user.metadata?.creationTime
-        )
-    );
-
-    setText(
-        "lastLogin",
-        formatDate(
-            user.metadata?.lastSignInTime
-        )
-    );
-
-}
-
-// ==========================================
-// PROFILE
-// ==========================================
-
-function populateProfile(
-    user
-){
-
-    if(!user){
-
-        return;
-
-    }
-
-    const image =
+    quickContacts =
         document.getElementById(
-            "homeProfileImage"
+            "quickContacts"
         );
 
-    if(image){
-
-        image.src =
-            user.photoURL ||
-            "assets/default-avatar.png";
-
-    }
-
-    const name =
-        user.displayName ||
-        user.email?.split("@")[0] ||
-        "there";
-
-    setText(
-        "homeGreeting",
-        `Welcome, ${name} 👋`
-    );
-
-    setText(
-        "homeSubtitle",
-        "Your intelligent communication assistant."
-    );
-
-}
-
-// ==========================================
-// SECURITY
-// ==========================================
-
-function updateSecurityStatus(
-    user
-){
-
-    if(!user){
-
-        setText(
-            "authenticationStatus",
-            "Not authenticated"
-        );
-
-        setText(
-            "securityScore",
-            "0%"
-        );
-
-        return;
-
-    }
-
-    const verified =
-        user.emailVerified;
-
-    setText(
-        "authenticationStatus",
-        verified
-            ? "Verified"
-            : "Email not verified"
-    );
-
-    setText(
-        "securityScore",
-        verified
-            ? "100%"
-            : "60%"
-    );
-
-    setText(
-        "securityStatus",
-        verified
-            ? "Protected"
-            : "Email not verified"
-    );
-
-}
-
-// ==========================================
-// NETWORK
-// ==========================================
-
-function updateNetworkStatus(){
-
-    const online =
-        navigator.onLine;
-
-    setText(
-        "networkStatus",
-        online
-            ? "Online"
-            : "Offline"
-    );
-
-    setText(
-        "deviceNetwork",
-        online
-            ? "Online"
-            : "Offline"
-    );
-
-}
-
-// ==========================================
-// DEVICE INFORMATION
-// ==========================================
-
-function updateDeviceInformation(){
-
-    const ua =
-        navigator.userAgent || "";
-
-    let browser =
-        "Unknown";
-
-    let os =
-        "Unknown";
-
-    if(ua.includes("Edg/")){
-
-        browser =
-            "Microsoft Edge";
-
-    }
-    else if(ua.includes("Chrome/")){
-
-        browser =
-            "Google Chrome";
-
-    }
-    else if(ua.includes("Firefox/")){
-
-        browser =
-            "Firefox";
-
-    }
-    else if(ua.includes("Safari/")){
-
-        browser =
-            "Safari";
-
-    }
-
-    if(ua.includes("Android")){
-
-        os = "Android";
-
-    }
-    else if(
-        ua.includes("iPhone") ||
-        ua.includes("iPad")
-    ){
-
-        os = "iOS";
-
-    }
-    else if(ua.includes("Windows")){
-
-        os = "Windows";
-
-    }
-    else if(ua.includes("Mac OS")){
-
-        os = "macOS";
-
-    }
-    else if(ua.includes("Linux")){
-
-        os = "Linux";
-
-    }
-
-    setText(
-        "browserName",
-        browser
-    );
-
-    setText(
-        "osName",
-        os
-    );
-
-    setText(
-        "deviceName",
-        os === "Android"
-            ? "Android Device"
-            : os
-    );
-
-}
-
-// ==========================================
-// END OF PART 2A
-// ==========================================
-
-// ==========================================
-// PART 2B — BACKEND STATUS
-// ==========================================
-
-// ==========================================
-// BACKEND CHECK
-// ==========================================
-
-async function checkBackendStatus(
-    showMessage = false
-){
-
-    setText(
-        "backendStatus",
-        "Checking..."
-    );
-
-    setText(
-        "apiStatus",
-        "Checking..."
-    );
-
-    try{
-
-        const response =
-            await fetch(
-                `${API_URL}/api/calls/info`,
-                {
-                    method: "GET"
-                }
-            );
-
-        if(!response.ok){
-
-            throw new Error(
-                `Backend returned ${response.status}`
-            );
-
-        }
-
-        const data =
-            await response.json();
-
-        if(data.success){
-
-            setText(
-                "backendStatus",
-                "Online"
-            );
-
-            setText(
-                "apiStatus",
-                "Online"
-            );
-
-            if(showMessage){
-
-                showToast(
-                    "Backend is online.",
-                    "success"
-                );
-
-            }
-
-        }
-        else{
-
-            throw new Error(
-                "Backend health check failed."
-            );
-
-        }
-
-    }
-
-    catch(error){
-
-        console.error(
-            "Backend status error:",
-            error
-        );
-
-        setText(
-            "backendStatus",
-            "Offline"
-        );
-
-        setText(
-            "apiStatus",
-            "Offline"
-        );
-
-        if(showMessage){
-
-            showToast(
-                "Backend is unavailable.",
-                "error"
-            );
-
-        }
-
-    }
-
-}
-
-// ==========================================
-// BACKEND INFORMATION
-// ==========================================
-
-async function loadBackendInformation(){
-
-    try{
-
-        const response =
-            await fetch(
-                `${API_URL}/api/calls/info`
-            );
-
-        if(!response.ok){
-
-            throw new Error(
-                "Backend unavailable"
-            );
-
-        }
-
-        const data =
-            await response.json();
-
-        if(data.success){
-
-            setText(
-                "backendStatus",
-                "Online"
-            );
-
-            setText(
-                "apiStatus",
-                "Online"
-            );
-
-        }
-
-        // Firebase is already connected
-        // through Firebase Authentication.
-
-        setText(
-            "firebaseStatus",
-            auth
-                ? "Connected"
-                : "Unavailable"
-        );
-
-        // OpenAI is handled by the backend.
-        // Do not expose the API key to frontend.
-
-        setText(
-            "openaiStatus",
-            data.success
-                ? "Connected"
-                : "Unavailable"
-        );
-
-        setText(
-            "storageStatus",
-            "Ready"
-        );
-
-    }
-
-    catch(error){
-
-        console.error(
-            "Backend information error:",
-            error
-        );
-
-        setText(
-            "backendStatus",
-            "Offline"
-        );
-
-        setText(
-            "apiStatus",
-            "Offline"
-        );
-
-        setText(
-            "firebaseStatus",
-            auth
-                ? "Connected"
-                : "Unavailable"
-        );
-
-        setText(
-            "openaiStatus",
-            "Unavailable"
-        );
-
-        setText(
-            "storageStatus",
-            "Unavailable"
-        );
-
-    }
-
-}
-
-// ==========================================
-// AUTHENTICATED API REQUEST
-// ==========================================
-
-async function apiRequest(
-    endpoint,
-    options = {}
-){
-
-    if(!currentUser){
-
-        throw new Error(
-            "User is not authenticated."
-        );
-
-    }
-
-    const token =
-        await currentUser.getIdToken();
-
-    const headers = {
-
-        ...(options.headers || {}),
-
-        Authorization:
-            `Bearer ${token}`
-
-    };
-
-    if(
-        options.body &&
-        !(options.body instanceof FormData)
-    ){
-
-        headers["Content-Type"] =
-            "application/json";
-
-    }
-
-    const response =
-        await fetch(
-
-            `${CALLS_API}${endpoint}`,
-
-            {
-                ...options,
-                headers
-            }
-
-        );
-
-    let data = null;
-
-    try{
-
-        data =
-            await response.json();
-
-    }
-    catch{
-
-        data = null;
-
-    }
-
-    if(!response.ok){
-
-        throw new Error(
-
-            data?.message ||
-            data?.error ||
-            `Request failed: ${response.status}`
-
-        );
-
-    }
-
-    return data;
-
-}
-
-// ==========================================
-// END OF PART 2B
-// ==========================================
-
-// ==========================================
-// PART 2C — CALLS & FAVORITES
-// ==========================================
-
-// ==========================================
-// LOAD RECENT CALLS
-// ==========================================
-
-async function loadRecentCalls(){
-
-    const container =
+    quickCalls =
         document.getElementById(
-            "recentCalls"
+            "quickCalls"
         );
 
-    if(!container || !currentUser){
-
-        return;
-
-    }
-
-    try{
-
-        const data =
-            await apiRequest(
-                "/recent"
-            );
-
-        const calls =
-            data.recentCalls || [];
-
-        if(!calls.length){
-
-            container.innerHTML = `
-                <div class="empty-card glass">
-
-                    <span class="material-symbols-rounded">
-                        call
-                    </span>
-
-                    <h3>
-                        No recent calls
-                    </h3>
-
-                    <p>
-                        Your recent calls will appear here.
-                    </p>
-
-                </div>
-            `;
-
-            return;
-
-        }
-
-        container.innerHTML =
-            calls
-                .slice(0,5)
-                .map(
-                    renderCall
-                )
-                .join("");
-
-    }
-
-    catch(error){
-
-        console.error(
-            "Recent calls error:",
-            error
-        );
-
-    }
-
-}
-
-// ==========================================
-// RENDER CALL
-// ==========================================
-
-function renderCall(call){
-
-    const phone =
-        call.phoneNumber ||
-        "Unknown number";
-
-    const status =
-        call.status ||
-        "unknown";
-
-    const duration =
-        formatDuration(
-            call.duration || 0
-        );
-
-    const date =
-        formatDate(
-            call.createdAt
-        );
-
-    return `
-        <div class="call-item glass">
-
-            <div class="call-item-icon">
-
-                <span class="material-symbols-rounded">
-                    call
-                </span>
-
-            </div>
-
-            <div class="call-item-info">
-
-                <strong>
-                    ${escapeHTML(phone)}
-                </strong>
-
-                <span>
-                    ${escapeHTML(status)}
-                    • ${duration}
-                </span>
-
-            </div>
-
-            <small>
-                ${escapeHTML(date)}
-            </small>
-
-        </div>
-    `;
-
-}
-
-// ==========================================
-// LOAD FAVORITE CONTACTS
-// ==========================================
-
-async function loadFavoriteContacts(){
-
-    const container =
+    quickHistory =
         document.getElementById(
-            "favoriteContacts"
+            "quickHistory"
         );
 
-    if(!container || !currentUser){
-
-        return;
-
-    }
-
-    try{
-
-        const data =
-            await apiRequest(
-                "/favorites"
-            );
-
-        const favorites =
-            data.favorites || [];
-
-        if(!favorites.length){
-
-            container.innerHTML = `
-                <div class="empty-card glass">
-
-                    <span class="material-symbols-rounded">
-                        contacts
-                    </span>
-
-                    <h3>
-                        No favourite contacts
-                    </h3>
-
-                    <p>
-                        Your favorite contacts will appear here.
-                    </p>
-
-                </div>
-            `;
-
-            return;
-
-        }
-
-        container.innerHTML =
-            favorites
-                .slice(0,6)
-                .map(
-                    renderFavorite
-                )
-                .join("");
-
-    }
-
-    catch(error){
-
-        console.error(
-            "Favorite contacts error:",
-            error
+    quickNotifications =
+        document.getElementById(
+            "quickNotifications"
         );
 
-    }
 
-}
+    // ======================================
+    // Find Recent Sections
+    // ======================================
 
-// ==========================================
-// RENDER FAVORITE
-// ==========================================
-
-function renderFavorite(
-    contact
-){
-
-    const name =
-        contact.name ||
-        contact.phoneNumber ||
-        "Unknown";
-
-    const phone =
-        contact.phoneNumber ||
-        "";
-
-    return `
-        <div class="contact-item glass">
-
-            <div class="contact-avatar">
-
-                <span class="material-symbols-rounded">
-                    person
-                </span>
-
-            </div>
-
-            <div class="contact-info">
-
-                <strong>
-                    ${escapeHTML(name)}
-                </strong>
-
-                <span>
-                    ${escapeHTML(phone)}
-                </span>
-
-            </div>
-
-        </div>
-    `;
-
-}
-
-// ==========================================
-// CALL STATISTICS
-// ==========================================
-
-async function loadCallStatistics(){
-
-    try{
-
-        const data =
-            await apiRequest(
-                "/statistics"
-            );
-
-        const stats =
-            data.statistics || {};
-
-        setText(
-            "totalCalls",
-            stats.totalCalls || 0
-        );
-
-        setText(
-            "todayCalls",
-            stats.totalCalls || 0
-        );
-
-    }
-
-    catch(error){
-
-        console.error(
-            "Call statistics error:",
-            error
-        );
-
-        setText(
-            "totalCalls",
-            "0"
-        );
-
-        setText(
-            "todayCalls",
-            "0"
-        );
-
-    }
-
-}
-
-// ==========================================
-// FORMAT DURATION
-// ==========================================
-
-function formatDuration(
-    seconds
-){
-
-    const total =
-        Number(seconds) || 0;
-
-    if(total <= 0){
-
-        return "0 sec";
-
-    }
-
-    const minutes =
-        Math.floor(
-            total / 60
-        );
-
-    const remaining =
-        total % 60;
-
-    if(minutes === 0){
-
-        return `${remaining} sec`;
-
-    }
-
-    return `${minutes}m ${remaining}s`;
-
-}
-
-// ==========================================
-// FORMAT DATE
-// ==========================================
-
-function formatDate(
-    value
-){
-
-    if(!value){
-
-        return "Unknown";
-
-    }
-
-    try{
-
-        let date;
-
-        if(
-            typeof value === "object" &&
-            value._seconds
-        ){
-
-            date =
-                new Date(
-                    value._seconds * 1000
-                );
-
-        }
-        else{
-
-            date =
-                new Date(value);
-
-        }
-
-        if(
-            Number.isNaN(
-                date.getTime()
-            )
-        ){
-
-            return "Unknown";
-
-        }
-
-        return date.toLocaleDateString(
-            undefined,
-            {
-                day: "numeric",
-                month: "short",
-                year: "numeric"
-            }
-        );
-
-    }
-
-    catch{
-
-        return "Unknown";
-
-    }
-
-}
-
-// ==========================================
-// ESCAPE HTML
-// ==========================================
-
-function escapeHTML(
-    value
-){
-
-    return String(
-        value ?? ""
-    )
-    .replace(
-        /&/g,
-        "&amp;"
-    )
-    .replace(
-        /</g,
-        "&lt;"
-    )
-    .replace(
-        />/g,
-        "&gt;"
-    )
-    .replace(
-        /"/g,
-        "&quot;"
-    )
-    .replace(
-        /'/g,
-        "&#039;"
-    );
-
-}
-
-// ==========================================
-// END OF PART 2C
-// ==========================================
-// ==========================================
-// PART 2D — AI CHATS, TRANSLATIONS & USAGE
-// ==========================================
-
-// ==========================================
-// LOAD LOCAL DASHBOARD DATA
-// ==========================================
-
-function loadLocalDashboardData(){
-
-    loadRecentAIChats();
-
-    loadRecentTranslations();
-
-    loadRecentFiles();
-
-    updateUsageCounters();
-
-}
-
-// ==========================================
-// RECENT AI CHATS
-// ==========================================
-
-function loadRecentAIChats(){
-
-    const container =
+    recentAiChats =
         document.getElementById(
             "recentAiChats"
         );
 
-    if(!container){
-
-        return;
-
-    }
-
-    try{
-
-        const chats =
-            JSON.parse(
-                localStorage.getItem(
-                    "echoCallAIChats"
-                ) || "[]"
-            );
-
-        if(!Array.isArray(chats) || !chats.length){
-
-            container.innerHTML = `
-                <div class="empty-card glass">
-
-                    <span class="material-symbols-rounded">
-                        forum
-                    </span>
-
-                    <h3>
-                        No AI conversations yet
-                    </h3>
-
-                    <p>
-                        Start chatting with EchoCall AI.
-                    </p>
-
-                </div>
-            `;
-
-            setText(
-                "totalChats",
-                "0"
-            );
-
-            setText(
-                "todayChats",
-                "0"
-            );
-
-            return;
-
-        }
-
-        const recent =
-            chats
-                .slice(-5)
-                .reverse();
-
-        container.innerHTML =
-            recent
-                .map(
-                    renderAIChat
-                )
-                .join("");
-
-        setText(
-            "totalChats",
-            chats.length
-        );
-
-        setText(
-            "todayChats",
-            countToday(chats)
-        );
-
-    }
-
-    catch(error){
-
-        console.error(
-            "AI chat loading error:",
-            error
-        );
-
-    }
-
-}
-
-// ==========================================
-// RENDER AI CHAT
-// ==========================================
-
-function renderAIChat(
-    chat
-){
-
-    const title =
-        chat.title ||
-        chat.prompt ||
-        "AI Conversation";
-
-    const date =
-        formatDate(
-            chat.createdAt ||
-            chat.date
-        );
-
-    return `
-        <div class="chat-item glass">
-
-            <span class="material-symbols-rounded">
-                smart_toy
-            </span>
-
-            <div>
-
-                <strong>
-                    ${escapeHTML(title)}
-                </strong>
-
-                <small>
-                    ${escapeHTML(date)}
-                </small>
-
-            </div>
-
-        </div>
-    `;
-
-}
-
-// ==========================================
-// RECENT TRANSLATIONS
-// ==========================================
-
-function loadRecentTranslations(){
-
-    const container =
+    recentCalls =
         document.getElementById(
-            "translationHistory"
+            "recentCalls"
         );
 
-    if(!container){
-
-        return;
-
-    }
-
-    try{
-
-        const translations =
-            JSON.parse(
-                localStorage.getItem(
-                    "echoCallTranslations"
-                ) || "[]"
-            );
-
-        if(
-            !Array.isArray(translations) ||
-            !translations.length
-        ){
-
-            container.innerHTML = `
-                <div class="empty-card glass">
-
-                    <span class="material-symbols-rounded">
-                        translate
-                    </span>
-
-                    <h3>
-                        No translations yet
-                    </h3>
-
-                    <p>
-                        Your translated messages will appear here.
-                    </p>
-
-                </div>
-            `;
-
-            setText(
-                "totalTranslations",
-                "0"
-            );
-
-            setText(
-                "todayTranslations",
-                "0"
-            );
-
-            return;
-
-        }
-
-        container.innerHTML =
-            translations
-                .slice(-5)
-                .reverse()
-                .map(
-                    renderTranslation
-                )
-                .join("");
-
-        setText(
-            "totalTranslations",
-            translations.length
-        );
-
-        setText(
-            "todayTranslations",
-            countToday(
-                translations
-            )
-        );
-
-    }
-
-    catch(error){
-
-        console.error(
-            "Translation loading error:",
-            error
-        );
-
-    }
-
-}
-
-// ==========================================
-// RENDER TRANSLATION
-// ==========================================
-
-function renderTranslation(
-    item
-){
-
-    const source =
-        item.source ||
-        item.text ||
-        "Translation";
-
-    const language =
-        item.language ||
-        item.targetLanguage ||
-        "Unknown language";
-
-    return `
-        <div class="translation-item glass">
-
-            <span class="material-symbols-rounded">
-                translate
-            </span>
-
-            <div>
-
-                <strong>
-                    ${escapeHTML(
-                        truncate(
-                            source,
-                            50
-                        )
-                    )}
-                </strong>
-
-                <small>
-                    ${escapeHTML(language)}
-                </small>
-
-            </div>
-
-        </div>
-    `;
-
-}
-
-// ==========================================
-// RECENT FILES
-// ==========================================
-
-function loadRecentFiles(){
-
-    const container =
+    favoriteContacts =
         document.getElementById(
-            "recentFiles"
+            "favoriteContacts"
         );
 
-    if(!container){
-
-        return;
-
-    }
-
-    try{
-
-        const files =
-            JSON.parse(
-                localStorage.getItem(
-                    "echoCallFiles"
-                ) || "[]"
-            );
-
-        if(
-            !Array.isArray(files) ||
-            !files.length
-        ){
-
-            return;
-
-        }
-
-        container.innerHTML =
-            files
-                .slice(-5)
-                .reverse()
-                .map(
-                    renderFile
-                )
-                .join("");
-
-    }
-
-    catch(error){
-
-        console.error(
-            "File loading error:",
-            error
-        );
-
-    }
-
-}
-
-// ==========================================
-// RENDER FILE
-// ==========================================
-
-function renderFile(
-    file
-){
-
-    const name =
-        file.name ||
-        file.fileName ||
-        "File";
-
-    const type =
-        file.type ||
-        "File";
-
-    return `
-        <div class="file-item glass">
-
-            <span class="material-symbols-rounded">
-                folder
-            </span>
-
-            <div>
-
-                <strong>
-                    ${escapeHTML(name)}
-                </strong>
-
-                <small>
-                    ${escapeHTML(type)}
-                </small>
-
-            </div>
-
-        </div>
-    `;
-
-}
-
-// ==========================================
-// USAGE COUNTERS
-// ==========================================
-
-function updateUsageCounters(){
-
-    const chats =
-        getLocalArray(
-            "echoCallAIChats"
-        );
-
-    const translations =
-        getLocalArray(
-            "echoCallTranslations"
-        );
-
-    const images =
-        getLocalArray(
-            "echoCallImages"
-        );
-
-    setText(
-        "totalChats",
-        chats.length
-    );
-
-    setText(
-        "todayChats",
-        countToday(chats)
-    );
-
-    setText(
-        "totalTranslations",
-        translations.length
-    );
-
-    setText(
-        "todayTranslations",
-        countToday(
-            translations
-        )
-    );
-
-    setText(
-        "todayImages",
-        countToday(images)
-    );
-
-}
-
-// ==========================================
-// GET LOCAL ARRAY
-// ==========================================
-
-function getLocalArray(
-    key
-){
-
-    try{
-
-        const data =
-            JSON.parse(
-                localStorage.getItem(key) ||
-                "[]"
-            );
-
-        return Array.isArray(data)
-            ? data
-            : [];
-
-    }
-
-    catch{
-
-        return [];
-
-    }
-
-}
-
-// ==========================================
-// COUNT TODAY
-// ==========================================
-
-function countToday(
-    items
-){
-
-    const today =
-        new Date();
-
-    return items.filter(
-        item => {
-
-            const value =
-                item.createdAt ||
-                item.date ||
-                item.timestamp;
-
-            if(!value){
-
-                return false;
-
-            }
-
-            const date =
-                new Date(value);
-
-            return(
-                date.getDate() ===
-                today.getDate() &&
-
-                date.getMonth() ===
-                today.getMonth() &&
-
-                date.getFullYear() ===
-                today.getFullYear()
-            );
-
-        }
-    ).length;
-
-}
-
-// ==========================================
-// TRUNCATE TEXT
-// ==========================================
-
-function truncate(
-    value,
-    length = 50
-){
-
-    const text =
-        String(
-            value ?? ""
-        );
-
-    if(
-        text.length <= length
-    ){
-
-        return text;
-
-    }
-
-    return (
-        text.substring(
-            0,
-            length
-        ) + "..."
-    );
-
-}
-
-// ==========================================
-// END OF PART 2D
-// ==========================================
-
-// ==========================================
-// PART 2E — ACTIVITY, INSIGHTS & STORAGE
-// ==========================================
-
-// ==========================================
-// RECENT ACTIVITY
-// ==========================================
-
-function updateRecentActivity(){
-
-    const container =
-        document.getElementById(
-            "recentActivity"
-        );
-
-    if(!container){
-
-        return;
-
-    }
-
-    const activity =
-        getLocalArray(
-            "echoCallActivity"
-        );
-
-    if(!activity.length){
-
-        container.innerHTML = `
-            <div class="empty-card glass">
-
-                <span class="material-symbols-rounded">
-                    schedule
-                </span>
-
-                <h3>
-                    No activity yet
-                </h3>
-
-                <p>
-                    Your latest EchoCall AI activity will appear here.
-                </p>
-
-            </div>
-        `;
-
-        return;
-
-    }
-
-    container.innerHTML =
-        activity
-            .slice(-6)
-            .reverse()
-            .map(
-                renderActivity
-            )
-            .join("");
-
-}
-
-// ==========================================
-// RENDER ACTIVITY
-// ==========================================
-
-function renderActivity(
-    item
-){
-
-    const title =
-        item.title ||
-        item.action ||
-        "Activity";
-
-    const description =
-        item.description ||
-        "";
-
-    const icon =
-        item.icon ||
-        "schedule";
-
-    const date =
-        formatDate(
-            item.createdAt ||
-            item.timestamp
-        );
-
-    return `
-        <div class="activity-item glass">
-
-            <span class="material-symbols-rounded">
-                ${escapeHTML(icon)}
-            </span>
-
-            <div>
-
-                <strong>
-                    ${escapeHTML(title)}
-                </strong>
-
-                <p>
-                    ${escapeHTML(description)}
-                </p>
-
-                <small>
-                    ${escapeHTML(date)}
-                </small>
-
-            </div>
-
-        </div>
-    `;
-
-}
-
-// ==========================================
-// RECOMMENDATIONS
-// ==========================================
-
-function generateRecommendations(){
-
-    const container =
-        document.getElementById(
-            "recommendationContainer"
-        );
-
-    if(!container){
-
-        return;
-
-    }
-
-    const recommendations = [
-
-        {
-            icon: "smart_toy",
-            title: "Chat with Echo",
-            text: "Ask EchoCall AI a question."
-        },
-
-        {
-            icon: "call",
-            title: "Make an AI Call",
-            text: "Start a secure AI-powered call."
-        },
-
-        {
-            icon: "translate",
-            title: "Translate",
-            text: "Translate text or voice."
-        }
-
-    ];
-
-    container.innerHTML =
-        recommendations
-            .map(
-                item => `
-
-                    <div class="recommendation-card glass">
-
-                        <span class="material-symbols-rounded">
-                            ${item.icon}
-                        </span>
-
-                        <h3>
-                            ${escapeHTML(
-                                item.title
-                            )}
-                        </h3>
-
-                        <p>
-                            ${escapeHTML(
-                                item.text
-                            )}
-                        </p>
-
-                    </div>
-
-                `
-            )
-            .join("");
-
-}
-
-// ==========================================
-// DAILY INSIGHT
-// ==========================================
-
-function generateDashboardInsight(){
-
-    const element =
-        document.getElementById(
-            "dailyInsight"
-        );
-
-    if(!element){
-
-        return;
-
-    }
-
-    const chats =
-        getLocalArray(
-            "echoCallAIChats"
-        );
-
-    const translations =
-        getLocalArray(
-            "echoCallTranslations"
-        );
-
-    const calls =
-        getLocalArray(
-            "echoCallCalls"
-        );
-
-    let insight =
-        "Explore EchoCall AI to chat, translate, and manage your calls.";
-
-    if(chats.length > 5){
-
-        insight =
-            "You have been using EchoCall AI regularly. Keep your conversations organized in History.";
-
-    }
-    else if(translations.length > 0){
-
-        insight =
-            "You have used translation recently. Try Voice Chat for faster communication.";
-
-    }
-    else if(calls.length > 0){
-
-        insight =
-            "Your call activity is growing. Check your recent calls to review your communication history.";
-
-    }
-
-    element.textContent =
-        insight;
-
-}
-
-// ==========================================
-// CLOUD STORAGE
-// ==========================================
-
-function initializeCloudStorage(){
-
-    document
-        .getElementById(
-            "manageStorage"
-        )
-        ?.addEventListener(
-            "click",
-            ()=>navigate("files")
-        );
-
-    updateStorageDisplay();
-
-}
-
-// ==========================================
-// STORAGE DISPLAY
-// ==========================================
-
-function updateStorageDisplay(){
-
-    setText(
-        "storageUsage",
-        "Cloud storage ready"
-    );
-
-    const bar =
-        document.getElementById(
-            "storageProgressBar"
-        );
-
-    if(bar){
-
-        bar.style.width =
-            "5%";
-
-    }
-
-}
-
-// ==========================================
-// NOTIFICATIONS
-// ==========================================
-
-function initializeNotifications(){
-
-    document
-        .getElementById(
-            "viewAllNotifications"
-        )
-        ?.addEventListener(
-            "click",
-            ()=>navigate("notifications")
-        );
-
-    loadHomeNotifications();
-
-}
-
-// ==========================================
-// LOAD NOTIFICATIONS
-// ==========================================
-
-function loadHomeNotifications(){
-
-    const container =
+    homeNotifications =
         document.getElementById(
             "homeNotifications"
         );
 
-    if(!container){
 
-        return;
+    // ======================================
+    // Find Voice Clone Controls
+    // ======================================
 
-    }
-
-    const notifications =
-        getLocalArray(
-            "echoCallNotifications"
+    openVoiceClone =
+        document.getElementById(
+            "openVoiceClone"
         );
 
-    if(!notifications.length){
-
-        return;
-
-    }
-
-    container.innerHTML =
-        notifications
-            .slice(-5)
-            .reverse()
-            .map(
-                renderNotification
-            )
-            .join("");
-
-}
-
-// ==========================================
-// RENDER NOTIFICATION
-// ==========================================
-
-function renderNotification(
-    notification
-){
-
-    const title =
-        notification.title ||
-        "Notification";
-
-    const message =
-        notification.message ||
-        "";
-
-    return `
-        <div class="notification-item glass">
-
-            <span class="material-symbols-rounded">
-                notifications
-            </span>
-
-            <div>
-
-                <strong>
-                    ${escapeHTML(title)}
-                </strong>
-
-                <p>
-                    ${escapeHTML(message)}
-                </p>
-
-            </div>
-
-        </div>
-    `;
-
-}
-
-// ==========================================
-// END OF PART 2E
-// ==========================================
-
-// ==========================================
-// EchoCall AI
-// File: js/home.js
-// Part 2F
-// ==========================================
-
-// ==========================================
-// DEVICE INFORMATION
-// ==========================================
-
-function initializeDeviceInformation(){
-
-    updateDeviceInformation();
-
-    window.addEventListener(
-        "resize",
-        updateDeviceInformation
-    );
-
-}
-
-// ==========================================
-// UPDATE DEVICE INFORMATION
-// ==========================================
-
-function updateDeviceInformation(){
-
-    setText(
-        "deviceName",
-        getDeviceName()
-    );
-
-    setText(
-        "browserName",
-        getBrowserName()
-    );
-
-    setText(
-        "osName",
-        getOperatingSystem()
-    );
-
-    setText(
-        "deviceNetwork",
-        navigator.onLine
-            ? "Online"
-            : "Offline"
-    );
-
-}
-
-// ==========================================
-// DEVICE NAME
-// ==========================================
-
-function getDeviceName(){
-
-    const userAgent =
-        navigator.userAgent.toLowerCase();
-
-    if(
-        userAgent.includes("android")
-    ){
-
-        return "Android Device";
-
-    }
-
-    if(
-        userAgent.includes("iphone")
-    ){
-
-        return "iPhone";
-
-    }
-
-    if(
-        userAgent.includes("ipad")
-    ){
-
-        return "iPad";
-
-    }
-
-    if(
-        userAgent.includes("windows")
-    ){
-
-        return "Windows PC";
-
-    }
-
-    if(
-        userAgent.includes("mac")
-    ){
-
-        return "Mac";
-
-    }
-
-    if(
-        userAgent.includes("linux")
-    ){
-
-        return "Linux Device";
-
-    }
-
-    return "Unknown Device";
-
-}
-
-// ==========================================
-// BROWSER
-// ==========================================
-
-function getBrowserName(){
-
-    const userAgent =
-        navigator.userAgent;
-
-    if(
-        /Edg/i.test(userAgent)
-    ){
-
-        return "Microsoft Edge";
-
-    }
-
-    if(
-        /Chrome/i.test(userAgent) &&
-        !/Edg/i.test(userAgent)
-    ){
-
-        return "Google Chrome";
-
-    }
-
-    if(
-        /Firefox/i.test(userAgent)
-    ){
-
-        return "Mozilla Firefox";
-
-    }
-
-    if(
-        /Safari/i.test(userAgent) &&
-        !/Chrome/i.test(userAgent)
-    ){
-
-        return "Safari";
-
-    }
-
-    return "Unknown Browser";
-
-}
-
-// ==========================================
-// OPERATING SYSTEM
-// ==========================================
-
-function getOperatingSystem(){
-
-    const userAgent =
-        navigator.userAgent;
-
-    if(
-        /Android/i.test(userAgent)
-    ){
-
-        return "Android";
-
-    }
-
-    if(
-        /iPhone|iPad|iPod/i.test(userAgent)
-    ){
-
-        return "iOS";
-
-    }
-
-    if(
-        /Windows/i.test(userAgent)
-    ){
-
-        return "Windows";
-
-    }
-
-    if(
-        /Mac/i.test(userAgent)
-    ){
-
-        return "macOS";
-
-    }
-
-    if(
-        /Linux/i.test(userAgent)
-    ){
-
-        return "Linux";
-
-    }
-
-    return "Unknown OS";
-
-}
-
-// ==========================================
-// NETWORK STATUS
-// ==========================================
-
-function updateNetworkStatus(){
-
-    const online =
-        navigator.onLine;
-
-    setText(
-        "networkStatus",
-        online
-            ? "Online"
-            : "Offline"
-    );
-
-    setText(
-        "deviceNetwork",
-        online
-            ? "Online"
-            : "Offline"
-    );
-
-    if(online){
-
-        setText(
-            "syncStatus",
-            "Connected"
+    createVoiceClone =
+        document.getElementById(
+            "createVoiceClone"
         );
 
-    }
-    else{
 
-        setText(
-            "syncStatus",
-            "Offline"
+    // ======================================
+    // Find Image Studio Controls
+    // ======================================
+
+    openImageStudio =
+        document.getElementById(
+            "openImageStudio"
         );
 
-    }
-
-}
-
-// ==========================================
-// SECURITY CENTER
-// ==========================================
-
-function initializeSecurityCenter(){
-
-    document
-        .getElementById(
-            "openSecurityCenter"
-        )
-        ?.addEventListener(
-            "click",
-            ()=>{
-                navigate("security");
-            }
+    generateImageButton =
+        document.getElementById(
+            "generateImageButton"
         );
 
-}
 
-// ==========================================
-// CLOUD STORAGE
-// ==========================================
+    // ======================================
+    // Find Dashboard Controls
+    // ======================================
 
-function initializeCloudStorage(){
-
-    document
-        .getElementById(
-            "manageStorage"
-        )
-        ?.addEventListener(
-            "click",
-            ()=>{
-                navigate("files");
-            }
+    viewAllAiChats =
+        document.getElementById(
+            "viewAllAiChats"
         );
 
-}
+    viewAllCalls =
+        document.getElementById(
+            "viewAllCalls"
+        );
 
-// ==========================================
-// NOTIFICATIONS
-// ==========================================
+    viewContacts =
+        document.getElementById(
+            "viewContacts"
+        );
 
-function initializeNotifications(){
-
-    document
-        .getElementById(
+    viewAllNotifications =
+        document.getElementById(
             "viewAllNotifications"
-        )
-        ?.addEventListener(
-            "click",
-            ()=>{
-                navigate("notifications");
-            }
         );
+
+    refreshDashboard =
+        document.getElementById(
+            "refreshDashboard"
+        );
+
+    logoutAccount =
+        document.getElementById(
+            "logoutAccount"
+        );
+
+
+    // ======================================
+    // Initialize Home Events
+    // ======================================
+
+    initializeHomeEvents();
+
+
+    // ======================================
+    // Initialize Authentication
+    // ======================================
+
+    initializeHomeAuth();
+
+
+    // ======================================
+    // Mark Home Initialized
+    // ======================================
+
+    homeInitialized = true;
+
+
+    console.log(
+        "EchoCall AI → Home Part 1 initialized."
+    );
 
 }
 
+
 // ==========================================
-// SIMPLE TEXT HELPER
+// Authentication
 // ==========================================
 
-function setText(
-    id,
-    value
-){
+function initializeHomeAuth() {
 
-    const element =
-        document.getElementById(id);
+    onAuthStateChanged(
+        auth,
+        async (user) => {
 
-    if(element){
+            // ==================================
+            // No User
+            // ==================================
 
-        element.textContent =
-            value ?? "";
+            if (!user) {
+
+    currentUser = null;
+
+    console.warn(
+        "EchoCall Home → No authenticated user."
+    );
+
+    clearHomeUserData();
+
+    return;
+            }
+
+
+            // ==================================
+            // Store Current User
+            // ==================================
+
+            currentUser = user;
+
+
+            console.log(
+                "EchoCall Home → Authenticated user:",
+                user.uid
+            );
+
+
+            // ==================================
+            // Update Basic Home UI
+            // ==================================
+
+            updateHomeGreeting(
+                user
+            );
+
+            updateHomeProfileImage(
+                user
+            );
+
+
+            // ==================================
+            // Firestore Dashboard Loading
+            // ==================================
+            //
+            // Part 2A / Part 2B will provide
+            // the actual dashboard data functions.
+            //
+            // ==================================
+
+            if (
+                typeof loadHomeData ===
+                "function"
+            ) {
+
+                await loadHomeData();
+
+            }
+
+        }
+    );
+
+}
+
+
+// ==========================================
+// Update Home Greeting
+// ==========================================
+
+function updateHomeGreeting(user) {
+
+    if (!homeGreeting) {
+
+        return;
+
+    }
+
+
+    const displayName =
+        getUserDisplayName(
+            user
+        );
+
+
+    homeGreeting.textContent =
+        `${getGreeting()}, ${displayName} 👋`;
+
+}
+
+
+// ==========================================
+// Default Home Greeting
+// ==========================================
+
+function setDefaultHomeGreeting() {
+
+    if (!homeGreeting) {
+
+        return;
+
+    }
+
+
+    homeGreeting.textContent =
+        "Welcome 👋";
+
+}
+
+
+// ==========================================
+// Get Greeting
+// ==========================================
+
+function getGreeting() {
+
+    const hour =
+        new Date().getHours();
+
+
+    // --------------------------------------
+    // Morning
+    // --------------------------------------
+
+    if (hour < 12) {
+
+        return "Good morning";
+
+    }
+
+
+    // --------------------------------------
+    // Afternoon
+    // --------------------------------------
+
+    if (hour < 18) {
+
+        return "Good afternoon";
+
+    }
+
+
+    // --------------------------------------
+    // Evening
+    // --------------------------------------
+
+    if (hour < 21) {
+
+        return "Good evening";
+
+    }
+
+
+    // --------------------------------------
+    // Night
+    // --------------------------------------
+
+    return "Good night";
+
+}
+
+
+// ==========================================
+// Get User Display Name
+// ==========================================
+
+function getUserDisplayName(user) {
+
+    if (!user) {
+
+        return "there";
+
+    }
+
+
+    // --------------------------------------
+    // Firebase Auth Display Name
+    // --------------------------------------
+
+    if (
+        user.displayName &&
+        user.displayName.trim()
+    ) {
+
+        return user.displayName.trim();
+
+    }
+
+
+    // --------------------------------------
+    // Email Fallback
+    // --------------------------------------
+
+    if (user.email) {
+
+        const emailName =
+            user.email.split("@")[0];
+
+
+        if (emailName) {
+
+            return emailName;
+
+        }
+
+    }
+
+
+    return "there";
+
+}
+
+
+// ==========================================
+// Update Home Profile Image
+// ==========================================
+
+function updateHomeProfileImage(user) {
+
+    if (!homeProfileImage) {
+
+        return;
+
+    }
+
+
+    // --------------------------------------
+    // Firebase Profile Image
+    // --------------------------------------
+
+    if (
+        user &&
+        user.photoURL
+    ) {
+
+        homeProfileImage.src =
+            user.photoURL;
+
+
+        homeProfileImage.onerror =
+            () => {
+
+                homeProfileImage.src =
+                    "assets/default-avatar.png";
+
+            };
+
+
+        return;
+
+    }
+
+
+    // --------------------------------------
+    // Default Avatar
+    // --------------------------------------
+
+    homeProfileImage.src =
+        "assets/default-avatar.png";
+
+}
+
+
+// ==========================================
+// Home Events
+// ==========================================
+
+function initializeHomeEvents() {
+
+
+    // ======================================
+    // Hero Buttons
+    // ======================================
+
+    startAiChatButton?.addEventListener(
+        "click",
+        handleStartAIChat
+    );
+
+
+    newCallButton?.addEventListener(
+        "click",
+        handleNewCall
+    );
+
+
+    startVoiceInputButton?.addEventListener(
+        "click",
+        handleVoiceChat
+    );
+
+
+    // ======================================
+    // Quick AI
+    // ======================================
+
+    quickAi?.addEventListener(
+        "click",
+        handleStartAIChat
+    );
+
+
+    // ======================================
+    // Quick Translate
+    // ======================================
+
+    quickTranslate?.addEventListener(
+        "click",
+        handleTranslate
+    );
+
+
+    // ======================================
+    // Quick Contacts
+    // ======================================
+
+    quickContacts?.addEventListener(
+        "click",
+        handleContacts
+    );
+
+
+    // ======================================
+    // Quick Calls
+    // ======================================
+
+    quickCalls?.addEventListener(
+        "click",
+        handleCalls
+    );
+
+
+    // ======================================
+    // Quick History
+    // ======================================
+
+    quickHistory?.addEventListener(
+        "click",
+        handleHistory
+    );
+
+
+    // ======================================
+    // Quick Notifications
+    // ======================================
+
+    quickNotifications?.addEventListener(
+        "click",
+        handleNotifications
+    );
+
+}
+
+
+// ==========================================
+// Start AI Chat
+// ==========================================
+
+function handleStartAIChat() {
+
+    console.log(
+        "EchoCall Home → Opening AI"
+    );
+
+
+    const aiButton =
+        document.getElementById(
+            "floatingAiButton"
+        );
+
+
+    if (aiButton) {
+
+        aiButton.click();
+
+        return;
+
+    }
+
+
+    showToast(
+        "EchoCall AI is not available right now.",
+        "warning"
+    );
+
+}
+
+
+// ==========================================
+// Voice Chat
+// ==========================================
+
+async function handleVoiceChat() {
+
+    console.log(
+        "EchoCall Home → Starting Voice Chat"
+    );
+
+
+    try {
+
+        const aiModule =
+            await import(
+                "./ai.js"
+            );
+
+
+        if (
+            typeof aiModule.startVoiceInput ===
+            "function"
+        ) {
+
+            aiModule.startVoiceInput();
+
+            return;
+
+        }
+
+
+        showToast(
+            "Voice Chat is not available right now.",
+            "warning"
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "EchoCall Home → Voice Chat error:",
+            error
+        );
+
+
+        showToast(
+            "Could not start Voice Chat.",
+            "error"
+        );
+
+    }
+
+}
+
+
+// ==========================================
+// New Call
+// ==========================================
+
+function handleNewCall() {
+
+    console.log(
+        "EchoCall Home → New Call"
+    );
+
+
+    navigateTo(
+        "calls"
+    );
+
+}
+
+
+// ==========================================
+// Translate
+// ==========================================
+
+function handleTranslate() {
+
+    console.log(
+        "EchoCall Home → Translate"
+    );
+
+
+    navigateTo(
+        "translate"
+    );
+
+}
+
+
+// ==========================================
+// Contacts
+// ==========================================
+
+function handleContacts() {
+
+    console.log(
+        "EchoCall Home → Contacts"
+    );
+
+
+    navigateTo(
+        "contacts"
+    );
+
+}
+
+
+// ==========================================
+// Calls
+// ==========================================
+
+function handleCalls() {
+
+    console.log(
+        "EchoCall Home → Calls"
+    );
+
+
+    navigateTo(
+        "calls"
+    );
+
+}
+
+
+// ==========================================
+// History
+// ==========================================
+
+function handleHistory() {
+
+    console.log(
+        "EchoCall Home → History"
+    );
+
+
+    navigateTo(
+        "history"
+    );
+
+}
+
+
+// ==========================================
+// Notifications
+// ==========================================
+
+function handleNotifications() {
+
+    console.log(
+        "EchoCall Home → Notifications"
+    );
+
+
+    navigateTo(
+        "notifications"
+    );
+
+}
+
+
+// ==========================================
+// Navigation
+// ==========================================
+
+function navigateTo(page) {
+
+    console.log(
+        `EchoCall Home → Navigate to: ${page}`
+    );
+
+
+    // ======================================
+    // Global Navigation Function
+    // ======================================
+
+    if (
+        typeof window.navigateTo ===
+        "function"
+    ) {
+
+        window.navigateTo(
+            page
+        );
+
+        return;
+
+    }
+
+
+    // ======================================
+    // Router Object
+    // ======================================
+
+    if (
+        window.router &&
+        typeof window.router.navigate ===
+        "function"
+    ) {
+
+        window.router.navigate(
+            page
+        );
+
+        return;
+
+    }
+
+
+    // ======================================
+    // Navigation Not Available
+    // ======================================
+
+    console.warn(
+        "EchoCall Home → No router found:",
+        page
+    );
+
+
+    showToast(
+        `${page} is not connected yet.`,
+        "info"
+    );
+
+}
+
+
+// ==========================================
+// End Part 1
+// ==========================================
+// ==========================================
+// EchoCall AI
+// File: js/home.js
+// Home Dashboard
+// Part 2A
+// ==========================================
+
+
+// ==========================================
+// AI BACKEND
+// ==========================================
+
+const HOME_AI_API_BASE_URL =
+    "https://echocall-ai-backend.onrender.com/api/ai";
+
+
+// ==========================================
+// UPDATED HOME DATA CONTROLLER
+// ==========================================
+
+async function loadHomeData() {
+
+    if (!currentUser) {
+
+        console.warn(
+            "EchoCall Home → Cannot load data without user."
+        );
+
+        return;
+
+    }
+
+
+    console.log(
+        "EchoCall Home → Loading complete dashboard..."
+    );
+
+
+    try {
+
+        // ==================================
+        // Part 2A
+        // ==================================
+
+        await loadRecentAiChats();
+
+
+        // ==================================
+        // Part 2B
+        // ==================================
+
+        await loadHomePart2BData();
+
+
+        console.log(
+            "EchoCall Home → Complete dashboard loaded."
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "EchoCall Home → Dashboard loading error:",
+            error
+        );
 
     }
 
 }
 
 // ==========================================
-// EchoCall AI
-// File: js/home.js
-// Part 3A
+// LOAD RECENT AI CHATS
 // ==========================================
 
-// ==========================================
-// BACKEND STATUS
-// ==========================================
+async function loadRecentAiChats() {
 
-async function checkBackendStatus(
+    if (
+        !currentUser ||
+        !recentAiChats
+    ) {
 
-    showMessage = false
+        return;
 
-){
+    }
 
-    setText(
-        "backendStatus",
-        "Checking..."
-    );
+    try {
 
-    setText(
-        "apiStatus",
-        "Checking..."
-    );
+        console.log(
+            "EchoCall Home → Loading recent AI chats..."
+        );
 
-    try{
+
+        // ======================================
+        // Firebase ID Token
+        // ======================================
+
+        const token =
+            await currentUser.getIdToken();
+
+
+        // ======================================
+        // Get Conversations
+        // ======================================
 
         const response =
-
             await fetch(
 
-                `${CALLS_API}/info`,
+                `${HOME_AI_API_BASE_URL}/conversations`,
 
                 {
 
@@ -2990,8 +1063,11 @@ async function checkBackendStatus(
 
                     headers: {
 
+                        "Authorization":
+                            `Bearer ${token}`,
+
                         "Accept":
-                        "application/json"
+                            "application/json"
 
                     }
 
@@ -2999,592 +1075,1089 @@ async function checkBackendStatus(
 
             );
 
-        if(!response.ok){
+
+        const rawResponse =
+            await response.text();
+
+
+        console.log(
+            "EchoCall Home → Conversations status:",
+            response.status
+        );
+
+
+        console.log(
+            "EchoCall Home → Conversations response:",
+            rawResponse
+        );
+
+
+        if (!response.ok) {
 
             throw new Error(
-                `Backend returned ${response.status}`
+
+                `Unable to load conversations: ${response.status}`
+
             );
 
         }
 
-        const data =
-            await response.json();
 
-        if(
-            data.success &&
-            data.status === "Running"
-        ){
+        let data;
 
-            setText(
-                "backendStatus",
-                "Online"
-            );
 
-            setText(
-                "apiStatus",
-                "Online"
-            );
+        try {
 
-            if(showMessage){
-
-                showToast(
-                    "Backend is online.",
-                    "success"
+            data =
+                JSON.parse(
+                    rawResponse
                 );
 
-            }
-
-        }
-        else{
-
-            setText(
-                "backendStatus",
-                "Unavailable"
-            );
-
-            setText(
-                "apiStatus",
-                "Unavailable"
-            );
-
-            if(showMessage){
-
-                showToast(
-                    "Backend is not responding correctly.",
-                    "error"
-                );
-
-            }
-
         }
 
-    }
-    catch(error){
+        catch (error) {
 
-        console.error(
-            "Backend Status Error:",
-            error
-        );
-
-        setText(
-            "backendStatus",
-            "Offline"
-        );
-
-        setText(
-            "apiStatus",
-            "Offline"
-        );
-
-        if(showMessage){
-
-            showToast(
-                "Unable to connect to backend.",
-                "error"
+            throw new Error(
+                "Backend returned invalid conversation JSON."
             );
 
         }
 
-    }
 
-}
+        if (!data.success) {
 
-// ==========================================
-// REFRESH DASHBOARD
-// ==========================================
+            throw new Error(
 
-async function refreshDashboard(
+                data.message ||
+                "Unable to load conversations."
 
-    showLoading = false
+            );
 
-){
+        }
 
-    if(!currentUser){
 
-        return;
+        const conversations =
+            Array.isArray(
+                data.conversations
+            )
 
-    }
+                ? data.conversations
 
-    homeAbortController?.abort();
+                : [];
 
-    homeAbortController =
-        new AbortController();
 
-    if(showLoading){
+        // ======================================
+        // No Conversations
+        // ======================================
 
-        setText(
-            "syncStatus",
-            "Syncing..."
-        );
+        if (
+            conversations.length === 0
+        ) {
 
-    }
+            renderEmptyAiChats();
 
-    try{
+            return;
 
-        await Promise.all([
+        }
 
-            loadRecentCalls(),
 
-            loadFavoriteContacts(),
+        // ======================================
+        // Only use recent conversations
+        // ======================================
 
-            loadCallStatistics(),
+        const recentConversations =
+            conversations.slice(
+                0,
+                5
+            );
 
-            checkBackendStatus()
 
-        ]);
+        // ======================================
+        // Get actual messages for each
+        // conversation
+        // ======================================
 
-        setText(
-            "syncStatus",
-            "Synced"
-        );
+        const recentChats = [];
 
-    }
-    catch(error){
 
-        console.error(
-            "Dashboard Refresh Error:",
-            error
-        );
+        for (
+            const conversationItem
+            of recentConversations
+        ) {
 
-        setText(
-            "syncStatus",
-            "Sync failed"
-        );
+            try {
 
-    }
+                const messages =
+                    await loadConversationMessages(
 
-}
+                        conversationItem.id,
 
-// ==========================================
-// AUTH TOKEN
-// ==========================================
+                        token
 
-async function getAuthHeaders(){
+                    );
 
-    if(!currentUser){
 
-        throw new Error(
-            "User is not authenticated."
-        );
+                if (
+                    !messages.length
+                ) {
 
-    }
+                    continue;
 
-    const token =
-        await currentUser.getIdToken();
-
-    return {
-
-        "Authorization":
-            `Bearer ${token}`,
-
-        "Accept":
-            "application/json",
-
-        "Content-Type":
-            "application/json"
-
-    };
-
-}
-
-// ==========================================
-// EchoCall AI
-// File: js/home.js
-// Part 3B
-// ==========================================
-
-// ==========================================
-// LOAD RECENT CALLS
-// ==========================================
-
-async function loadRecentCalls(){
-
-    const container =
-        document.getElementById(
-            "recentCalls"
-        );
-
-    if(!container || !currentUser){
-
-        return;
-
-    }
-
-    try{
-
-        const headers =
-            await getAuthHeaders();
-
-        const response =
-            await fetch(
-
-                `${CALLS_API}/recent`,
-
-                {
-                    method: "GET",
-                    headers
                 }
 
-            );
 
-        if(!response.ok){
+                // ==================================
+                // Find first user message
+                // ==================================
 
-            throw new Error(
-                `Calls request failed: ${response.status}`
-            );
+                const firstUserMessage =
+                    messages.find(
+
+                        message =>
+                            message.role ===
+                            "user" &&
+                            message.content
+
+                    );
+
+
+                // ==================================
+                // Find latest message
+                // ==================================
+
+                const latestMessage =
+                    messages[
+                        messages.length - 1
+                    ];
+
+
+                // ==================================
+                // Create chat information
+                // ==================================
+
+                recentChats.push({
+
+                    id:
+                        conversationItem.id,
+
+                    title:
+                        firstUserMessage?.content ||
+                        "EchoCall AI Chat",
+
+                    preview:
+                        latestMessage?.content ||
+                        "Continue your conversation with EchoCall AI.",
+
+                    updatedAt:
+                        conversationItem.updatedAt ||
+                        latestMessage?.createdAt ||
+                        null
+
+                });
+
+            }
+
+            catch (error) {
+
+                console.error(
+
+                    "EchoCall Home → Could not load conversation:",
+
+                    conversationItem.id,
+
+                    error
+
+                );
+
+            }
 
         }
 
-        const data =
-            await response.json();
 
-        const calls =
-            data.recentCalls || [];
+        // ======================================
+        // Render
+        // ======================================
 
-        renderRecentCalls(
-            calls
+        if (
+            recentChats.length === 0
+        ) {
+
+            renderEmptyAiChats();
+
+            return;
+
+        }
+
+
+        renderRecentAiChats(
+            recentChats
         );
 
+
     }
-    catch(error){
+
+    catch (error) {
 
         console.error(
-            "Recent Calls Error:",
+            "EchoCall Home → Recent AI chats error:",
             error
         );
 
-        container.innerHTML = `
 
-            <div class="empty-card glass">
-
-                <span class="material-symbols-rounded">
-                    error
-                </span>
-
-                <h3>
-                    Unable to load calls
-                </h3>
-
-                <p>
-                    Please try again later.
-                </p>
-
-            </div>
-
-        `;
+        renderEmptyAiChats();
 
     }
 
 }
 
+
 // ==========================================
-// RENDER RECENT CALLS
+// LOAD CONVERSATION MESSAGES
 // ==========================================
 
-function renderRecentCalls(
-    calls
-){
+async function loadConversationMessages(
 
-    const container =
-        document.getElementById(
-            "recentCalls"
+    conversationId,
+
+    token
+
+) {
+
+    if (!conversationId) {
+
+        return [];
+
+    }
+
+
+    const response =
+        await fetch(
+
+            `${HOME_AI_API_BASE_URL}/conversations/${encodeURIComponent(
+                conversationId
+            )}/messages`,
+
+            {
+
+                method: "GET",
+
+                headers: {
+
+                    "Authorization":
+                        `Bearer ${token}`,
+
+                    "Accept":
+                        "application/json"
+
+                }
+
+            }
+
         );
 
-    if(!container){
+
+    const rawResponse =
+        await response.text();
+
+
+    if (!response.ok) {
+
+        throw new Error(
+
+            `Unable to load messages: ${response.status}`
+
+        );
+
+    }
+
+
+    let data;
+
+
+    try {
+
+        data =
+            JSON.parse(
+                rawResponse
+            );
+
+    }
+
+    catch (error) {
+
+        throw new Error(
+            "Invalid messages response."
+        );
+
+    }
+
+
+    if (!data.success) {
+
+        throw new Error(
+
+            data.message ||
+            "Unable to load conversation messages."
+
+        );
+
+    }
+
+
+    return Array.isArray(
+        data.messages
+    )
+
+        ? data.messages
+
+        : [];
+
+}
+
+
+// ==========================================
+// RENDER RECENT AI CHATS
+// ==========================================
+
+function renderRecentAiChats(
+    chats
+) {
+
+    if (!recentAiChats) {
 
         return;
 
     }
 
-    if(!calls.length){
 
-        container.innerHTML = `
+    recentAiChats.innerHTML = "";
 
-            <div class="empty-card glass">
 
-                <span class="material-symbols-rounded">
-                    call
+    chats.forEach(
+        (chat) => {
+
+            const item =
+                document.createElement(
+                    "button"
+                );
+
+
+            item.type =
+                "button";
+
+
+            item.className =
+                "chat-list-item glass";
+
+
+            item.innerHTML = `
+
+                <div class="chat-list-icon">
+
+                    <span class="material-symbols-rounded">
+                        smart_toy
+                    </span>
+
+                </div>
+
+
+                <div class="chat-list-content">
+
+                    <h3>
+                        ${escapeHomeText(
+                            createChatTitle(
+                                chat.title
+                            )
+                        )}
+                    </h3>
+
+
+                    <p>
+                        ${escapeHomeText(
+                            createChatPreview(
+                                chat.preview
+                            )
+                        )}
+                    </p>
+
+                </div>
+
+
+                <span class="material-symbols-rounded chat-list-arrow">
+                    chevron_right
                 </span>
 
-                <h3>
-                    No recent calls
-                </h3>
+            `;
 
-                <p>
-                    Your recent calls will appear here.
-                </p>
 
-            </div>
+            // ==================================
+            // Open Conversation
+            // ==================================
 
-        `;
+            item.addEventListener(
+                "click",
+                () => {
 
-        return;
+                    openAIConversation(
+                        chat.id
+                    );
+
+                }
+            );
+
+
+            recentAiChats.appendChild(
+                item
+            );
+
+        }
+    );
+
+}
+
+
+// ==========================================
+// CREATE CHAT TITLE
+// ==========================================
+
+function createChatTitle(
+    text
+) {
+
+    if (!text) {
+
+        return "EchoCall AI Chat";
 
     }
 
-    container.innerHTML =
-        calls
-            .map(
-                createCallCard
+
+    const cleaned =
+        String(text)
+            .replace(
+                /\s+/g,
+                " "
             )
-            .join("");
+            .trim();
+
+
+    if (!cleaned) {
+
+        return "EchoCall AI Chat";
+
+    }
+
+
+    // Keep the Home card title short.
+
+    if (
+        cleaned.length > 55
+    ) {
+
+        return (
+            cleaned.substring(
+                0,
+                55
+            ) +
+            "..."
+        );
+
+    }
+
+
+    return cleaned;
 
 }
 
+
 // ==========================================
-// CREATE CALL CARD
+// CREATE CHAT PREVIEW
 // ==========================================
 
-function createCallCard(
-    call
-){
+function createChatPreview(
+    text
+) {
 
-    const phone =
-        escapeHTML(
-            call.phoneNumber ||
-            "Unknown number"
+    if (!text) {
+
+        return "Continue your conversation with EchoCall AI.";
+
+    }
+
+
+    const cleaned =
+        String(text)
+            .replace(
+                /\s+/g,
+                " "
+            )
+            .trim();
+
+
+    if (!cleaned) {
+
+        return "Continue your conversation with EchoCall AI.";
+
+    }
+
+
+    if (
+        cleaned.length > 90
+    ) {
+
+        return (
+            cleaned.substring(
+                0,
+                90
+            ) +
+            "..."
         );
 
-    const status =
-        escapeHTML(
-            call.status ||
-            "unknown"
-        );
+    }
 
-    const duration =
-        formatDuration(
-            call.duration || 0
-        );
 
-    const date =
-        formatDate(
-            call.createdAt
-        );
+    return cleaned;
 
-    return `
+}
 
-        <div class="call-item glass">
 
-            <div class="call-item-icon">
+// ==========================================
+// EMPTY AI CHATS
+// ==========================================
 
-                <span class="material-symbols-rounded">
-                    call
-                </span>
+function renderEmptyAiChats() {
 
-            </div>
+    if (!recentAiChats) {
 
-            <div class="call-item-info">
+        return;
 
-                <strong>
-                    ${phone}
-                </strong>
+    }
 
-                <span>
-                    ${date}
-                </span>
 
-            </div>
+    recentAiChats.innerHTML = `
 
-            <div class="call-item-meta">
+        <div class="empty-card glass">
 
-                <span>
-                    ${status}
-                </span>
+            <span class="material-symbols-rounded">
+                forum
+            </span>
 
-                <small>
-                    ${duration}
-                </small>
 
-            </div>
+            <h3>
+                No AI conversations yet
+            </h3>
+
+
+            <p>
+                Start a conversation with EchoCall AI.
+            </p>
+
+
+            <button
+                id="emptyAiChatButton"
+                class="small-primary-button">
+
+                Start Chat
+
+            </button>
 
         </div>
 
     `;
 
+
+    document
+        .getElementById(
+            "emptyAiChatButton"
+        )
+        ?.addEventListener(
+
+            "click",
+
+            handleStartAIChat
+
+        );
+
 }
+
+
+// ==========================================
+// OPEN AI CONVERSATION
+// ==========================================
+
+function openAIConversation(
+    conversationId
+) {
+
+    if (!conversationId) {
+
+        return;
+
+    }
+
+
+    console.log(
+        "EchoCall Home → Opening AI conversation:",
+        conversationId
+    );
+
+
+    // ======================================
+    // Save conversation ID
+    // ======================================
+
+    if (currentUser) {
+
+        const storageKey =
+            `echoCallConversationId_${currentUser.uid}`;
+
+
+        localStorage.setItem(
+
+            storageKey,
+
+            conversationId
+
+        );
+
+    }
+
+
+    // ======================================
+    // Open AI
+    // ======================================
+
+    const aiButton =
+        document.getElementById(
+            "floatingAiButton"
+        );
+
+
+    if (aiButton) {
+
+        aiButton.click();
+
+        return;
+
+    }
+
+
+    showToast(
+        "EchoCall AI is not available right now.",
+        "warning"
+    );
+
+}
+
+
+// ==========================================
+// ESCAPE HOME TEXT
+// ==========================================
+
+function escapeHomeText(
+    text
+) {
+
+    const div =
+        document.createElement(
+            "div"
+        );
+
+
+    div.textContent =
+        text ?? "";
+
+
+    return div.innerHTML;
+
+}
+
+
+// ==========================================
+// END PART 2A
+// ==========================================
+// ==========================================
+// EchoCall AI
+// File: js/home.js
+// Home Dashboard
+// Part 2Bi
+// ==========================================
+
+
+// ==========================================
+// FIRESTORE
+// ==========================================
+
+import {
+    collection,
+    query,
+    orderBy,
+    limit,
+    getDocs
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+
+import {
+    db
+} from "./firebase.js";
+
+
+// ==========================================
+// HOME PART 2B STATE
+// ==========================================
+
+let homeCallsData = [];
+
+let homeContactsData = [];
+
+let homeNotificationsData = [];
+
+
+// ==========================================
+// FIRESTORE PATH HELPERS
+// ==========================================
+
+function getUserCollectionPath(
+    collectionName
+) {
+
+    if (!currentUser) {
+
+        return null;
+
+    }
+
+
+    return collection(
+        db,
+        "users",
+        currentUser.uid,
+        collectionName
+    );
+
+}
+
+
+// ==========================================
+// LOAD HOME CALLS
+// ==========================================
+
+async function loadHomeCalls() {
+
+    if (
+        !currentUser ||
+        !recentCalls
+    ) {
+
+        return;
+
+    }
+
+
+    console.log(
+        "EchoCall Home → Loading calls..."
+    );
+
+
+    /*
+     * IMPORTANT:
+     *
+     * Your current Firestore structure does NOT
+     * contain:
+     *
+     * users/{USER_ID}/calls
+     *
+     * Therefore we do NOT query a fake collection.
+     *
+     * The empty state will remain visible until
+     * your Calls system creates a real Firestore
+     * collection.
+     */
+
+
+    homeCallsData = [];
+
+
+    renderEmptyCalls();
+
+
+}
+
 
 // ==========================================
 // LOAD FAVORITE CONTACTS
 // ==========================================
 
-async function loadFavoriteContacts(){
+async function loadFavoriteContacts() {
 
-    const container =
-        document.getElementById(
-            "favoriteContacts"
-        );
-
-    if(!container || !currentUser){
+    if (
+        !currentUser ||
+        !favoriteContacts
+    ) {
 
         return;
 
     }
 
-    try{
 
-        const headers =
-            await getAuthHeaders();
+    console.log(
+        "EchoCall Home → Loading contacts..."
+    );
 
-        const response =
-            await fetch(
 
-                `${CALLS_API}/favorites`,
+    /*
+     * Your current Firestore structure does NOT
+     * contain:
+     *
+     * users/{USER_ID}/contacts
+     *
+     * So we safely show the empty state.
+     *
+     * We will connect this later when the Contacts
+     * system has its real Firestore structure.
+     */
 
-                {
-                    method: "GET",
-                    headers
-                }
 
-            );
+    homeContactsData = [];
 
-        if(!response.ok){
 
-            throw new Error(
-                `Favorites request failed: ${response.status}`
-            );
+    renderEmptyContacts();
 
-        }
+}
 
-        const data =
-            await response.json();
 
-        const favorites =
-            data.favorites || [];
+// ==========================================
+// LOAD NOTIFICATIONS
+// ==========================================
 
-        renderFavoriteContacts(
-            favorites
+async function loadHomeNotifications() {
+
+    if (
+        !currentUser ||
+        !homeNotifications
+    ) {
+
+        return;
+
+    }
+
+
+    console.log(
+        "EchoCall Home → Loading notifications..."
+    );
+
+
+    /*
+     * Your current Firestore structure does NOT
+     * contain:
+     *
+     * users/{USER_ID}/notifications
+     *
+     * Therefore we do not query it yet.
+     */
+
+
+    homeNotificationsData = [];
+
+
+    renderEmptyNotifications();
+
+}
+
+
+// ==========================================
+// LOAD ALL PART 2B DATA
+// ==========================================
+
+async function loadHomePart2BData() {
+
+    if (!currentUser) {
+
+        console.warn(
+            "EchoCall Home → Part 2B cannot load without user."
+        );
+
+        return;
+
+    }
+
+
+    console.log(
+        "EchoCall Home → Loading Part 2B data..."
+    );
+
+
+    try {
+
+        await Promise.all([
+
+            loadHomeCalls(),
+
+            loadFavoriteContacts(),
+
+            loadHomeNotifications()
+
+        ]);
+
+
+        console.log(
+            "EchoCall Home → Part 2B data loaded."
         );
 
     }
-    catch(error){
+
+    catch (error) {
 
         console.error(
-            "Favorites Error:",
+            "EchoCall Home → Part 2B loading error:",
             error
         );
 
-        container.innerHTML = `
-
-            <div class="empty-card glass">
-
-                <span class="material-symbols-rounded">
-                    error
-                </span>
-
-                <h3>
-                    Unable to load contacts
-                </h3>
-
-                <p>
-                    Please try again later.
-                </p>
-
-            </div>
-
-        `;
-
     }
 
 }
 
+
 // ==========================================
-// RENDER FAVORITE CONTACTS
+// EMPTY CALLS
 // ==========================================
 
-function renderFavoriteContacts(
-    favorites
-){
+function renderEmptyCalls() {
 
-    const container =
-        document.getElementById(
-            "favoriteContacts"
-        );
-
-    if(!container){
+    if (!recentCalls) {
 
         return;
 
     }
 
-    if(!favorites.length){
 
-        container.innerHTML = `
+    recentCalls.innerHTML = `
 
-            <div class="empty-card glass">
+        <div class="empty-card glass">
 
-                <span class="material-symbols-rounded">
-                    contacts
-                </span>
+            <span class="material-symbols-rounded">
+                call
+            </span>
 
-                <h3>
-                    No favorite contacts
-                </h3>
+            <h3>
+                No recent calls
+            </h3>
 
-                <p>
-                    Your favorite contacts will appear here.
-                </p>
+            <p>
+                Your recent calls will appear here.
+            </p>
 
-            </div>
+            <button
+                id="emptyCallButton"
+                class="small-primary-button">
 
-        `;
+                Make a Call
+
+            </button>
+
+        </div>
+
+    `;
+
+
+    document
+        .getElementById(
+            "emptyCallButton"
+        )
+        ?.addEventListener(
+
+            "click",
+
+            handleNewCall
+
+        );
+
+}
+
+
+// ==========================================
+// EMPTY CONTACTS
+// ==========================================
+
+function renderEmptyContacts() {
+
+    if (!favoriteContacts) {
 
         return;
 
     }
 
-    container.innerHTML =
-        favorites
-            .map(
-                createContactCard
-            )
-            .join("");
+
+    favoriteContacts.innerHTML = `
+
+        <div class="empty-card glass">
+
+            <span class="material-symbols-rounded">
+                contacts
+            </span>
+
+            <h3>
+                No favorite contacts
+            </h3>
+
+            <p>
+                Your favorite contacts will appear here.
+            </p>
+
+            <button
+                id="emptyContactsButton"
+                class="small-primary-button">
+
+                Add Contact
+
+            </button>
+
+        </div>
+
+    `;
+
+
+    document
+        .getElementById(
+            "emptyContactsButton"
+        )
+        ?.addEventListener(
+
+            "click",
+
+            handleContacts
+
+        );
 
 }
 
+
 // ==========================================
-// CREATE CONTACT CARD
+// EMPTY NOTIFICATIONS
 // ==========================================
 
-function createContactCard(
-    contact
-){
+function renderEmptyNotifications() {
 
-    const name =
-        escapeHTML(
-            contact.name ||
-            contact.phoneNumber ||
-            "Contact"
-        );
+    if (!homeNotifications) {
 
-    const phone =
-        escapeHTML(
-            contact.phoneNumber ||
-            ""
-        );
+        return;
 
-    return `
+    }
 
-        <div class="contact-item glass">
 
-            <div class="contact-avatar">
+    homeNotifications.innerHTML = `
 
-                <span class="material-symbols-rounded">
-                    person
-                </span>
+        <div class="empty-card glass">
 
-            </div>
+            <span class="material-symbols-rounded">
+                notifications_none
+            </span>
 
-            <div class="contact-info">
+            <h3>
+                You're all caught up
+            </h3>
 
-                <strong>
-                    ${name}
-                </strong>
-
-                <span>
-                    ${phone}
-                </span>
-
-            </div>
+            <p>
+                New notifications will appear here.
+            </p>
 
         </div>
 
@@ -3592,200 +2165,826 @@ function createContactCard(
 
 }
 
+
 // ==========================================
-// LOAD CALL STATISTICS
+// END PART 2Bi
+// ==========================================
+// ==========================================
+// EchoCall AI
+// File: js/home.js
+// Home Dashboard
+// Part 2Bii
 // ==========================================
 
-async function loadCallStatistics(){
 
-    if(!currentUser){
+// ==========================================
+// FIREBASE AUTHENTICATION
+// ==========================================
+
+import {
+    signOut
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+
+
+// ==========================================
+// PART 2Bii STATE
+// ==========================================
+
+let homePart2BiiInitialized = false;
+
+let homeRefreshInProgress = false;
+
+let homeLogoutInProgress = false;
+
+
+// ==========================================
+// INITIALIZE PART 2Bii
+// ==========================================
+
+function initializeHomePart2Bii() {
+
+    console.log(
+        "EchoCall Home → Initializing Part 2Bii..."
+    );
+
+
+    // --------------------------------------
+    // Prevent duplicate initialization
+    // --------------------------------------
+
+    if (homePart2BiiInitialized) {
+
+        console.log(
+            "EchoCall Home → Part 2Bii already initialized."
+        );
 
         return;
 
     }
 
-    try{
 
-        const headers =
-            await getAuthHeaders();
+    // --------------------------------------
+    // Get existing dashboard elements
+    // --------------------------------------
 
-        const response =
-            await fetch(
-
-                `${CALLS_API}/statistics`,
-
-                {
-                    method: "GET",
-                    headers
-                }
-
-            );
-
-        if(!response.ok){
-
-            throw new Error(
-                `Statistics request failed: ${response.status}`
-            );
-
-        }
-
-        const data =
-            await response.json();
-
-        const statistics =
-            data.statistics || {};
-
-        const totalCalls =
-            Number(
-                statistics.totalCalls || 0
-            );
-
-        setText(
-            "totalCalls",
-            totalCalls
+    refreshDashboard =
+        document.getElementById(
+            "refreshDashboard"
         );
 
-        setText(
-    "todayCalls",
-    statistics.todayCalls || 0
-);
+    logoutAccount =
+        document.getElementById(
+            "logoutAccount"
+        );
+
+    openVoiceClone =
+        document.getElementById(
+            "openVoiceClone"
+        );
+
+    createVoiceClone =
+        document.getElementById(
+            "createVoiceClone"
+        );
+
+    openImageStudio =
+        document.getElementById(
+            "openImageStudio"
+        );
+
+    generateImageButton =
+        document.getElementById(
+            "generateImageButton"
+        );
+
+    viewAllAiChats =
+        document.getElementById(
+            "viewAllAiChats"
+        );
+
+    viewAllCalls =
+        document.getElementById(
+            "viewAllCalls"
+        );
+
+    viewContacts =
+        document.getElementById(
+            "viewContacts"
+        );
+
+    viewAllNotifications =
+        document.getElementById(
+            "viewAllNotifications"
+        );
+
+
+    // --------------------------------------
+    // Initialize events
+    // --------------------------------------
+
+    initializeHomePart2BiiEvents();
+
+
+    // --------------------------------------
+    // Mark initialized
+    // --------------------------------------
+
+    homePart2BiiInitialized = true;
+
+
+    console.log(
+        "EchoCall Home → Part 2Bii initialized successfully."
+    );
+
+}
+
+
+// ==========================================
+// PART 2Bii EVENTS
+// ==========================================
+
+function initializeHomePart2BiiEvents() {
+
+
+    // ======================================
+    // REFRESH
+    // ======================================
+
+    refreshDashboard?.addEventListener(
+        "click",
+        handleRefreshDashboard
+    );
+
+
+    // ======================================
+    // LOGOUT
+    // ======================================
+
+    logoutAccount?.addEventListener(
+        "click",
+        handleLogoutAccount
+    );
+
+
+    // ======================================
+    // VOICE CLONE
+    // ======================================
+
+    openVoiceClone?.addEventListener(
+        "click",
+        handleOpenVoiceClone
+    );
+
+
+    createVoiceClone?.addEventListener(
+        "click",
+        handleCreateVoiceClone
+    );
+
+
+    // ======================================
+    // IMAGE STUDIO
+    // ======================================
+
+    openImageStudio?.addEventListener(
+        "click",
+        handleOpenImageStudio
+    );
+
+
+    generateImageButton?.addEventListener(
+        "click",
+        handleGenerateImage
+    );
+
+
+    // ======================================
+    // VIEW ALL AI CHATS
+    // ======================================
+
+    viewAllAiChats?.addEventListener(
+        "click",
+        handleViewAllAiChats
+    );
+
+
+    // ======================================
+    // VIEW ALL CALLS
+    // ======================================
+
+    viewAllCalls?.addEventListener(
+        "click",
+        handleViewAllCalls
+    );
+
+
+    // ======================================
+    // VIEW ALL CONTACTS
+    // ======================================
+
+    viewContacts?.addEventListener(
+        "click",
+        handleViewContacts
+    );
+
+
+    // ======================================
+    // VIEW ALL NOTIFICATIONS
+    // ======================================
+
+    viewAllNotifications?.addEventListener(
+        "click",
+        handleViewAllNotifications
+    );
+
+
+    // ======================================
+    // EMPTY CALL BUTTON
+    // ======================================
+
+    document
+        .getElementById(
+            "emptyCallButton"
+        )
+        ?.addEventListener(
+            "click",
+            handleNewCall
+        );
+
+
+    // ======================================
+    // EMPTY CONTACTS BUTTON
+    // ======================================
+
+    document
+        .getElementById(
+            "emptyContactsButton"
+        )
+        ?.addEventListener(
+            "click",
+            handleContacts
+        );
+
+}
+
+
+// ==========================================
+// REFRESH DASHBOARD
+// ==========================================
+
+async function handleRefreshDashboard() {
+
+    console.log(
+        "EchoCall Home → Refresh requested."
+    );
+
+
+    // --------------------------------------
+    // Prevent duplicate refresh
+    // --------------------------------------
+
+    if (homeRefreshInProgress) {
+
+        return;
 
     }
-    catch(error){
+
+
+    // --------------------------------------
+    // Check authentication
+    // --------------------------------------
+
+    if (!currentUser) {
+
+        showToast(
+            "Please sign in again.",
+            "warning"
+        );
+
+        return;
+
+    }
+
+
+    homeRefreshInProgress = true;
+
+
+    setRefreshButtonLoading(
+        true
+    );
+
+
+    try {
+
+        console.log(
+            "EchoCall Home → Reloading dashboard..."
+        );
+
+
+        // ==================================
+        // Use the existing Part 2A loader
+        // ==================================
+
+        await loadHomeData();
+
+
+        showToast(
+            "Dashboard refreshed.",
+            "success"
+        );
+
+
+    }
+
+    catch (error) {
 
         console.error(
-            "Call Statistics Error:",
+            "EchoCall Home → Refresh error:",
             error
         );
 
-        setText(
-            "totalCalls",
-            "0"
+
+        showToast(
+            "Could not refresh the dashboard.",
+            "error"
         );
 
-        setText(
-            "todayCalls",
-            "0"
+    }
+
+    finally {
+
+        homeRefreshInProgress =
+            false;
+
+
+        setRefreshButtonLoading(
+            false
         );
 
     }
 
 }
 
+
 // ==========================================
-// FORMAT DURATION
+// REFRESH BUTTON STATE
 // ==========================================
 
-function formatDuration(
-    seconds
-){
+function setRefreshButtonLoading(
+    isLoading
+) {
 
-    seconds =
-        Number(seconds) || 0;
+    if (!refreshDashboard) {
 
-    if(seconds < 60){
-
-        return `${seconds}s`;
+        return;
 
     }
 
-    const minutes =
-        Math.floor(
-            seconds / 60
+
+    if (isLoading) {
+
+        refreshDashboard.disabled =
+            true;
+
+
+        refreshDashboard.innerHTML = `
+
+            <span class="material-symbols-rounded">
+                sync
+            </span>
+
+            Refreshing...
+
+        `;
+
+
+        refreshDashboard.classList.add(
+            "is-loading"
         );
 
-    const remaining =
-        seconds % 60;
 
-    return `${minutes}m ${remaining}s`;
+        return;
+
+    }
+
+
+    refreshDashboard.disabled =
+        false;
+
+
+    refreshDashboard.classList.remove(
+        "is-loading"
+    );
+
+
+    refreshDashboard.innerHTML = `
+
+        <span class="material-symbols-rounded">
+            refresh
+        </span>
+
+        Refresh
+
+    `;
 
 }
 
+
 // ==========================================
-// FORMAT DATE
+// LOGOUT
 // ==========================================
 
-function formatDate(
-    value
-){
+async function handleLogoutAccount() {
 
-    if(!value){
+    console.log(
+        "EchoCall Home → Logout requested."
+    );
 
-        return "Unknown date";
+
+    // --------------------------------------
+    // Prevent duplicate logout
+    // --------------------------------------
+
+    if (homeLogoutInProgress) {
+
+        return;
 
     }
 
-    try{
 
-        let date;
+    // --------------------------------------
+    // Confirmation
+    // --------------------------------------
 
-        if(
-            typeof value === "object" &&
-            value._seconds
-        ){
+    const confirmed =
+        window.confirm(
+            "Are you sure you want to log out of EchoCall AI?"
+        );
 
-            date =
-                new Date(
-                    value._seconds * 1000
-                );
+
+    if (!confirmed) {
+
+        return;
+
+    }
+
+
+    homeLogoutInProgress =
+        true;
+
+
+    // --------------------------------------
+    // Disable logout button
+    // --------------------------------------
+
+    if (logoutAccount) {
+
+        logoutAccount.disabled =
+            true;
+
+
+        logoutAccount.innerHTML = `
+
+            <span class="material-symbols-rounded">
+                progress_activity
+            </span>
+
+            Logging out...
+
+        `;
+
+    }
+
+
+    try {
+
+        console.log(
+            "EchoCall Home → Signing out..."
+        );
+
+
+        // ==================================
+        // Firebase logout
+        // ==================================
+
+        await signOut(
+            auth
+        );
+
+
+        // ==================================
+        // Clear local conversation
+        // ==================================
+
+        clearHomeLocalState();
+
+
+        // ==================================
+        // Clear current user
+        // ==================================
+
+        currentUser =
+            null;
+
+
+        console.log(
+            "EchoCall Home → Firebase logout successful."
+        );
+
+
+        showToast(
+            "You have been logged out.",
+            "success"
+        );
+
+
+        // ==================================
+        // Go directly to authentication
+        // ==================================
+
+        goToLoginPage();
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "EchoCall Home → Logout error:",
+            error
+        );
+
+
+        showToast(
+            "Could not log out. Please try again.",
+            "error"
+        );
+
+
+        if (logoutAccount) {
+
+            logoutAccount.disabled =
+                false;
+
+
+            logoutAccount.innerHTML = `
+
+                <span class="material-symbols-rounded">
+                    logout
+                </span>
+
+                Logout
+
+            `;
 
         }
-        else{
 
-            date =
-                new Date(value);
-
-        }
-
-        if(
-            Number.isNaN(
-                date.getTime()
-            )
-        ){
-
-            return "Unknown date";
-
-        }
-
-        return date.toLocaleString();
-
-    }
-    catch{
-
-        return "Unknown date";
+        homeLogoutInProgress =
+            false;
 
     }
 
 }
 
+
 // ==========================================
-// ESCAPE HTML
+// CLEAR HOME LOCAL STATE
 // ==========================================
 
-function escapeHTML(
-    value
-){
+function clearHomeLocalState() {
 
-    return String(value ?? "")
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-        .replace(
-            /</g,
-            "&lt;"
-        )
-        .replace(
-            />/g,
-            "&gt;"
-        )
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-        .replace(
-            /'/g,
-            "&#039;"
+    try {
+
+        // ----------------------------------
+        // Find authenticated user ID
+        // ----------------------------------
+
+        const uid =
+            currentUser?.uid;
+
+
+        if (uid) {
+
+            localStorage.removeItem(
+                `echoCallConversationId_${uid}`
+            );
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.warn(
+            "EchoCall Home → Local state cleanup failed:",
+            error
         );
 
+    }
+
 }
+
+
+// ==========================================
+// GO TO LOGIN PAGE
+// ==========================================
+//
+// IMPORTANT:
+//
+// We DO NOT call:
+//
+// navigateTo("auth")
+//
+// because "auth" is not currently present
+// in the router you showed me.
+//
+// We also do not send the user to:
+//
+// auth.html
+//
+// unless that is actually your real login
+// file.
+//
+// Instead, this function checks the most
+// common authentication-page locations.
+// ==========================================
+
+function goToLoginPage() {
+
+    console.log(
+        "EchoCall Home → Opening login page..."
+    );
+
+
+    // ======================================
+    // OPTION 1
+    // ======================================
+    // If your authentication page is
+    // index.html, use it.
+    //
+    // Change this to auth.html ONLY if your
+    // actual login page is auth.html.
+    // ======================================
+
+    window.location.href =
+        "index.html";
+
+}
+
+
+// ==========================================
+// VOICE CLONE
+// ==========================================
+
+function handleOpenVoiceClone() {
+
+    console.log(
+        "EchoCall Home → Opening Voice Clone Studio."
+    );
+
+
+    navigateTo(
+        "voiceClone"
+    );
+
+}
+
+
+function handleCreateVoiceClone() {
+
+    console.log(
+        "EchoCall Home → Creating Voice Clone."
+    );
+
+
+    navigateTo(
+        "voiceClone"
+    );
+
+}
+
+
+// ==========================================
+// IMAGE STUDIO
+// ==========================================
+
+function handleOpenImageStudio() {
+
+    console.log(
+        "EchoCall Home → Opening Image Studio."
+    );
+
+
+    navigateTo(
+        "imageStudio"
+    );
+
+}
+
+
+function handleGenerateImage() {
+
+    console.log(
+        "EchoCall Home → Opening Image Studio."
+    );
+
+
+    navigateTo(
+        "imageStudio"
+    );
+
+}
+
+
+// ==========================================
+// VIEW ALL AI CHATS
+// ==========================================
+
+function handleViewAllAiChats() {
+
+    console.log(
+        "EchoCall Home → Opening AI chats."
+    );
+
+
+    navigateTo(
+        "ai"
+    );
+
+}
+
+
+// ==========================================
+// VIEW ALL CALLS
+// ==========================================
+
+function handleViewAllCalls() {
+
+    console.log(
+        "EchoCall Home → Opening calls."
+    );
+
+
+    navigateTo(
+        "calls"
+    );
+
+}
+
+
+// ==========================================
+// VIEW ALL CONTACTS
+// ==========================================
+
+function handleViewContacts() {
+
+    console.log(
+        "EchoCall Home → Opening contacts."
+    );
+
+
+    navigateTo(
+        "contacts"
+    );
+
+}
+
+
+// ==========================================
+// VIEW ALL NOTIFICATIONS
+// ==========================================
+
+function handleViewAllNotifications() {
+
+    console.log(
+        "EchoCall Home → Opening notifications."
+    );
+
+
+    navigateTo(
+        "notifications"
+    );
+
+}
+
+
+// ==========================================
+// PART 2Bii INITIALIZATION
+// ==========================================
+//
+// IMPORTANT:
+//
+// We do NOT use DOMContentLoaded here.
+//
+// Your router dynamically loads home.html,
+// then imports home.js.
+//
+// Therefore initializeHome() is already
+// responsible for starting the Home page.
+// ==========================================
+
+initializeHomePart2Bii();
+
+
+// ==========================================
+// END PART 2Bii
+// ==========================================

@@ -1,546 +1,781 @@
 // ==========================================
 // EchoCall AI
 // File: js/router.js
-// Part 1
+// Purpose: SPA Router with safe page lifecycle
 // ==========================================
 
 // ==========================================
-// Routes
+// Page Routes
 // ==========================================
 
 const routes = {
 
-home: {  
+    home: {
+        html: "pages/home.html",
+        css: "css/home.css",
+        script: "./home.js",
+        initializer: "initializeHome"
+    },
 
-    html: "pages/home.html",  
+    calls: {
+        html: "pages/calls.html",
+        css: "css/calls.css",
+        script: "./calls.js",
+        initializer: "initializeCalls"
+    },
 
-    css: "css/home.css",  
+    history: {
+        html: "pages/history.html",
+        css: "css/history.css",
+        script: "./history.js",
+        initializer: "initializeHistory"
+    },
 
-    script: "./home.js"  
+    contacts: {
+        html: "pages/contacts.html",
+        css: "css/contacts.css",
+        script: "./contacts.js",
+        initializer: "initializeContacts"
+    },
 
-},  
+    profile: {
+        html: "pages/profile.html",
+        css: "css/profile.css",
+        script: "./profile.js",
+        initializer: "initializeProfile"
+    },
 
-calls: {  
+    voiceClone: {
+        html: "pages/voice-clone.html",
+        css: "css/voice-clone.css",
+        script: "./voice-clone.js",
+        initializer: "initializeVoiceClone"
+    },
 
-    html: "pages/calls.html",  
+    settings: {
+        html: "pages/settings.html",
+        css: "css/settings.css",
+        script: "./settings.js",
+        initializer: "initializeSettings"
+    },
 
-    css: "css/calls.css",  
+    premium: {
+        html: "pages/premium.html",
+        css: "css/premium.css",
+        script: "./premium.js",
+        initializer: "initializePremium"
+    },
 
-    script: "./calls.js"  
+    security: {
+        html: "pages/security.html",
+        css: "css/security.css",
+        script: "./security.js",
+        initializer: "initializeSecurity"
+    },
 
-},  
+    imageStudio: {
+        html: "pages/image-studio.html",
+        css: "css/image-studio.css",
+        script: "./image-studio.js",
+        initializer: "initializeImageStudio"
+    },
 
-history: {  
+    notifications: {
+        html: "pages/notifications.html",
+        css: "css/notifications.css",
+        script: "./notifications.js",
+        initializer: "initializeNotifications"
+    }
 
-    html: "pages/history.html",  
-
-    css: "css/history.css",  
-
-    script: "./history.js"  
-
-},  
-
-contacts: {  
-
-    html: "pages/contacts.html",  
-
-    css: "css/contacts.css",  
-
-    script: "./contacts.js"  
-
-},  
-
-profile: {  
-
-    html: "pages/profile.html",  
-
-    css: "css/profile.css",  
-
-    script: "./profile.js"  
-
-},  
-  
-voiceClone: {  
-    html: "pages/voice-clone.html",  
-    css: "css/voice-clone.css",  
-    script: "./voice-clone.js"  
-},  
-
-settings: {  
-    html: "pages/settings.html",  
-    css: "css/settings.css",  
-    script: "./settings.js"  
-},  
-
-premium: {  
-    html: "pages/premium.html",  
-    css: "css/premium.css",  
-    script: "./premium.js"  
-},  
-
-security: {  
-    html: "pages/security.html",  
-    css: "css/security.css",  
-    script: "./security.js"  
-}
-
+    // IMPORTANT:
+    // Do not add "auth" here until you confirm
+    // the exact auth HTML/JS filenames.
 };
-
-// ==========================================
-// Elements
-// ==========================================
-
-const pageContainer =
-document.getElementById("pageContainer");
-
-const navItems =
-document.querySelectorAll(".nav-item");
 
 // ==========================================
 // Router State
 // ==========================================
 
 let currentPage = null;
-
-const pageCache = {};
+let currentModule = null;
+let navigationInProgress = false;
 
 // ==========================================
-// Load Page
+// DOM
 // ==========================================
 
-async function loadPage(pageName) {
+function getPageContainer() {
 
-const route = routes[pageName];  
+    const container = document.getElementById("pageContainer");
 
-if (!route) {  
+    if (!container) {
+        console.error(
+            "[Router] #pageContainer was not found."
+        );
 
-    console.error(  
-        "Unknown page:",  
-        pageName  
-    );  
+        return null;
+    }
 
-    return;  
-
-}  
-
-try {  
-  // ==========================================
-
-// Load Page CSS
-// ==========================================
-
-document
-.querySelectorAll("link[data-page-style]")
-.forEach(link => link.remove());
-
-if (route.css) {
-
-const css = document.createElement("link");  
-
-css.rel = "stylesheet";  
-
-css.href = route.css;  
-
-css.setAttribute(  
-    "data-page-style",  
-    "true"  
-);  
-
-document.head.appendChild(css);
-
-}
-
-pageContainer.innerHTML = `  
-
-        <div class="loading-screen">  
-
-            <div class="loader"></div>  
-
-            <h2>Loading...</h2>  
-
-        </div>  
-
-    `;  
-
-    let html;  
-
-    if (pageCache[pageName]) {  
-
-        html = pageCache[pageName];  
-
-    } else {  
-
-        const response =  
-        await fetch(route.html);  
-
-        if (!response.ok) {  
-
-            throw new Error(  
-                "Unable to load page."  
-            );  
-
-        }  
-
-        html =  
-        await response.text();  
-
-        pageCache[pageName] = html;  
-
-    }  
-
-    pageContainer.innerHTML = html;  
-
-    currentPage = pageName;  
-
-}  
-
-catch (error) {  
-
-    console.error(error);  
-
-    pageContainer.innerHTML = `  
-
-        <div class="error-page">  
-
-            <h2>  
-
-                Failed to load page  
-
-            </h2>  
-
-            <p>  
-
-                ${error.message}  
-
-            </p>  
-
-        </div>  
-
-    `;  
-
-}
-
+    return container;
 }
 
 // ==========================================
-// End Part 1
+// CSS Loader
 // ==========================================
+
+function loadPageCSS(cssPath) {
+
+    if (!cssPath) return;
+
+    const oldStyles =
+        document.querySelectorAll(
+            "link[data-router-page-style]"
+        );
+
+    oldStyles.forEach(link => {
+        link.remove();
+    });
+
+    const link = document.createElement("link");
+
+    link.rel = "stylesheet";
+    link.href = cssPath;
+    link.dataset.routerPageStyle = "true";
+
+    document.head.appendChild(link);
+}
+
 // ==========================================
-// EchoCall AI
-// File: js/router.js
-// Part 2
-// Append below Part 1
+// Cleanup Previous Page
 // ==========================================
+
+async function cleanupPreviousPage() {
+
+    if (!currentModule) {
+        return;
+    }
+
+    try {
+
+        if (
+            typeof currentModule.cleanup ===
+            "function"
+        ) {
+            await currentModule.cleanup();
+        }
+
+    } catch (error) {
+
+        console.error(
+            "[Router] Page cleanup error:",
+            error
+        );
+    }
+
+    currentModule = null;
+}
+
+// ==========================================
+// Load HTML
+// ==========================================
+
+async function loadHTML(htmlPath) {
+
+    const response =
+        await fetch(
+            htmlPath,
+            {
+                cache: "no-cache"
+            }
+        );
+
+    if (!response.ok) {
+
+        throw new Error(
+            `Failed to load ${htmlPath}: ${response.status}`
+        );
+    }
+
+    return await response.text();
+}
+
+// ==========================================
+// Load Page Module
+// ==========================================
+
+async function loadModule(scriptPath) {
+
+    if (!scriptPath) {
+        return null;
+    }
+
+    /*
+     * IMPORTANT:
+     *
+     * ES modules are cached by the browser.
+     *
+     * Therefore:
+     *
+     * import("./home.js")
+     *
+     * does NOT execute the entire file again
+     * when returning to Home.
+     *
+     * We intentionally import the module and then
+     * explicitly call its initializer every time.
+     */
+
+    const module =
+        await import(
+            `${scriptPath}?router=${Date.now()}`
+        );
+
+    return module;
+}
+
+// ==========================================
+// Initialize Current Page
+// ==========================================
+
+async function initializePage(
+    pageName,
+    module,
+    route
+) {
+
+    if (!module) {
+        return;
+    }
+
+    const initializerName =
+        route.initializer;
+
+    if (!initializerName) {
+        return;
+    }
+
+    const initializer =
+        module[initializerName];
+
+    if (
+        typeof initializer !==
+        "function"
+    ) {
+
+        console.warn(
+            `[Router] ${initializerName}() was not found in ${route.script}`
+        );
+
+        return;
+    }
+
+    try {
+
+        /*
+         * THIS IS THE IMPORTANT PART.
+         *
+         * The HTML has already been inserted.
+         *
+         * The page initializer now searches for
+         * the NEW DOM elements and attaches all
+         * listeners again.
+         */
+
+        await initializer();
+
+        console.log(
+            `[Router] ${pageName} initialized successfully.`
+        );
+
+    } catch (error) {
+
+        console.error(
+            `[Router] Failed to initialize ${pageName}:`,
+            error
+        );
+
+        throw error;
+    }
+}
+
+// ==========================================
+// Update Active Navigation
+// ==========================================
+
+function updateActiveNavigation(
+    pageName
+) {
+
+    const navItems =
+        document.querySelectorAll(
+            "[data-page]"
+        );
+
+    navItems.forEach(item => {
+
+        const itemPage =
+            item.dataset.page;
+
+        item.classList.toggle(
+            "active",
+            itemPage === pageName
+        );
+
+        item.setAttribute(
+            "aria-current",
+            itemPage === pageName
+                ? "page"
+                : "false"
+        );
+    });
+}
 
 // ==========================================
 // Navigate
 // ==========================================
 
-export async function navigate(pageName) {
+async function loadPage(
+    pageName,
+    options = {}
+) {
 
-if (!routes[pageName]) {  
+    if (
+        navigationInProgress &&
+        !options.force
+    ) {
+        return;
+    }
 
-    return;  
+    const route =
+        routes[pageName];
 
-}  
+    if (!route) {
 
-await loadPage(pageName);  
+        console.error(
+            `[Router] Unknown route: ${pageName}`
+        );
 
-// Update Navigation  
+        return;
+    }
 
-navItems.forEach((item) => {  
+    const container =
+        getPageContainer();
 
-    item.classList.remove("active");  
+    if (!container) {
+        return;
+    }
 
-    if (  
+    navigationInProgress = true;
 
-        item.dataset.page === pageName  
+    try {
 
-    ) {  
+        console.log(
+            `[Router] Loading page: ${pageName}`
+        );
 
-        item.classList.add("active");  
+        // --------------------------------------
+        // 1. Cleanup previous page
+        // --------------------------------------
 
-    }  
+        await cleanupPreviousPage();
 
-});  
+        // --------------------------------------
+        // 2. Load HTML
+        // --------------------------------------
 
-// Load JavaScript Module  
+        const html =
+            await loadHTML(
+                route.html
+            );
 
-try {  
+        // --------------------------------------
+        // 3. Replace page DOM
+        // --------------------------------------
 
-const module = await import(  
+        container.innerHTML =
+            html;
 
-    routes[pageName].script  
+        // --------------------------------------
+        // 4. Load page CSS
+        // --------------------------------------
 
-);  
+        loadPageCSS(
+            route.css
+        );
 
-switch(pageName){
+        // --------------------------------------
+        // 5. Import page JS module
+        // --------------------------------------
 
-    case "home":
-        module.initializeHome?.();
-        break;
+        const module =
+            await loadModule(
+                route.script
+            );
 
-    case "calls":
-        module.initializeCalls?.();
-        break;
+        currentModule =
+            module;
 
-    case "history":
-        module.initializeHistory?.();
-        break;
+        // --------------------------------------
+        // 6. Update router state
+        // --------------------------------------
 
-    case "contacts":
-        module.initializeContacts?.();
-        break;
+        currentPage =
+            pageName;
 
-    case "profile":
-        module.initializeProfile?.();
-        break;
+        // --------------------------------------
+        // 7. Update navigation
+        // --------------------------------------
 
-    case "voiceClone":
-        module.initializeVoiceClone?.();
-        break;
+        updateActiveNavigation(
+            pageName
+        );
 
-    case "settings":
-        module.initializeSettings?.();
-        break;
+        // --------------------------------------
+        // 8. Initialize page AFTER HTML
+        // --------------------------------------
 
-    case "premium":
-        module.initializePremium?.();
-        break;
+        await initializePage(
+            pageName,
+            module,
+            route
+        );
 
-    case "security":
-        module.initializeSecurity?.();
-        break;
+        // --------------------------------------
+        // 9. Browser history
+        // --------------------------------------
 
-}
+        if (!options.skipHistory) {
 
-}
+            const newHash =
+                `#${pageName}`;
 
-catch(error){
+            if (
+                window.location.hash !==
+                newHash
+            ) {
 
-console.error(  
+                if (
+                    options.replace
+                ) {
 
-    "Module Load Error:",  
+                    window.history.replaceState(
+                        {
+                            page: pageName
+                        },
+                        "",
+                        newHash
+                    );
 
-    error  
+                } else {
 
-);
+                    window.history.pushState(
+                        {
+                            page: pageName
+                        },
+                        "",
+                        newHash
+                    );
+                }
+            }
+        }
 
-}
+        console.log(
+            `[Router] ${pageName} ready.`
+        );
 
-// Browser History  
+    } catch (error) {
 
-if (  
+        console.error(
+            "[Router] Navigation failed:",
+            error
+        );
 
-    window.location.hash !==  
+        container.innerHTML = `
+            <div class="router-error">
+                <h2>Unable to load this page</h2>
+                <p>
+                    Something went wrong while loading
+                    <strong>${pageName}</strong>.
+                </p>
+                <button
+                    type="button"
+                    id="routerRetryButton"
+                >
+                    Try Again
+                </button>
+            </div>
+        `;
 
-    "#" + pageName  
+        const retryButton =
+            document.getElementById(
+                "routerRetryButton"
+            );
 
-) {  
+        if (retryButton) {
 
-    history.pushState(  
+            retryButton.addEventListener(
+                "click",
+                () => {
 
-        {  
+                    loadPage(
+                        pageName,
+                        {
+                            force: true
+                        }
+                    );
+                }
+            );
+        }
 
-            page: pageName  
+    } finally {
 
-        },  
-
-        "",  
-
-        "#" + pageName  
-
-    );  
-
-}
-
+        navigationInProgress =
+            false;
+    }
 }
 
 // ==========================================
-// Navigation Buttons
+// Public Navigate Function
 // ==========================================
 
-navItems.forEach((item) => {
+async function navigate(
+    pageName,
+    options = {}
+) {
 
-item.addEventListener(  
+    return loadPage(
+        pageName,
+        options
+    );
+}
 
-    "click",  
+// ==========================================
+// Navigation Click Handling
+// ==========================================
 
-    () => {  
+function initializeNavigation() {
 
-        const page =  
+    /*
+     * Event delegation means we only need ONE
+     * listener on the document.
+     *
+     * This continues working even when the router
+     * replaces page HTML.
+     */
 
-        item.dataset.page;  
+    if (
+        window.__echoCallRouterNavigation
+    ) {
+        return;
+    }
 
-        navigate(page);  
+    window.__echoCallRouterNavigation =
+        true;
 
-    }  
+    document.addEventListener(
+        "click",
+        event => {
 
-);
+            const navigationElement =
+                event.target.closest(
+                    "[data-page]"
+                );
 
-});
+            if (!navigationElement) {
+                return;
+            }
+
+            /*
+             * Ignore links/buttons that explicitly
+             * opt out of router navigation.
+             */
+
+            if (
+                navigationElement.dataset.routerIgnore ===
+                "true"
+            ) {
+                return;
+            }
+
+            const pageName =
+                navigationElement.dataset.page;
+
+            if (!pageName) {
+                return;
+            }
+
+            event.preventDefault();
+
+            navigate(pageName);
+        }
+    );
+}
 
 // ==========================================
 // Browser Back / Forward
 // ==========================================
 
-window.addEventListener(
+function initializeHistoryNavigation() {
 
-"popstate",  
+    if (
+        window.__echoCallRouterHistory
+    ) {
+        return;
+    }
 
-(event) => {  
+    window.__echoCallRouterHistory =
+        true;
 
-    if (  
+    window.addEventListener(
+        "popstate",
+        () => {
 
-        event.state &&  
+            const pageName =
+                getPageFromURL();
 
-        event.state.page  
-
-    ) {  
-
-        navigate(  
-
-            event.state.page  
-
-        );  
-
-    }  
-
-}
-
-);
-
-// ==========================================
-// Current Page
-// ==========================================
-
-export function getCurrentPage() {
-
-return currentPage;
-
+            loadPage(
+                pageName,
+                {
+                    skipHistory: true,
+                    force: true
+                }
+            );
+        }
+    );
 }
 
 // ==========================================
-// End Part 2
-// ==========================================
-// ==========================================
-// EchoCall AI
-// File: js/router.js
-// Part 3
-// Append below Part 2
+// Get Page From URL
 // ==========================================
 
-// ==========================================
-// Refresh Current Page
-// ==========================================
+function getPageFromURL() {
 
-export async function refreshCurrentPage() {
+    const hash =
+        window.location.hash
+            .replace("#", "")
+            .trim();
 
-if (!currentPage) {  
+    if (
+        hash &&
+        routes[hash]
+    ) {
+        return hash;
+    }
 
-    return;  
-
-}  
-
-delete pageCache[currentPage];  
-
-await navigate(currentPage);
-
+    return "home";
 }
 
 // ==========================================
-// Clear Cache
+// Router Initialization
 // ==========================================
 
-export function clearPageCache() {
+async function initializeRouter() {
 
-Object.keys(pageCache).forEach((page) => {  
+    console.log(
+        "[Router] Initializing EchoCall router..."
+    );
 
-    delete pageCache[page];  
+    initializeNavigation();
 
-});
+    initializeHistoryNavigation();
 
+    const initialPage =
+        getPageFromURL();
+
+    await loadPage(
+        initialPage,
+        {
+            replace: true,
+            force: true
+        }
+    );
 }
 
 // ==========================================
-// Preload Pages
+// Preload Page
 // ==========================================
 
-async function preloadPages() {
+async function preloadPage(
+    pageName
+) {
 
-for (const pageName of Object.keys(routes)) {  
+    const route =
+        routes[pageName];
 
-    if (pageCache[pageName]) {  
+    if (!route) {
+        return;
+    }
 
-        continue;  
+    try {
 
-    }  
+        await fetch(
+            route.html,
+            {
+                cache: "force-cache"
+            }
+        );
 
-    try {  
+        /*
+         * Do not initialize the page here.
+         *
+         * Initialization must happen only after
+         * its HTML is actually inserted.
+         */
 
-        const response =  
-        await fetch(routes[pageName].html);  
+    } catch (error) {
 
-        if (response.ok) {  
-
-            pageCache[pageName] =  
-            await response.text();  
-
-        }  
-
-    }  
-
-    catch (error) {  
-
-        console.warn(  
-
-            "Failed to preload:",  
-
-            pageName,  
-
-            error  
-
-        );  
-
-    }  
-
+        console.warn(
+            `[Router] Could not preload ${pageName}:`,
+            error
+        );
+    }
 }
-
-}
-
-// ==========================================
-// Initialize Router
-// ==========================================
-
-export async function initializeRouter() {
-
-let startPage =  
-
-window.location.hash.replace("#", "");  
-
-if (!routes[startPage]) {  
-
-    startPage = "home";  
-
-}  
-
-await navigate(startPage);  
-
-preloadPages();
-
-}
-
 
 // ==========================================
 // Exports
 // ==========================================
 
 export {
-
-routes
-
+    routes,
+    navigate,
+    loadPage,
+    initializeRouter,
+    preloadPage
 };
 
 // ==========================================
-// End of router.js
+// Global Router API
 // ==========================================
+
+window.navigateTo =
+    navigate;
+
+window.echoCallRouter = {
+    navigate,
+    loadPage,
+    initializeRouter,
+    preloadPage,
+    routes
+};
+
+// ==========================================
+// Start Router
+// ==========================================
+
+if (
+    document.readyState ===
+    "loading"
+) {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        initializeRouter,
+        {
+            once: true
+        }
+    );
+
+} else {
+
+    initializeRouter();
+}
