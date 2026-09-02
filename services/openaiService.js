@@ -732,13 +732,20 @@ export async function extractTextFromFile(file) {
     }
 
     // ======================================
-    // PDF
-    // ======================================
+// PDF
+// ======================================
 
-    if (extension === ".pdf") {
+if (extension === ".pdf") {
+
+    const parser =
+        new PDFParse({
+            data: file.buffer
+        });
+
+    try {
 
         const result =
-            await pdfParse(file.buffer);
+            await parser.getText();
 
         return {
 
@@ -750,7 +757,14 @@ export async function extractTextFromFile(file) {
         };
 
     }
+    finally {
 
+        await parser.destroy();
+
+    }
+
+}
+  
     // ======================================
     // DOCX
     // ======================================
