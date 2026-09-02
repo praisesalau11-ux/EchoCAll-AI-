@@ -21,29 +21,20 @@ import {
 } from "../middleware/authMiddleware.js";
 
 import {
-
     db
-
 } from "../services/firebaseAdmin.js";
 
 import {
-
     generateChatResponse,
-
     generateSummary,
-
     translateText,
-
     extractActions,
-
     generateMemorySummary,
-  
     detectLanguage,
-
     transcribeAudio,
-
-    textToSpeech
-
+    textToSpeech,
+    analyzeUploadedFile,
+    askAIAboutFile
 } from "../services/openaiService.js";
 
 import {
@@ -1402,6 +1393,173 @@ router.post(
 
                 message:
                     "Image analysis failed."
+
+            });
+
+        }
+
+    }
+
+);
+
+// ==========================================
+// General AI File Analysis
+// Documents / Images / Audio / Video
+// ==========================================
+
+router.post(
+
+    "/analyze-file",
+
+    authenticateUser,
+
+    upload.single("file"),
+
+    async (req, res) => {
+
+        try {
+
+            // ======================================
+            // Validate File
+            // ======================================
+
+            if (!req.file) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "File is required."
+
+                });
+
+            }
+
+            const prompt =
+                req.body.prompt ||
+                "Analyze this file and explain its important contents.";
+
+            console.log(
+                "EchoCall AI File:"
+            );
+
+            console.log(
+                "Filename:",
+                req.file.originalname
+            );
+
+            console.log(
+                "MIME:",
+                req.file.mimetype
+            );
+
+            console.log(
+                "Size:",
+                req.file.size
+            );
+
+            // ======================================
+            // Analyze File
+            // ======================================
+
+            const fileResult =
+                await analyzeUploadedFile(
+                    req.file
+                );
+
+            // ======================================
+            // IMAGE
+            // ======================================
+
+            if (
+                fileResult.category ===
+                "image"
+            ) {
+
+                // Keep image analysis through
+                // the existing image endpoint.
+                // This route intentionally does
+                // not duplicate vision logic.
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "Images should be analyzed through /analyze-image."
+
+                });
+
+            }
+
+            // ======================================
+            // DOCUMENT / AUDIO / VIDEO
+            // ======================================
+
+            const answer =
+                await askAIAboutFile({
+
+                    fileName:
+                        fileResult.filename,
+
+                    fileType:
+                        fileResult.documentType ||
+                        fileResult.category,
+
+                    fileText:
+                        fileResult.text,
+
+                    question:
+                        prompt,
+
+                    systemPrompt:
+                        "You are EchoCall AI, a persistent AI assistant."
+
+                });
+
+            return res.json({
+
+                success: true,
+
+                filename:
+                    fileResult.filename,
+
+                category:
+                    fileResult.category,
+
+                fileType:
+                    fileResult.documentType ||
+                    fileResult.category,
+
+                answer,
+
+                transcript:
+                    fileResult.category ===
+                    "audio" ||
+                    fileResult.category ===
+                    "video"
+                        ? fileResult.text
+                        : undefined
+
+            });
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "General File Analysis Error:",
+                error
+            );
+
+            return res.status(500).json({
+
+                success: false,
+
+                message:
+                    error.message ||
+                    "Unable to analyze the uploaded file."
 
             });
 
