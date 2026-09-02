@@ -8,7 +8,7 @@
 // ==========================================
 
 import OpenAI from "openai";
-import pdfParse from "pdf-parse";
+import { PDFParse } from "pdf-parse";
 import mammoth from "mammoth";
 import XLSX from "xlsx";
 import { spawn } from "child_process";
