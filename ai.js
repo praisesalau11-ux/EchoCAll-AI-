@@ -796,7 +796,6 @@ function closeAI(){
 // ==========================================
 // Send Message
 // ==========================================
-
 async function sendMessage(){
 
     if(isSending){
@@ -812,31 +811,10 @@ async function sendMessage(){
         selectedAIFile;
 
     // ======================================
-    // Require either text OR a file
+    // Require text OR file
     // ======================================
 
     if(!message && !file){
-
-        return;
-
-    }
-
-    // ======================================
-    // Images can be analyzed
-    // ======================================
-
-    if(
-        file &&
-        !file.type.startsWith("image/")
-    ){
-
-        showToast(
-
-            "Only images are connected to AI analysis right now.",
-
-            "warning"
-
-        );
 
         return;
 
@@ -847,38 +825,30 @@ async function sendMessage(){
     aiInput.value = "";
 
     // ======================================
-    // Display user message
+    // Display user text
     // ======================================
 
     if(message){
 
         addUserMessage(message);
 
+        conversation.push({
+
+            role: "user",
+
+            content: message
+
+        });
+
     }
 
     // ======================================
-    // Display selected image
+    // Display selected file
     // ======================================
 
     if(file){
 
         addUserFileMessage(file);
-
-    }
-
-    // ======================================
-    // Save text locally
-    // ======================================
-
-    if(message){
-
-        conversation.push({
-
-            role:"user",
-
-            content:message
-
-        });
 
     }
 
@@ -889,18 +859,19 @@ async function sendMessage(){
 
         if(file){
 
-            await analyzeSelectedImage(
+            await analyzeSelectedFile(
 
                 file,
 
                 message ||
-                "Describe this image in detail.",
+                "Analyze this file and explain its important contents.",
 
                 typingBubble
 
             );
 
         }
+
         else{
 
             await getAIResponse(
@@ -918,20 +889,24 @@ async function sendMessage(){
     catch(error){
 
         console.error(
+
             "EchoCall AI message error:",
+
             error
+
         );
 
         typingBubble?.remove();
 
         addAIMessage(
 
-            "Sorry, I couldn't process your request."
+            "Sorry, I couldn't process that file or request."
 
         );
 
         showToast(
 
+            error.message ||
             "AI request failed.",
 
             "error"
@@ -990,22 +965,108 @@ function addUserFileMessage(file){
     wrapper.className =
         "user-message";
 
-    const imageURL =
+    const fileURL =
         URL.createObjectURL(file);
 
-    wrapper.innerHTML = `
+    let mediaHTML = "";
 
-        <div class="user-bubble ai-image-message">
+    // ======================================
+    // Image
+    // ======================================
+
+    if(
+        file.type.startsWith("image/")
+    ){
+
+        mediaHTML = `
 
             <img
-                src="${imageURL}"
+                src="${fileURL}"
                 alt="${escapeHTML(file.name)}"
                 class="ai-user-image"
             >
 
+        `;
+
+    }
+
+    // ======================================
+    // Video
+    // ======================================
+
+    else if(
+        file.type.startsWith("video/")
+    ){
+
+        mediaHTML = `
+
+            <video
+                src="${fileURL}"
+                controls
+                preload="metadata"
+                class="ai-user-video">
+            </video>
+
+        `;
+
+    }
+
+    // ======================================
+    // Audio
+    // ======================================
+
+    else if(
+        file.type.startsWith("audio/")
+    ){
+
+        mediaHTML = `
+
+            <audio
+                src="${fileURL}"
+                controls
+                preload="metadata"
+                class="ai-user-audio">
+            </audio>
+
+        `;
+
+    }
+
+    // ======================================
+    // Documents
+    // ======================================
+
+    else{
+
+        mediaHTML = `
+
+            <div class="ai-file-document-icon">
+
+                <span class="material-symbols-rounded">
+                    description
+                </span>
+
+            </div>
+
+        `;
+
+    }
+
+    wrapper.innerHTML = `
+
+        <div class="user-bubble ai-file-message">
+
+            ${mediaHTML}
+
             <div class="ai-file-name">
 
                 ${escapeHTML(file.name)}
+
+            </div>
+
+            <div class="ai-file-size">
+
+                ${formatFileSize(file.size)}
 
             </div>
 
@@ -1107,7 +1168,7 @@ function addTypingBubble(){
 
 }
 
-async function analyzeSelectedImage(
+async function analyzeSelectedFile(
 
     file,
 
@@ -1120,7 +1181,11 @@ async function analyzeSelectedImage(
     try{
 
         console.log(
-            "EchoCall AI → Uploading image"
+
+            "EchoCall AI → Uploading file:",
+
+            file.name
+
         );
 
         const user =
@@ -1129,7 +1194,9 @@ async function analyzeSelectedImage(
         if(!user){
 
             throw new Error(
+
                 "You are not signed in."
+
             );
 
         }
@@ -1138,14 +1205,125 @@ async function analyzeSelectedImage(
             await user.getIdToken();
 
         // ======================================
-        // Create multipart form
+        // Images use existing vision endpoint
+        // ======================================
+
+        if(
+            file.type.startsWith("image/")
+        ){
+
+            const formData =
+                new FormData();
+
+            formData.append(
+                "image",
+                file
+            );
+
+            formData.append(
+                "prompt",
+                prompt
+            );
+
+            const response =
+                await fetch(
+
+                    `${API_BASE_URL}/analyze-image`,
+
+                    {
+
+                        method: "POST",
+
+                        headers: {
+
+                            "Authorization":
+                                `Bearer ${token}`,
+
+                            "Accept":
+                                "application/json"
+
+                        },
+
+                        body:
+                            formData
+
+                    }
+
+                );
+
+            const rawResponse =
+                await response.text();
+
+            if(!response.ok){
+
+                throw new Error(
+
+                    `Image analysis failed: ${response.status} ${rawResponse}`
+
+                );
+
+            }
+
+            const data =
+                JSON.parse(
+                    rawResponse
+                );
+
+            if(!data.success){
+
+                throw new Error(
+
+                    data.message ||
+                    "Image analysis failed."
+
+                );
+
+            }
+
+            const answer =
+                data.analysis;
+
+            if(!answer){
+
+                throw new Error(
+
+                    "No image analysis returned."
+
+                );
+
+            }
+
+            typingBubble?.remove();
+
+            addAIMessage(
+                answer
+            );
+
+            conversation.push({
+
+                role: "assistant",
+
+                content: answer
+
+            });
+
+            speak(answer);
+
+            clearAIFile();
+
+            return;
+
+        }
+
+        // ======================================
+        // All other files
         // ======================================
 
         const formData =
             new FormData();
 
         formData.append(
-            "image",
+            "file",
             file
         );
 
@@ -1154,20 +1332,16 @@ async function analyzeSelectedImage(
             prompt
         );
 
-        // ======================================
-        // Send image to backend
-        // ======================================
-
         const response =
             await fetch(
 
-                `${API_BASE_URL}/analyze-image`,
+                `${API_BASE_URL}/analyze-file`,
 
                 {
 
-                    method:"POST",
+                    method: "POST",
 
-                    headers:{
+                    headers: {
 
                         "Authorization":
                             `Bearer ${token}`,
@@ -1177,108 +1351,103 @@ async function analyzeSelectedImage(
 
                     },
 
-                    body:formData
+                    body:
+                        formData
 
                 }
 
             );
 
-        console.log(
-            "Image analysis status:",
-            response.status
-        );
-
         const rawResponse =
             await response.text();
 
         console.log(
-            "Image analysis response:",
+
+            "File analysis response:",
+
             rawResponse
+
         );
 
         if(!response.ok){
 
+            let serverMessage =
+                "File analysis failed.";
+
+            try{
+
+                const errorData =
+                    JSON.parse(
+                        rawResponse
+                    );
+
+                serverMessage =
+                    errorData.message ||
+                    serverMessage;
+
+            }
+
+            catch{
+
+                if(rawResponse){
+
+                    serverMessage =
+                        rawResponse;
+
+                }
+
+            }
+
             throw new Error(
-
-                `Image analysis failed: ${response.status} ${rawResponse}`
-
+                serverMessage
             );
 
         }
 
-        let data;
-
-        try{
-
-            data =
-                JSON.parse(rawResponse);
-
-        }
-        catch{
-
-            throw new Error(
-                "Backend returned invalid JSON."
+        const data =
+            JSON.parse(
+                rawResponse
             );
-
-        }
 
         if(!data.success){
 
             throw new Error(
 
                 data.message ||
-                "Image analysis failed."
+                "File analysis failed."
 
             );
 
         }
 
-        const analysis =
-            data.analysis;
+        const answer =
+            data.answer;
 
-        if(!analysis){
+        if(!answer){
 
             throw new Error(
-                "No image analysis returned."
+
+                "EchoCall AI returned no answer."
+
             );
 
         }
-
-        // ======================================
-        // Remove typing
-        // ======================================
 
         typingBubble?.remove();
 
-        // ======================================
-        // Display AI analysis
-        // ======================================
-
         addAIMessage(
-            analysis
+            answer
         );
-
-        // ======================================
-        // Save AI response
-        // ======================================
 
         conversation.push({
 
-            role:"assistant",
+            role: "assistant",
 
-            content:analysis
+            content: answer
 
         });
 
-        // ======================================
-        // Speak response
-        // ======================================
-
-        speak(analysis);
-
-        // ======================================
-        // Clear selected image
-        // ======================================
+        speak(answer);
 
         clearAIFile();
 
@@ -1288,7 +1457,7 @@ async function analyzeSelectedImage(
 
         console.error(
 
-            "EchoCall Image Analysis Error:",
+            "EchoCall AI File Analysis Error:",
 
             error
 
