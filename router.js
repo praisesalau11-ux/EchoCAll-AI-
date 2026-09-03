@@ -758,24 +758,3 @@ window.echoCallRouter = {
     routes
 };
 
-// ==========================================
-// Start Router
-// ==========================================
-
-if (
-    document.readyState ===
-    "loading"
-) {
-
-    document.addEventListener(
-        "DOMContentLoaded",
-        initializeRouter,
-        {
-            once: true
-        }
-    );
-
-} else {
-
-    initializeRouter();
-}

@@ -377,25 +377,40 @@ async function loadSavedConversation() {
             }
 
             conversation.push({
+    role:
+        message.role,
 
-                role:
-                    message.role,
+    content:
+        message.content,
 
-                content:
-                    message.content
-
-            });
+    attachment:
+        message.attachment ||
+        null
+});
 
             if (
-                message.role === "user"
-            ) {
+    message.role === "user"
+) {
 
-                addUserMessage(
-                    message.content
-                );
+    if (
+        message.content
+    ) {
+        addUserMessage(
+            message.content
+        );
+    }
 
-            }
-            else {
+    if (
+        message.attachment
+    ) {
+        addSavedUserFileMessage(
+            message.attachment
+        );
+    }
+
+}
+
+                      else {
 
                 addAIMessage(
                     message.content
@@ -403,14 +418,12 @@ async function loadSavedConversation() {
 
             }
 
-        }
+        } // closes the for...of loop
 
         console.log(
-
             `AI: Restored ${
                 data.messages?.length || 0
             } messages.`
-
         );
 
         scrollToBottom();
@@ -427,7 +440,7 @@ async function loadSavedConversation() {
     }
 
 }
-
+          
 // ==========================================
 // Events
 // ==========================================
@@ -815,20 +828,34 @@ async function sendMessage(){
     // Display user text
     // ======================================
 
-    if(message){
+    if (message || file) {
+
+    if (message) {
 
         addUserMessage(message);
 
-        conversation.push({
-
-            role: "user",
-
-            content: message
-
-        });
-
     }
 
+    conversation.push({
+
+        role: "user",
+
+        content:
+            message || "",
+
+        attachment:
+            file
+                ? {
+                    name: file.name,
+                    type: file.type,
+                    size: file.size
+                }
+                : null
+
+    });
+
+}
+  
     // ======================================
     // Display selected file
     // ======================================
@@ -956,6 +983,117 @@ function addUserFileMessage(file){
         URL.createObjectURL(file);
 
     let mediaHTML = "";
+
+  function addSavedUserFileMessage(attachment) {
+
+    if (!attachment) {
+        return;
+    }
+
+    const wrapper =
+        document.createElement("div");
+
+    wrapper.className =
+        "user-message";
+
+    const type =
+        attachment.type || "";
+
+    let mediaHTML = "";
+
+    // ======================================
+    // Image
+    // ======================================
+
+    if (type.startsWith("image/")) {
+
+        mediaHTML = `
+            <div class="ai-file-document-icon">
+                <span class="material-symbols-rounded">
+                    image
+                </span>
+            </div>
+        `;
+
+    }
+
+    // ======================================
+    // Video
+    // ======================================
+
+    else if (type.startsWith("video/")) {
+
+        mediaHTML = `
+            <div class="ai-file-document-icon">
+                <span class="material-symbols-rounded">
+                    videocam
+                </span>
+            </div>
+        `;
+
+    }
+
+    // ======================================
+    // Audio
+    // ======================================
+
+    else if (type.startsWith("audio/")) {
+
+        mediaHTML = `
+            <div class="ai-file-document-icon">
+                <span class="material-symbols-rounded">
+                    audio_file
+                </span>
+            </div>
+        `;
+
+    }
+
+    // ======================================
+    // Document
+    // ======================================
+
+    else {
+
+        mediaHTML = `
+            <div class="ai-file-document-icon">
+                <span class="material-symbols-rounded">
+                    description
+                </span>
+            </div>
+        `;
+
+    }
+
+    wrapper.innerHTML = `
+
+        <div class="user-bubble ai-file-message">
+
+            ${mediaHTML}
+
+            <div class="ai-file-name">
+                ${escapeHTML(
+                    attachment.name || "Attached file"
+                )}
+            </div>
+
+            <div class="ai-file-size">
+                ${formatFileSize(
+                    attachment.size || 0
+                )}
+            </div>
+
+        </div>
+
+    `;
+
+    aiChatContainer.appendChild(
+        wrapper
+    );
+
+    scrollToBottom();
+
+  }
 
     // ======================================
     // Image
@@ -1190,6 +1328,13 @@ async function analyzeSelectedFile(
 
         const token =
             await user.getIdToken();
+            const storageKey =
+    getConversationStorageKey();
+
+const conversationId =
+    storageKey
+        ? localStorage.getItem(storageKey)
+        : null;
 
         // ======================================
         // Images use existing vision endpoint
@@ -1212,6 +1357,13 @@ async function analyzeSelectedFile(
                 prompt
             );
 
+           if (conversationId) {
+    formData.append(
+        "conversationId",
+        conversationId
+    );
+           }
+          
             const response =
                 await fetch(
 
@@ -1256,16 +1408,33 @@ async function analyzeSelectedFile(
                     rawResponse
                 );
 
-            if(!data.success){
+            if (!data.success) {
 
-                throw new Error(
+    throw new Error(
+        data.message ||
+        "Image analysis failed."
+    );
+}
 
-                    data.message ||
-                    "Image analysis failed."
+// Save the conversation ID returned by the backend
+if (
+    data.conversationId &&
+    auth.currentUser
+) {
 
-                );
+    const storageKey =
+        getConversationStorageKey();
 
-            }
+    if (storageKey) {
+
+        localStorage.setItem(
+            storageKey,
+            data.conversationId
+        );
+
+    }
+
+}
 
             const answer =
                 data.analysis;
@@ -1318,6 +1487,13 @@ async function analyzeSelectedFile(
             "prompt",
             prompt
         );
+
+      if (conversationId) {
+    formData.append(
+        "conversationId",
+        conversationId
+    );
+      }
 
         const response =
             await fetch(
@@ -1396,16 +1572,33 @@ async function analyzeSelectedFile(
                 rawResponse
             );
 
-        if(!data.success){
+        if (!data.success) {
 
-            throw new Error(
+    throw new Error(
+        data.message ||
+        "File analysis failed."
+    );
+}
 
-                data.message ||
-                "File analysis failed."
+// Save the conversation ID returned by the backend
+if (
+    data.conversationId &&
+    auth.currentUser
+) {
 
-            );
+    const storageKey =
+        getConversationStorageKey();
 
-        }
+    if (storageKey) {
+
+        localStorage.setItem(
+            storageKey,
+            data.conversationId
+        );
+
+    }
+
+}
 
         const answer =
             data.answer;
