@@ -543,19 +543,6 @@ function handleAIFileSelection(event){
     selectedAIFile = file;
 
     // ======================================
-    // Validate image
-    // ======================================
-
-    if(!file.type.startsWith("image/")){
-
-        showToast(
-            "For now, EchoCall AI can analyze images. Document analysis is the next step.",
-            "warning"
-        );
-
-    }
-
-    // ======================================
     // Show preview
     // ======================================
 
