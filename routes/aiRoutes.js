@@ -21,7 +21,8 @@ import {
 } from "../middleware/authMiddleware.js";
 
 import {
-    db
+    db,
+    bucket
 } from "../services/firebaseAdmin.js";
 
 import {
@@ -68,6 +69,93 @@ const upload = multer({
     }
 
 });
+
+// ==========================================
+// Save AI Attachment To Firebase Storage
+// ==========================================
+
+async function saveAIFileToStorage({
+    userId,
+    conversationId,
+    file
+}) {
+    if (!userId) {
+        throw new Error("User ID is required.");
+    }
+
+    if (!conversationId) {
+        throw new Error("Conversation ID is required.");
+    }
+
+    if (!file) {
+        throw new Error("File is required.");
+    }
+
+    const fileId = crypto.randomUUID();
+
+    // Make the filename safe for Firebase Storage
+    const safeFileName =
+        file.originalname
+            .replace(/[^a-zA-Z0-9._-]/g, "_")
+            .substring(0, 180);
+
+    const storagePath =
+        `users/${userId}/ai-files/${conversationId}/${fileId}/${safeFileName}`;
+
+    const storageFile =
+        bucket.file(storagePath);
+
+    await storageFile.save(
+        file.buffer,
+        {
+            resumable: false,
+
+            metadata: {
+                contentType:
+                    file.mimetype ||
+                    "application/octet-stream",
+
+                metadata: {
+                    originalName:
+                        file.originalname,
+
+                    userId,
+
+                    conversationId,
+
+                    fileId
+                }
+            }
+        }
+    );
+
+    // Generate a secure signed URL
+    const [downloadURL] =
+        await storageFile.getSignedUrl({
+            action: "read",
+
+            expires:
+                "01-01-2036"
+        });
+
+    return {
+        fileId,
+
+        name:
+            file.originalname,
+
+        type:
+            file.mimetype ||
+            "application/octet-stream",
+
+        size:
+            file.size,
+
+        storagePath,
+
+        downloadURL
+    };
+}
 
 // ==========================================
 // AI Chat
@@ -657,18 +745,23 @@ router.get(
 
                     messages.push({
 
-                        id: doc.id,
+    id:
+        doc.id,
 
-                        role:
-                            data.role,
+    role:
+        data.role,
 
-                        content:
-                            data.content,
+    content:
+        data.content,
 
-                        createdAt:
-                            data.createdAt
+    attachment:
+        data.attachment ||
+        null,
 
-                    });
+    createdAt:
+        data.createdAt
+
+});
 
                 }
 
@@ -1245,18 +1338,18 @@ router.post(
 
 // ==========================================
 // Image Analysis
-// Uploaded Image → OpenAI Vision
+// Uploaded Image → Firebase Storage → OpenAI Vision
+// → Firestore Conversation
 // ==========================================
 
 router.post(
-
     "/analyze-image",
-
     authenticateUser,
-
     upload.single("image"),
 
     async (req, res) => {
+
+        let uploadedAttachment = null;
 
         try {
 
@@ -1302,17 +1395,29 @@ router.post(
             // ======================================
 
             const prompt =
-
                 req.body.prompt ||
-
                 "Describe this image in detail.";
 
             // ======================================
-            // Log Upload Information
+            // Conversation ID
             // ======================================
+
+            const conversationId =
+                req.body.conversationId ||
+                crypto.randomUUID();
 
             console.log(
                 "AI Image Analysis:"
+            );
+
+            console.log(
+                "User:",
+                req.user.uid
+            );
+
+            console.log(
+                "Conversation:",
+                conversationId
             );
 
             console.log(
@@ -1336,11 +1441,32 @@ router.post(
             );
 
             // ======================================
+            // Save Original Image To Firebase Storage
+            // ======================================
+
+            uploadedAttachment =
+                await saveAIFileToStorage({
+
+                    userId:
+                        req.user.uid,
+
+                    conversationId,
+
+                    file:
+                        req.file
+
+                });
+
+            console.log(
+                "AI image saved:",
+                uploadedAttachment.storagePath
+            );
+
+            // ======================================
             // Send Image To OpenAI Vision
             // ======================================
 
             const analysis =
-
                 await analyzeImage(
 
                     req.file.buffer,
@@ -1364,6 +1490,88 @@ router.post(
             }
 
             // ======================================
+            // Conversation Reference
+            // ======================================
+
+            const conversationRef =
+
+                db
+
+                    .collection("users")
+
+                    .doc(req.user.uid)
+
+                    .collection("conversations")
+
+                    .doc(conversationId);
+
+            // ======================================
+            // Create / Update Conversation
+            // ======================================
+
+            await conversationRef.set(
+
+                {
+
+                    updatedAt:
+                        new Date()
+
+                },
+
+                {
+
+                    merge: true
+
+                }
+
+            );
+
+            // ======================================
+            // Save User Image Message
+            // ======================================
+
+            await conversationRef
+
+                .collection("messages")
+
+                .add({
+
+                    role:
+                        "user",
+
+                    content:
+                        prompt,
+
+                    attachment:
+                        uploadedAttachment,
+
+                    createdAt:
+                        new Date()
+
+                });
+
+            // ======================================
+            // Save AI Response
+            // ======================================
+
+            await conversationRef
+
+                .collection("messages")
+
+                .add({
+
+                    role:
+                        "assistant",
+
+                    content:
+                        analysis,
+
+                    createdAt:
+                        new Date()
+
+                });
+
+            // ======================================
             // Return Result
             // ======================================
 
@@ -1371,10 +1579,15 @@ router.post(
 
                 success: true,
 
+                conversationId,
+
                 analysis,
 
                 filename:
-                    req.file.originalname
+                    req.file.originalname,
+
+                attachment:
+                    uploadedAttachment
 
             });
 
@@ -1392,6 +1605,7 @@ router.post(
                 success: false,
 
                 message:
+                    error.message ||
                     "Image analysis failed."
 
             });
@@ -1404,18 +1618,17 @@ router.post(
 
 // ==========================================
 // General AI File Analysis
-// Documents / Images / Audio / Video
+// Documents / Audio / Video / Code
 // ==========================================
 
 router.post(
-
     "/analyze-file",
-
     authenticateUser,
-
     upload.single("file"),
 
     async (req, res) => {
+
+        let uploadedAttachment = null;
 
         try {
 
@@ -1424,24 +1637,32 @@ router.post(
             // ======================================
 
             if (!req.file) {
-
                 return res.status(400).json({
-
                     success: false,
-
-                    message:
-                        "File is required."
-
+                    message: "File is required."
                 });
-
             }
 
             const prompt =
                 req.body.prompt ||
                 "Analyze this file and explain its important contents.";
 
+            const conversationId =
+                req.body.conversationId ||
+                crypto.randomUUID();
+
             console.log(
                 "EchoCall AI File:"
+            );
+
+            console.log(
+                "User:",
+                req.user.uid
+            );
+
+            console.log(
+                "Conversation:",
+                conversationId
             );
 
             console.log(
@@ -1460,6 +1681,26 @@ router.post(
             );
 
             // ======================================
+            // Save Original File
+            // ======================================
+
+            uploadedAttachment =
+                await saveAIFileToStorage({
+                    userId:
+                        req.user.uid,
+
+                    conversationId,
+
+                    file:
+                        req.file
+                });
+
+            console.log(
+                "AI file saved:",
+                uploadedAttachment.storagePath
+            );
+
+            // ======================================
             // Analyze File
             // ======================================
 
@@ -1469,7 +1710,7 @@ router.post(
                 );
 
             // ======================================
-            // IMAGE
+            // Images
             // ======================================
 
             if (
@@ -1477,29 +1718,21 @@ router.post(
                 "image"
             ) {
 
-                // Keep image analysis through
-                // the existing image endpoint.
-                // This route intentionally does
-                // not duplicate vision logic.
-
                 return res.status(400).json({
-
                     success: false,
 
                     message:
                         "Images should be analyzed through /analyze-image."
-
                 });
 
             }
 
             // ======================================
-            // DOCUMENT / AUDIO / VIDEO
+            // Ask AI
             // ======================================
 
             const answer =
                 await askAIAboutFile({
-
                     fileName:
                         fileResult.filename,
 
@@ -1515,12 +1748,79 @@ router.post(
 
                     systemPrompt:
                         "You are EchoCall AI, a persistent AI assistant."
-
                 });
+
+            // ======================================
+            // Conversation Reference
+            // ======================================
+
+            const conversationRef =
+                db
+                    .collection("users")
+                    .doc(req.user.uid)
+                    .collection("conversations")
+                    .doc(conversationId);
+
+            // ======================================
+            // Create / Update Conversation
+            // ======================================
+
+            await conversationRef.set(
+                {
+                    updatedAt:
+                        new Date()
+                },
+                {
+                    merge: true
+                }
+            );
+
+            // ======================================
+            // Save User File Message
+            // ======================================
+
+            await conversationRef
+                .collection("messages")
+                .add({
+
+                    role: "user",
+
+                    content:
+                        prompt,
+
+                    attachment:
+                        uploadedAttachment,
+
+                    createdAt:
+                        new Date()
+                });
+
+            // ======================================
+            // Save AI Response
+            // ======================================
+
+            await conversationRef
+                .collection("messages")
+                .add({
+
+                    role: "assistant",
+
+                    content:
+                        answer,
+
+                    createdAt:
+                        new Date()
+                });
+
+            // ======================================
+            // Return Result
+            // ======================================
 
             return res.json({
 
                 success: true,
+
+                conversationId,
 
                 filename:
                     fileResult.filename,
@@ -1532,16 +1832,18 @@ router.post(
                     fileResult.documentType ||
                     fileResult.category,
 
+                attachment:
+                    uploadedAttachment,
+
                 answer,
 
                 transcript:
                     fileResult.category ===
-                    "audio" ||
+                        "audio" ||
                     fileResult.category ===
-                    "video"
+                        "video"
                         ? fileResult.text
                         : undefined
-
             });
 
         }
@@ -1559,14 +1861,12 @@ router.post(
 
                 message:
                     error.message ||
-                    "Unable to analyze the uploaded file."
-
+                    "File analysis failed."
             });
 
         }
 
     }
-
 );
 
 // ==========================================
