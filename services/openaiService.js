@@ -649,7 +649,47 @@ const TEXT_EXTENSIONS = new Set([
     ".txt",
     ".md",
     ".csv",
-    ".json"
+    ".json",
+
+    ".js",
+    ".jsx",
+    ".ts",
+    ".tsx",
+
+    ".html",
+    ".htm",
+
+    ".css",
+    ".scss",
+    ".sass",
+    ".less",
+
+    ".xml",
+    ".svg",
+    ".sql",
+
+    ".py",
+    ".java",
+    ".c",
+    ".cpp",
+    ".h",
+    ".hpp",
+    ".cs",
+    ".php",
+    ".go",
+    ".rs",
+    ".swift",
+    ".kt",
+    ".kts",
+    ".dart",
+
+    ".sh",
+    ".bash",
+    ".yaml",
+    ".yml",
+    ".toml",
+    ".ini",
+    ".env"
 ]);
 
 const DOCUMENT_EXTENSIONS = new Set([
@@ -1181,9 +1221,13 @@ export async function askAIAboutFile({
 
 }) {
 
-    const safeText =
-        String(fileText || "")
-            .slice(0, 120000);
+    const MAX_FILE_TEXT = 120000;
+
+const fullText =
+    String(fileText || "");
+
+const safeText =
+    fullText.slice(0, MAX_FILE_TEXT);
 
     const userQuestion =
         question &&
