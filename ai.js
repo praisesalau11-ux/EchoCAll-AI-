@@ -228,6 +228,25 @@ export async function initializeAI() {
 
 }
 
+window.addEventListener(
+    "echocall:open-ai-conversation",
+    async (event) => {
+
+        const conversationId =
+            event.detail?.conversationId;
+
+        if (!conversationId) {
+            return;
+        }
+
+        await loadConversationById(
+            conversationId
+        );
+
+        openAI();
+    }
+);
+
 // ==========================================
 // Load Saved Conversation
 // ==========================================
@@ -440,7 +459,219 @@ async function loadSavedConversation() {
     }
 
 }
-          
+
+
+
+      // ==========================================
+// Load ANY EchoCall conversation
+// ==========================================
+
+export async function loadConversationById(conversationId) {
+
+    if (!conversationId) {
+        console.warn(
+            "AI: No conversation ID supplied."
+        );
+        return;
+    }
+
+    const user = auth.currentUser;
+
+    if (!user) {
+        console.warn(
+            "AI: Cannot load conversation without user."
+        );
+        return;
+    }
+
+    if (!aiChatContainer) {
+        console.warn(
+            "AI: Chat container not available."
+        );
+        return;
+    }
+
+    try {
+
+        console.log(
+            "AI: Loading conversation:",
+            conversationId
+        );
+
+        // Save active conversation ID
+        const storageKey =
+            getConversationStorageKey();
+
+        if (storageKey) {
+            localStorage.setItem(
+                storageKey,
+                conversationId
+            );
+        }
+
+        // Firebase authentication token
+        const token =
+            await user.getIdToken();
+
+        const response =
+            await fetch(
+                `${API_BASE_URL}/conversations/${encodeURIComponent(conversationId)}/messages`,
+                {
+                    method: "GET",
+
+                    headers: {
+                        "Authorization":
+                            `Bearer ${token}`,
+
+                        "Accept":
+                            "application/json"
+                    }
+                }
+            );
+
+        const rawResponse =
+            await response.text();
+
+        console.log(
+            "AI conversation load status:",
+            response.status
+        );
+
+        if (!response.ok) {
+
+            throw new Error(
+                `Unable to load conversation: ${response.status} ${rawResponse}`
+            );
+
+        }
+
+        const data =
+            JSON.parse(rawResponse);
+
+        if (!data.success) {
+
+            throw new Error(
+                data.message ||
+                "Unable to load conversation."
+            );
+
+        }
+
+        // ======================================
+        // CLEAR CURRENT CHAT
+        // ======================================
+
+        conversation.length = 0;
+
+        aiChatContainer.innerHTML = "";
+
+        // ======================================
+        // RESTORE SAVED MESSAGES
+        // ======================================
+
+        for (
+            const message of data.messages || []
+        ) {
+
+            if (
+                message.role !== "user" &&
+                message.role !== "assistant"
+            ) {
+                continue;
+            }
+
+            // Restore internal conversation state
+            conversation.push({
+
+                role:
+                    message.role,
+
+                content:
+                    message.content || "",
+
+                attachment:
+                    message.attachment || null
+
+            });
+
+            // ==================================
+            // USER MESSAGE
+            // ==================================
+
+            if (
+                message.role === "user"
+            ) {
+
+                if (
+                    message.content &&
+                    message.content.trim()
+                ) {
+
+                    addUserMessage(
+                        message.content
+                    );
+
+                }
+
+                if (
+                    message.attachment
+                ) {
+
+                    addSavedUserFileMessage(
+                        message.attachment
+                    );
+
+                }
+
+            }
+
+            // ==================================
+            // AI MESSAGE
+            // ==================================
+
+            else {
+
+                if (
+                    message.content
+                ) {
+
+                    addAIMessage(
+                        message.content
+                    );
+
+                }
+
+            }
+
+        }
+
+        console.log(
+            `AI: Restored ${
+                data.messages?.length || 0
+            } messages from ${conversationId}`
+        );
+
+        scrollToBottom();
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "AI: Failed to load conversation:",
+            error
+        );
+
+        showToast(
+            "Unable to load this conversation.",
+            "error"
+        );
+
+    }
+
+}
+
+
 // ==========================================
 // Events
 // ==========================================
@@ -971,89 +1202,53 @@ function addUserMessage(message){
 
 }
 
-function addUserFileMessage(file){
+// ==========================================
+// Render newly selected/uploaded file
+// ==========================================
 
-    const wrapper =
-        document.createElement("div");
+function addUserFileMessage(file) {
+    if (!file || !aiChatContainer) return;
 
-    wrapper.className =
-        "user-message";
+    const wrapper = document.createElement("div");
+    wrapper.className = "user-message";
 
-    const fileURL =
-        URL.createObjectURL(file);
-
-    let mediaHTML = "";
-
-  function addSavedUserFileMessage(attachment) {
-
-    if (!attachment) {
-        return;
-    }
-
-    const wrapper =
-        document.createElement("div");
-
-    wrapper.className =
-        "user-message";
-
-    const type =
-        attachment.type || "";
+    const fileURL = URL.createObjectURL(file);
 
     let mediaHTML = "";
 
-    // ======================================
-    // Image
-    // ======================================
-
-    if (type.startsWith("image/")) {
+    if (file.type.startsWith("image/")) {
 
         mediaHTML = `
-            <div class="ai-file-document-icon">
-                <span class="material-symbols-rounded">
-                    image
-                </span>
-            </div>
+            <img
+                src="${fileURL}"
+                alt="${escapeHTML(file.name)}"
+                class="ai-user-image"
+            >
         `;
 
-    }
-
-    // ======================================
-    // Video
-    // ======================================
-
-    else if (type.startsWith("video/")) {
+    } else if (file.type.startsWith("video/")) {
 
         mediaHTML = `
-            <div class="ai-file-document-icon">
-                <span class="material-symbols-rounded">
-                    videocam
-                </span>
-            </div>
+            <video
+                src="${fileURL}"
+                controls
+                preload="metadata"
+                class="ai-user-video">
+            </video>
         `;
 
-    }
-
-    // ======================================
-    // Audio
-    // ======================================
-
-    else if (type.startsWith("audio/")) {
+    } else if (file.type.startsWith("audio/")) {
 
         mediaHTML = `
-            <div class="ai-file-document-icon">
-                <span class="material-symbols-rounded">
-                    audio_file
-                </span>
-            </div>
+            <audio
+                src="${fileURL}"
+                controls
+                preload="metadata"
+                class="ai-user-audio">
+            </audio>
         `;
 
-    }
-
-    // ======================================
-    // Document
-    // ======================================
-
-    else {
+    } else {
 
         mediaHTML = `
             <div class="ai-file-document-icon">
@@ -1062,18 +1257,149 @@ function addUserFileMessage(file){
                 </span>
             </div>
         `;
-
     }
 
     wrapper.innerHTML = `
+        <div class="user-bubble ai-file-message">
 
+            ${mediaHTML}
+
+            <div class="ai-file-name">
+                ${escapeHTML(file.name)}
+            </div>
+
+            <div class="ai-file-size">
+                ${formatFileSize(file.size)}
+            </div>
+
+        </div>
+    `;
+
+    aiChatContainer.appendChild(wrapper);
+
+    scrollToBottom();
+}
+
+
+// ==========================================
+// Render SAVED file from Firebase Storage
+// ==========================================
+
+function addSavedUserFileMessage(attachment) {
+
+    if (!attachment || !aiChatContainer) {
+        return;
+    }
+
+    const wrapper = document.createElement("div");
+
+    wrapper.className = "user-message";
+
+    const type =
+        attachment.type || "";
+
+    const downloadURL =
+        attachment.downloadURL || "";
+
+    let mediaHTML = "";
+
+
+    // ======================================
+    // SAVED IMAGE
+    // ======================================
+
+    if (
+        type.startsWith("image/") &&
+        downloadURL
+    ) {
+
+        mediaHTML = `
+            <img
+                src="${escapeHTML(downloadURL)}"
+                alt="${escapeHTML(
+                    attachment.name || "Image"
+                )}"
+                class="ai-user-image"
+                loading="lazy"
+            >
+        `;
+
+    }
+
+
+    // ======================================
+    // SAVED VIDEO
+    // ======================================
+
+    else if (
+        type.startsWith("video/") &&
+        downloadURL
+    ) {
+
+        mediaHTML = `
+            <video
+                src="${escapeHTML(downloadURL)}"
+                controls
+                preload="metadata"
+                class="ai-user-video">
+            </video>
+        `;
+
+    }
+
+
+    // ======================================
+    // SAVED AUDIO
+    // ======================================
+
+    else if (
+        type.startsWith("audio/") &&
+        downloadURL
+    ) {
+
+        mediaHTML = `
+            <audio
+                src="${escapeHTML(downloadURL)}"
+                controls
+                preload="metadata"
+                class="ai-user-audio">
+            </audio>
+        `;
+
+    }
+
+
+    // ======================================
+    // SAVED DOCUMENT / OTHER FILE
+    // ======================================
+
+    else {
+
+        mediaHTML = `
+            <div class="ai-file-document-icon">
+
+                <span class="material-symbols-rounded">
+                    description
+                </span>
+
+            </div>
+        `;
+    }
+
+
+    // ======================================
+    // File card
+    // ======================================
+
+    wrapper.innerHTML = `
         <div class="user-bubble ai-file-message">
 
             ${mediaHTML}
 
             <div class="ai-file-name">
                 ${escapeHTML(
-                    attachment.name || "Attached file"
+                    attachment.name ||
+                    "Attached file"
                 )}
             </div>
 
@@ -1083,129 +1409,29 @@ function addUserFileMessage(file){
                 )}
             </div>
 
-        </div>
-
-    `;
-
-    aiChatContainer.appendChild(
-        wrapper
-    );
-
-    scrollToBottom();
-
-  }
-
-    // ======================================
-    // Image
-    // ======================================
-
-    if(
-        file.type.startsWith("image/")
-    ){
-
-        mediaHTML = `
-
-            <img
-                src="${fileURL}"
-                alt="${escapeHTML(file.name)}"
-                class="ai-user-image"
-            >
-
-        `;
-
-    }
-
-    // ======================================
-    // Video
-    // ======================================
-
-    else if(
-        file.type.startsWith("video/")
-    ){
-
-        mediaHTML = `
-
-            <video
-                src="${fileURL}"
-                controls
-                preload="metadata"
-                class="ai-user-video">
-            </video>
-
-        `;
-
-    }
-
-    // ======================================
-    // Audio
-    // ======================================
-
-    else if(
-        file.type.startsWith("audio/")
-    ){
-
-        mediaHTML = `
-
-            <audio
-                src="${fileURL}"
-                controls
-                preload="metadata"
-                class="ai-user-audio">
-            </audio>
-
-        `;
-
-    }
-
-    // ======================================
-    // Documents
-    // ======================================
-
-    else{
-
-        mediaHTML = `
-
-            <div class="ai-file-document-icon">
-
-                <span class="material-symbols-rounded">
-                    description
-                </span>
-
-            </div>
-
-        `;
-
-    }
-
-    wrapper.innerHTML = `
-
-        <div class="user-bubble ai-file-message">
-
-            ${mediaHTML}
-
-            <div class="ai-file-name">
-
-                ${escapeHTML(file.name)}
-
-            </div>
-
-            <div class="ai-file-size">
-
-                ${formatFileSize(file.size)}
-
-            </div>
+            ${
+                downloadURL
+                    ? `
+                        <a
+                            href="${escapeHTML(downloadURL)}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="ai-file-open">
+                            Open file
+                        </a>
+                    `
+                    : ""
+            }
 
         </div>
-
     `;
 
-    aiChatContainer.appendChild(
-        wrapper
-    );
+    aiChatContainer.appendChild(wrapper);
 
     scrollToBottom();
-
 }
+            
+                
 
 // ==========================================
 // AI Message

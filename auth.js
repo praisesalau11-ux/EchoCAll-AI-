@@ -21,7 +21,7 @@ const googleBtn = document.getElementById("googleSignIn");
 
 // Redirect after successful login
 function goHome() {
-    window.location.href = "home.html";
+    window.location.replace("app.html");
 }
 
 // Show message

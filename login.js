@@ -1,6 +1,6 @@
 // ==========================================
-// EchoCall AI - login.js (Part 1)
-// Imports + Google Login + Password Toggle
+// EchoCall AI - login.js
+// Google Login + Email Login + Password Reset
 // ==========================================
 
 import {
@@ -12,21 +12,23 @@ import {
     signInWithEmailAndPassword,
     signInWithRedirect,
     getRedirectResult,
-    sendPasswordResetEmail,
-    onAuthStateChanged
+    sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
 
 import { showToast } from "./toast.js";
 
-// =============================
+// ==========================================
 // DOM Elements
-// =============================
+// ==========================================
 
-const loginForm = document.getElementById("loginForm");
+const loginForm =
+    document.getElementById("loginForm");
 
-const email = document.getElementById("email");
+const email =
+    document.getElementById("email");
 
-const password = document.getElementById("password");
+const password =
+    document.getElementById("password");
 
 const togglePassword =
     document.getElementById("togglePassword");
@@ -37,314 +39,320 @@ const googleLogin =
 const forgotPassword =
     document.getElementById("forgotPassword");
 
-// =============================
+
+// ==========================================
 // Password Visibility
-// =============================
-
-togglePassword.addEventListener("click", () => {
-
-    if (password.type === "password") {
-
-        password.type = "text";
-
-        togglePassword.innerHTML =
-        `<span class="material-symbols-rounded">
-        visibility_off
-        </span>`;
-
-    } else {
-
-        password.type = "password";
-
-        togglePassword.innerHTML =
-        `<span class="material-symbols-rounded">
-        visibility
-        </span>`;
-
-    }
-
-});
-
-// =============================
-// Google Login
-// =============================
-
-googleLogin.addEventListener("click", async (e) => {
-
-    e.preventDefault();
-
-    try {
-
-        await signInWithRedirect(
-
-            auth,
-
-            googleProvider
-
-        );
-
-    }
-
-    catch (error) {
-
-        console.error(error);
-
-        showToast(
-
-            error.message,
-
-            "error"
-
-        );
-
-    }
-
-});
-
-// =============================
-// Google Redirect Result
-// =============================
-
-getRedirectResult(auth)
-
-.then((result) => {
-
-    if (result && result.user) {
-
-        showToast(
-
-            "Welcome " +
-
-            result.user.displayName,
-
-            "success"
-
-        );
-
-        setTimeout(() => {
-
-            window.location.href =
-            "app.html";
-
-        }, 1200);
-
-    }
-
-})
-
-.catch((error) => {
-
-    console.error(error);
-
-});
-
-// ==========================================
-// Part 2 starts below this line.
-// ==========================================
-// ==========================================
-// EchoCall AI - login.js (Part 2)
-// Append below Part 1
 // ==========================================
 
-// =============================
-// Email & Password Login
-// =============================
+togglePassword?.addEventListener(
+    "click",
+    () => {
 
-loginForm.addEventListener("submit", async (e) => {
+        if (password.type === "password") {
 
-    e.preventDefault();
+            password.type = "text";
 
-    try {
+            togglePassword.innerHTML = `
+                <span class="material-symbols-rounded">
+                    visibility_off
+                </span>
+            `;
 
-        const userCredential =
-            await signInWithEmailAndPassword(
+        } else {
 
-                auth,
+            password.type = "password";
 
-                email.value.trim(),
+            togglePassword.innerHTML = `
+                <span class="material-symbols-rounded">
+                    visibility
+                </span>
+            `;
 
-                password.value
+        }
 
+    }
+);
+
+
+// ==========================================
+// GOOGLE LOGIN
+// ==========================================
+
+googleLogin?.addEventListener(
+    "click",
+    async (e) => {
+
+        e.preventDefault();
+
+        try {
+
+            showToast(
+                "Opening Google sign-in...",
+                "success"
             );
 
-        showToast(
-
-            "Login successful!",
-
-            "success"
-
-        );
-
-        setTimeout(() => {
-
-            window.location.href =
-            "app.html";
-
-        }, 1200);
-
-    }
-
-    catch (error) {
-
-        console.error(error);
-
-        let message = "Login failed.";
-
-        switch (error.code) {
-
-            case "auth/invalid-credential":
-
-                message =
-                "Incorrect email or password.";
-
-                break;
-
-            case "auth/user-not-found":
-
-                message =
-                "No account found.";
-
-                break;
-
-            case "auth/wrong-password":
-
-                message =
-                "Incorrect password.";
-
-                break;
-
-            case "auth/invalid-email":
-
-                message =
-                "Invalid email address.";
-
-                break;
-
-            case "auth/too-many-requests":
-
-                message =
-                "Too many attempts. Try again later.";
-
-                break;
-
-            case "auth/network-request-failed":
-
-                message =
-                "No internet connection.";
-
-                break;
-
-            default:
-
-                message = error.message;
+            await signInWithRedirect(
+                auth,
+                googleProvider
+            );
 
         }
 
-        showToast(
+        catch (error) {
 
-            message,
+            console.error(
+                "Google login error:",
+                error
+            );
 
-            "error"
+            showToast(
+                getAuthErrorMessage(error),
+                "error"
+            );
 
-        );
-
-    }
-
-});
-
-// =============================
-// Forgot Password
-// =============================
-
-forgotPassword.addEventListener("click", async (e) => {
-
-    e.preventDefault();
-
-    if (email.value.trim() === "") {
-
-        showToast(
-
-            "Enter your email first.",
-
-            "warning"
-
-        );
-
-        email.focus();
-
-        return;
+        }
 
     }
+);
+
+
+// ==========================================
+// GOOGLE REDIRECT RESULT
+// ==========================================
+
+async function handleGoogleRedirect() {
 
     try {
 
-        await sendPasswordResetEmail(
+        const result =
+            await getRedirectResult(auth);
 
-            auth,
+        if (!result || !result.user) {
 
-            email.value.trim()
+            return;
+        }
 
+        const user =
+            result.user;
+
+        console.log(
+            "Google login successful:",
+            user.uid
         );
 
         showToast(
-
-            "Password reset email sent.",
-
+            `Welcome ${user.displayName || "back"}!`,
             "success"
+        );
 
+        // Give Firebase Auth a moment to finish
+        // updating the persistent authentication state.
+
+        setTimeout(
+            () => {
+
+                window.location.replace(
+                    "app.html"
+                );
+
+            },
+            500
         );
 
     }
 
     catch (error) {
 
-        console.error(error);
-
-        let message = error.message;
-
-        switch (error.code) {
-
-            case "auth/user-not-found":
-
-                message =
-                "No account exists with this email.";
-
-                break;
-
-            case "auth/invalid-email":
-
-                message =
-                "Invalid email address.";
-
-                break;
-
-        }
+        console.error(
+            "Google redirect error:",
+            error
+        );
 
         showToast(
-
-            message,
-
+            getAuthErrorMessage(error),
             "error"
-
         );
 
     }
 
-});
+}
 
-// =============================
-// Already Logged In
-// =============================
 
-onAuthStateChanged(auth, (user) => {
+// ==========================================
+// Run Google Redirect Handler
+// ==========================================
 
-    if (user) {
+handleGoogleRedirect();
 
-        console.log("Logged in:", user.email);
 
-        // Optional:
-        // window.location.href = "home.html";
+// ==========================================
+// EMAIL + PASSWORD LOGIN
+// ==========================================
+
+loginForm?.addEventListener(
+    "submit",
+    async (e) => {
+
+        e.preventDefault();
+
+        const emailValue =
+            email.value.trim();
+
+        const passwordValue =
+            password.value;
+
+        if (!emailValue || !passwordValue) {
+
+            showToast(
+                "Enter your email and password.",
+                "warning"
+            );
+
+            return;
+        }
+
+        try {
+
+            await signInWithEmailAndPassword(
+                auth,
+                emailValue,
+                passwordValue
+            );
+
+            showToast(
+                "Login successful!",
+                "success"
+            );
+
+            setTimeout(
+                () => {
+
+                    window.location.replace(
+                        "app.html"
+                    );
+
+                },
+                500
+            );
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Email login error:",
+                error
+            );
+
+            showToast(
+                getAuthErrorMessage(error),
+                "error"
+            );
+
+        }
+
+    }
+);
+
+
+// ==========================================
+// FORGOT PASSWORD
+// ==========================================
+
+forgotPassword?.addEventListener(
+    "click",
+    async (e) => {
+
+        e.preventDefault();
+
+        const emailValue =
+            email.value.trim();
+
+        if (!emailValue) {
+
+            showToast(
+                "Enter your email first.",
+                "warning"
+            );
+
+            email.focus();
+
+            return;
+        }
+
+        try {
+
+            await sendPasswordResetEmail(
+                auth,
+                emailValue
+            );
+
+            showToast(
+                "Password reset email sent.",
+                "success"
+            );
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Password reset error:",
+                error
+            );
+
+            showToast(
+                getAuthErrorMessage(error),
+                "error"
+            );
+
+        }
+
+    }
+);
+
+
+// ==========================================
+// AUTH ERROR MESSAGES
+// ==========================================
+
+function getAuthErrorMessage(error) {
+
+    switch (error.code) {
+
+        case "auth/invalid-credential":
+            return "Incorrect email or password.";
+
+        case "auth/user-not-found":
+            return "No account found.";
+
+        case "auth/wrong-password":
+            return "Incorrect password.";
+
+        case "auth/invalid-email":
+            return "Invalid email address.";
+
+        case "auth/too-many-requests":
+            return "Too many attempts. Try again later.";
+
+        case "auth/network-request-failed":
+            return "No internet connection.";
+
+        case "auth/popup-closed-by-user":
+            return "Google sign-in was cancelled.";
+
+        case "auth/cancelled-popup-request":
+            return "Google sign-in was cancelled.";
+
+        case "auth/account-exists-with-different-credential":
+            return "An account already exists with a different sign-in method.";
+
+        case "auth/unauthorized-domain":
+            return "This website is not authorized for Google sign-in.";
+
+        default:
+            return error.message || "Authentication failed.";
 
     }
 
-});
+}

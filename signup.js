@@ -477,8 +477,7 @@ signupForm.addEventListener("submit", async (e) => {
 
         setTimeout(() => {
 
-            window.location.href =
-                "app.html";
+            window.location.replace("app.html");
 
         }, 1500);
 
@@ -614,8 +613,7 @@ googleSignup.addEventListener("click", async () => {
 
         setTimeout(() => {
 
-            window.location.href =
-                "home.html";
+            window.location.replace("app.html");
 
         }, 1500);
 

@@ -118,6 +118,7 @@ let currentUser = null;
 
 let currentUserData = null;
 
+let authResolved = false;
 
 // ==========================================
 // START APPLICATION
@@ -165,15 +166,20 @@ document.addEventListener(
 // ==========================================
 // AUTHENTICATION
 // ==========================================
-
 onAuthStateChanged(
     auth,
     async (user) => {
+
+        authResolved = true;
 
         if (!user) {
 
             currentUser = null;
             currentUserData = null;
+
+            console.log(
+                "No authenticated user."
+            );
 
             window.location.replace(
                 "login.html"
@@ -193,7 +199,6 @@ onAuthStateChanged(
 
     }
 );
-
 
 // ==========================================
 // LOAD USER PROFILE

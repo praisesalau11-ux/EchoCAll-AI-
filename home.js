@@ -1689,20 +1689,16 @@ function openAIConversation(
 ) {
 
     if (!conversationId) {
-
         return;
-
     }
-
 
     console.log(
         "EchoCall Home → Opening AI conversation:",
         conversationId
     );
 
-
     // ======================================
-    // Save conversation ID
+    // Save active conversation ID
     // ======================================
 
     if (currentUser) {
@@ -1710,27 +1706,37 @@ function openAIConversation(
         const storageKey =
             `echoCallConversationId_${currentUser.uid}`;
 
-
         localStorage.setItem(
-
             storageKey,
-
             conversationId
-
         );
 
     }
 
+    // ======================================
+    // Tell AI module which conversation
+    // to load
+    // ======================================
+
+    window.dispatchEvent(
+        new CustomEvent(
+            "echocall:open-ai-conversation",
+            {
+                detail: {
+                    conversationId
+                }
+            }
+        )
+    );
 
     // ======================================
-    // Open AI
+    // Open AI interface
     // ======================================
 
     const aiButton =
         document.getElementById(
             "floatingAiButton"
         );
-
 
     if (aiButton) {
 
@@ -1740,13 +1746,13 @@ function openAIConversation(
 
     }
 
-
     showToast(
         "EchoCall AI is not available right now.",
         "warning"
     );
 
 }
+        
 
 
 // ==========================================
