@@ -123,29 +123,21 @@ let authResolved = false;
 // ==========================================
 // START APPLICATION
 // ==========================================
-
 document.addEventListener(
     "DOMContentLoaded",
     async () => {
 
         try {
 
-            // Initialize router
             await initializeRouter();
-
-            // Initialize AI
             await initializeAI();
-
-            // Initialize network state
             updateNetworkStatus();
 
             console.log(
                 "EchoCall AI initialized successfully."
             );
 
-        }
-
-        catch (error) {
+        } catch (error) {
 
             console.error(
                 "EchoCall initialization error:",
@@ -162,15 +154,13 @@ document.addEventListener(
     }
 );
 
-
 // ==========================================
 // AUTHENTICATION
 // ==========================================
+
 onAuthStateChanged(
     auth,
     async (user) => {
-
-        authResolved = true;
 
         if (!user) {
 

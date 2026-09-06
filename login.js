@@ -10,8 +10,7 @@ import {
 
 import {
     signInWithEmailAndPassword,
-    signInWithRedirect,
-    getRedirectResult,
+    signInWithPopup,
     sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
 
@@ -91,9 +90,27 @@ googleLogin?.addEventListener(
                 "success"
             );
 
-            await signInWithRedirect(
-                auth,
-                googleProvider
+            const result =
+                await signInWithPopup(
+                    auth,
+                    googleProvider
+                );
+
+            const user =
+                result.user;
+
+            console.log(
+                "Google login successful:",
+                user.uid
+            );
+
+            showToast(
+                `Welcome ${user.displayName || "back"}!`,
+                "success"
+            );
+
+            window.location.replace(
+                "app.html"
             );
 
         }
@@ -116,74 +133,7 @@ googleLogin?.addEventListener(
 );
 
 
-// ==========================================
-// GOOGLE REDIRECT RESULT
-// ==========================================
-
-async function handleGoogleRedirect() {
-
-    try {
-
-        const result =
-            await getRedirectResult(auth);
-
-        if (!result || !result.user) {
-
-            return;
-        }
-
-        const user =
-            result.user;
-
-        console.log(
-            "Google login successful:",
-            user.uid
-        );
-
-        showToast(
-            `Welcome ${user.displayName || "back"}!`,
-            "success"
-        );
-
-        // Give Firebase Auth a moment to finish
-        // updating the persistent authentication state.
-
-        setTimeout(
-            () => {
-
-                window.location.replace(
-                    "app.html"
-                );
-
-            },
-            500
-        );
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Google redirect error:",
-            error
-        );
-
-        showToast(
-            getAuthErrorMessage(error),
-            "error"
-        );
-
-    }
-
-}
-
-
-// ==========================================
-// Run Google Redirect Handler
-// ==========================================
-
-handleGoogleRedirect();
-
+        
 
 // ==========================================
 // EMAIL + PASSWORD LOGIN

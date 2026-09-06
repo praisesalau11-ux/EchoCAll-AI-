@@ -373,21 +373,7 @@ signupForm.addEventListener("submit", async (e) => {
 
     try {
 
-        // Check username
-        const exists =
-            await usernameExists(userName);
-
-        if (exists) {
-
-            showToast(
-                "Username is already taken.",
-                "error"
-            );
-
-            return;
-
-        }
-
+        
         // Create account
         const userCredential =
             await createUserWithEmailAndPassword(
