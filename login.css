@@ -418,26 +418,47 @@ body{
 }
 
 
-.forgot-password a{
+.forgot-password button{
+
+    border:none;
+
+    background:transparent;
+
+    padding:8px 0;
+
+    margin:0;
 
     color:#60A5FA;
 
-    text-decoration:none;
+    font-family:"Inter",sans-serif;
 
     font-size:14px;
 
     font-weight:600;
+
+    cursor:pointer;
+
+    touch-action:manipulation;
+
+    -webkit-tap-highlight-color:transparent;
 
     transition:.3s ease;
 
 }
 
 
-.forgot-password a:hover{
+.forgot-password button:hover{
 
     color:#93C5FD;
 
     text-decoration:underline;
+
+}
+
+
+.forgot-password button:active{
+
+    transform:scale(.97);
 
 }
 
