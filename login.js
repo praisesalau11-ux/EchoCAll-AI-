@@ -10,8 +10,7 @@ import {
 
 import {
     signInWithEmailAndPassword,
-    signInWithPopup,
-    sendPasswordResetEmail
+    signInWithPopup
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
 
 import { showToast } from "./toast.js";
@@ -204,63 +203,163 @@ loginForm?.addEventListener(
     }
 );
 
-
 // ==========================================
 // FORGOT PASSWORD
 // ==========================================
 
-forgotPassword?.addEventListener(
-    "click",
-    async (e) => {
+if (forgotPassword) {
 
-        e.preventDefault();
+    forgotPassword.addEventListener(
+        "click",
+        async (e) => {
 
-        const emailValue =
-            email.value.trim();
+            e.preventDefault();
 
-        if (!emailValue) {
-
-            showToast(
-                "Enter your email first.",
-                "warning"
+            console.log(
+                "FORGOT PASSWORD BUTTON CLICKED"
             );
 
-            email.focus();
 
-            return;
+            const emailValue =
+                email.value.trim();
+
+
+            // ==================================
+            // Check email
+            // ==================================
+
+            if (!emailValue) {
+
+                showToast(
+                    "Enter your email first.",
+                    "warning"
+                );
+
+                email.focus();
+
+                return;
+            }
+
+
+            // ==================================
+            // Send OTP
+            // ==================================
+
+            try {
+
+                showToast(
+                    "Sending verification code...",
+                    "success"
+                );
+
+
+                const response =
+                    await fetch(
+                        "https://echocall-ai-backend.onrender.com/api/auth/forgot-password",
+                        {
+
+                            method:
+                                "POST",
+
+                            headers: {
+
+                                "Content-Type":
+                                    "application/json"
+
+                            },
+
+                            body:
+                                JSON.stringify({
+
+                                    email:
+                                        emailValue
+
+                                })
+
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                console.log(
+                    "Forgot password response:",
+                    data
+                );
+
+
+                if (
+                    !response.ok ||
+                    !data.success
+                ) {
+
+                    throw new Error(
+                        data.message ||
+                        "Unable to send verification code."
+                    );
+
+                }
+
+
+                // ==================================
+                // Save email
+                // ==================================
+
+                sessionStorage.setItem(
+                    "passwordResetEmail",
+                    emailValue
+                );
+
+
+                // ==================================
+                // Success
+                // ==================================
+
+                showToast(
+                    "Verification code sent!",
+                    "success"
+                );
+
+
+                // ==================================
+                // Go to confirmation page
+                // ==================================
+
+                setTimeout(
+                    () => {
+
+                        window.location.replace(
+                            "confirm-password.html"
+                        );
+
+                    },
+                    700
+                );
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Forgot password error:",
+                    error
+                );
+
+
+                showToast(
+                    error.message ||
+                    "Unable to send verification code.",
+                    "error"
+                );
+
+            }
+
         }
+    );
 
-        try {
-
-            await sendPasswordResetEmail(
-                auth,
-                emailValue
-            );
-
-            showToast(
-                "Password reset email sent.",
-                "success"
-            );
-
-        }
-
-        catch (error) {
-
-            console.error(
-                "Password reset error:",
-                error
-            );
-
-            showToast(
-                getAuthErrorMessage(error),
-                "error"
-            );
-
-        }
-
-    }
-);
-
+}
 
 // ==========================================
 // AUTH ERROR MESSAGES
