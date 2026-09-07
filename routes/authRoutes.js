@@ -348,82 +348,248 @@ router.post(
 // ==========================================
 // End Part 3
 // ==========================================
-
 // ==========================================
 // POST /api/auth/forgot-password
+// Send 6-digit password reset code
 // ==========================================
 
 router.post(
-
     "/forgot-password",
+    async (req, res) => {
 
-    async(req,res)=>{
+        try {
 
-        try{
+            const email =
+                req.body.email?.trim().toLowerCase();
 
-            const {
-
-                email
-
-            } = req.body;
-
-            if(!email){
+            if (!email) {
 
                 return res.status(400).json({
 
-                    success:false,
+                    success: false,
 
-                    message:"Email is required."
+                    message:
+                        "Email is required."
 
                 });
 
             }
 
-            await axios.post(
+            // ==================================
+            // Generate 6-digit OTP
+            // ==================================
 
-                `https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${FIREBASE_API_KEY}`,
+            const code =
+                Math.floor(
+                    100000 +
+                    Math.random() * 900000
+                ).toString();
 
-                {
 
-                    requestType:"PASSWORD_RESET",
+            // ==================================
+            // Find Firebase user
+            // ==================================
 
-                    email
+            let userRecord;
 
-                }
+            try {
 
+                userRecord =
+                    await admin
+                        .auth()
+                        .getUserByEmail(email);
+
+            } catch (error) {
+
+                // Do not reveal whether
+                // the email exists.
+
+                return res.json({
+
+                    success: true,
+
+                    message:
+                        "If an account exists for this email, a verification code has been sent."
+
+                });
+
+            }
+
+
+            // ==================================
+            // Hash OTP
+            // ==================================
+
+            const crypto =
+                await import("crypto");
+
+            const codeHash =
+                crypto
+                    .createHash("sha256")
+                    .update(code)
+                    .digest("hex");
+
+
+            // ==================================
+            // Create reset challenge
+            // ==================================
+
+            const challengeRef =
+                db
+                    .collection("passwordResetChallenges")
+                    .doc(userRecord.uid);
+
+
+            await challengeRef.set({
+
+                uid:
+                    userRecord.uid,
+
+                email:
+                    email,
+
+                codeHash:
+                    codeHash,
+
+                attempts:
+                    0,
+
+                verified:
+                    false,
+
+                createdAt:
+                    admin
+                        .firestore
+                        .FieldValue
+                        .serverTimestamp(),
+
+                expiresAt:
+                    new Date(
+                        Date.now() +
+                        10 * 60 * 1000
+                    )
+
+            });
+
+
+            // ==================================
+            // Send email with Resend
+            // ==================================
+
+            const resendResponse =
+                await axios.post(
+
+                    "https://api.resend.com/emails",
+
+                    {
+
+                        from:
+                            "EchoCall AI <onboarding@resend.dev>",
+
+                        to:
+                            [email],
+
+                        subject:
+                            "Your EchoCall AI password reset code",
+
+                        html: `
+                            <div style="
+                                font-family: Arial, sans-serif;
+                                max-width: 500px;
+                                margin: auto;
+                                padding: 30px;
+                                text-align: center;
+                            ">
+
+                                <h2>
+                                    EchoCall AI
+                                </h2>
+
+                                <p>
+                                    Use the verification code
+                                    below to reset your password.
+                                </p>
+
+                                <div style="
+                                    font-size: 32px;
+                                    font-weight: bold;
+                                    letter-spacing: 8px;
+                                    margin: 30px 0;
+                                ">
+                                    ${code}
+                                </div>
+
+                                <p>
+                                    This code expires in
+                                    <strong>10 minutes</strong>.
+                                </p>
+
+                                <p style="
+                                    color: #777;
+                                    font-size: 13px;
+                                ">
+                                    If you did not request a
+                                    password reset, you can
+                                    safely ignore this email.
+                                </p>
+
+                            </div>
+                        `
+
+                    },
+
+                    {
+
+                        headers: {
+
+                            Authorization:
+                                `Bearer ${process.env.RESEND_API_KEY}`,
+
+                            "Content-Type":
+                                "application/json"
+
+                        }
+
+                    }
+
+                );
+
+
+            console.log(
+                "Password reset email sent:",
+                resendResponse.data?.id
             );
+
+
+            // ==================================
+            // Success
+            // ==================================
 
             return res.json({
 
-                success:true,
+                success: true,
 
                 message:
-
-                "Password reset email sent."
+                    "If an account exists for this email, a verification code has been sent."
 
             });
 
         }
 
-        catch(error){
+        catch (error) {
 
             console.error(
-
+                "Forgot password error:",
                 error.response?.data ||
-
                 error.message
-
             );
 
-            return res.status(400).json({
+            return res.status(500).json({
 
-                success:false,
+                success: false,
 
                 message:
-
-                error.response?.data?.error?.message ||
-
-                "Unable to send password reset email."
+                    "Unable to process password reset."
 
             });
 
