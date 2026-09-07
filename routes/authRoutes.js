@@ -600,6 +600,286 @@ router.post(
 );
 
 // ==========================================
+// POST /api/auth/verify-reset-code
+// Verify 6-digit password reset code
+// ==========================================
+
+router.post(
+    "/verify-reset-code",
+    async (req, res) => {
+
+        try {
+
+            const email =
+                req.body.email?.trim().toLowerCase();
+
+            const code =
+                req.body.code?.trim();
+
+            // ==================================
+            // Validate input
+            // ==================================
+
+            if (!email || !code) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "Email and verification code are required."
+
+                });
+
+            }
+
+            if (!/^\d{6}$/.test(code)) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "Verification code must be 6 digits."
+
+                });
+
+            }
+
+            // ==================================
+            // Find Firebase user
+            // ==================================
+
+            let userRecord;
+
+            try {
+
+                userRecord =
+                    await admin
+                        .auth()
+                        .getUserByEmail(email);
+
+            } catch (error) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "Invalid or expired verification code."
+
+                });
+
+            }
+
+            const uid =
+                userRecord.uid;
+
+            // ==================================
+            // Get reset challenge
+            // ==================================
+
+            const challengeRef =
+                db
+                    .collection("passwordResetChallenges")
+                    .doc(uid);
+
+            const challengeSnapshot =
+                await challengeRef.get();
+
+            if (!challengeSnapshot.exists) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "Invalid or expired verification code."
+
+                });
+
+            }
+
+            const challenge =
+                challengeSnapshot.data();
+
+            // ==================================
+            // Check if already verified
+            // ==================================
+
+            if (challenge.verified === true) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "This verification code has already been used."
+
+                });
+
+            }
+
+            // ==================================
+            // Check expiration
+            // ==================================
+
+            if (
+                !challenge.expiresAt ||
+                challenge.expiresAt.toDate() < new Date()
+            ) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "Verification code has expired."
+
+                });
+
+            }
+
+            // ==================================
+            // Check attempts
+            // ==================================
+
+            const attempts =
+                Number(challenge.attempts || 0);
+
+            if (attempts >= 5) {
+
+                return res.status(429).json({
+
+                    success: false,
+
+                    message:
+                        "Too many incorrect attempts. Request a new code."
+
+                });
+
+            }
+
+            // ==================================
+            // Hash submitted code
+            // ==================================
+
+            const crypto =
+                await import("crypto");
+
+            const submittedCodeHash =
+                crypto
+                    .createHash("sha256")
+                    .update(code)
+                    .digest("hex");
+
+            // ==================================
+            // Compare hashes
+            // ==================================
+
+            if (
+                submittedCodeHash !==
+                challenge.codeHash
+            ) {
+
+                await challengeRef.update({
+
+                    attempts:
+                        attempts + 1
+
+                });
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "Invalid or expired verification code."
+
+                });
+
+            }
+
+            // ==================================
+            // Generate reset token
+            // ==================================
+
+            const resetToken =
+                crypto.randomBytes(32).toString("hex");
+
+            const resetTokenHash =
+                crypto
+                    .createHash("sha256")
+                    .update(resetToken)
+                    .digest("hex");
+
+            // ==================================
+            // Mark challenge verified
+            // ==================================
+
+            await challengeRef.update({
+
+                verified: true,
+
+                verifiedAt:
+                    admin
+                        .firestore
+                        .FieldValue
+                        .serverTimestamp(),
+
+                resetTokenHash:
+
+                    resetTokenHash,
+
+                resetTokenExpiresAt:
+
+                    new Date(
+                        Date.now() +
+                        10 * 60 * 1000
+                    )
+
+            });
+
+            // ==================================
+            // Success
+            // ==================================
+
+            return res.json({
+
+                success: true,
+
+                message:
+                    "Verification code confirmed.",
+
+                resetToken
+
+            });
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Verify reset code error:",
+                error
+            );
+
+            return res.status(500).json({
+
+                success: false,
+
+                message:
+                    "Unable to verify the code."
+
+            });
+
+        }
+
+    }
+
+);
+
+// ==========================================
 // POST /api/auth/verify-token
 // ==========================================
 
@@ -886,6 +1166,8 @@ router.get(
                 "POST /login",
 
                 "POST /forgot-password",
+              
+                "POST /verify-reset-code",
 
                 "POST /verify-token",
 
