@@ -880,6 +880,287 @@ router.post(
 );
 
 // ==========================================
+// POST /api/auth/reset-password
+// Reset Firebase password using reset token
+// ==========================================
+
+router.post(
+    "/reset-password",
+    async (req, res) => {
+
+        try {
+
+            const email =
+                req.body.email?.trim().toLowerCase();
+
+            const resetToken =
+                req.body.resetToken?.trim();
+
+            const newPassword =
+                req.body.newPassword;
+
+
+            // ==================================
+            // Validate input
+            // ==================================
+
+            if (
+                !email ||
+                !resetToken ||
+                !newPassword
+            ) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "Missing required fields."
+
+                });
+
+            }
+
+
+            // ==================================
+            // Validate password
+            // ==================================
+
+            if (
+                typeof newPassword !== "string" ||
+                newPassword.length < 6
+            ) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "Password must be at least 6 characters."
+
+                });
+
+            }
+
+
+            // ==================================
+            // Find Firebase user
+            // ==================================
+
+            let userRecord;
+
+            try {
+
+                userRecord =
+                    await admin
+                        .auth()
+                        .getUserByEmail(email);
+
+            } catch (error) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "Invalid or expired reset session."
+
+                });
+
+            }
+
+
+            const uid =
+                userRecord.uid;
+
+
+            // ==================================
+            // Get reset challenge
+            // ==================================
+
+            const challengeRef =
+                db
+                    .collection(
+                        "passwordResetChallenges"
+                    )
+                    .doc(uid);
+
+
+            const challengeSnapshot =
+                await challengeRef.get();
+
+
+            if (!challengeSnapshot.exists) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "Invalid or expired reset session."
+
+                });
+
+            }
+
+
+            const challenge =
+                challengeSnapshot.data();
+
+
+            // ==================================
+            // Verify challenge
+            // ==================================
+
+            if (
+                challenge.verified !== true
+            ) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "Verification is required first."
+
+                });
+
+            }
+
+
+            // ==================================
+            // Check reset token
+            // ==================================
+
+            const crypto =
+                await import("crypto");
+
+
+            const resetTokenHash =
+                crypto
+                    .createHash("sha256")
+                    .update(resetToken)
+                    .digest("hex");
+
+
+            if (
+                resetTokenHash !==
+                challenge.resetTokenHash
+            ) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "Invalid or expired reset session."
+
+                });
+
+            }
+
+
+            // ==================================
+            // Check token expiration
+            // ==================================
+
+            if (
+                !challenge.resetTokenExpiresAt ||
+                challenge
+                    .resetTokenExpiresAt
+                    .toDate() < new Date()
+            ) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "Reset session has expired. Request a new code."
+
+                });
+
+            }
+
+
+            // ==================================
+            // Update Firebase password
+            // ==================================
+
+            await admin
+                .auth()
+                .updateUser(
+                    uid,
+                    {
+                        password:
+                            newPassword
+                    }
+                );
+
+
+            // ==================================
+            // Invalidate reset token
+            // ==================================
+
+            await challengeRef.update({
+
+                resetTokenHash:
+                    admin.firestore.FieldValue
+                        .delete(),
+
+                resetTokenExpiresAt:
+                    admin.firestore.FieldValue
+                        .delete(),
+
+                verified:
+                    false,
+
+                completedAt:
+                    admin.firestore.FieldValue
+                        .serverTimestamp()
+
+            });
+
+
+            // ==================================
+            // Success
+            // ==================================
+
+            return res.json({
+
+                success: true,
+
+                message:
+                    "Password reset successfully."
+
+            });
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Reset password error:",
+                error
+            );
+
+
+            return res.status(500).json({
+
+                success: false,
+
+                message:
+                    "Unable to reset password."
+
+            });
+
+        }
+
+    }
+
+);
+
+// ==========================================
 // POST /api/auth/verify-token
 // ==========================================
 
@@ -1168,6 +1449,8 @@ router.get(
                 "POST /forgot-password",
               
                 "POST /verify-reset-code",
+
+                "POST /reset-password",
 
                 "POST /verify-token",
 
