@@ -483,8 +483,7 @@ router.post(
 
                     {
 
-                        from:
-                            "EchoCall AI <onboarding@resend.dev>",
+                        from: "EchoCall AI <noreply@echocall-ai.tech>",
 
                         to:
                             [email],
