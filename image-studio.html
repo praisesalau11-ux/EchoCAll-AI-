@@ -1,0 +1,388 @@
+<div class="image-studio-page">
+
+    <div class="studio-header">
+        <div>
+            <span class="studio-badge">
+                <span class="material-symbols-rounded">auto_awesome</span>
+                AI CREATIVE STUDIO
+            </span>
+
+            <h1>Image Studio</h1>
+
+            <p>
+                Create stunning images with EchoCall AI.
+            </p>
+        </div>
+    </div>
+
+
+    <section class="studio-workspace">
+
+        <!-- LEFT PANEL -->
+        <div class="control-panel">
+
+            <div class="panel-title">
+                <span class="material-symbols-rounded">edit</span>
+                <div>
+                    <h2>Create Image</h2>
+                    <p>Describe what you want to create.</p>
+                </div>
+            </div>
+
+
+            <!-- PROMPT -->
+            <div class="form-group">
+
+                <label for="imagePrompt">
+                    Image prompt
+                </label>
+
+                <textarea
+                    id="imagePrompt"
+                    rows="7"
+                    maxlength="2000"
+                    placeholder="Describe the image you want to create..."
+                ></textarea>
+
+                <div class="prompt-footer">
+                    <span id="promptCounter">0 / 2000</span>
+
+                    <button
+                        type="button"
+                        id="clearPrompt"
+                        class="small-action"
+                    >
+                        Clear
+                    </button>
+                </div>
+
+            </div>
+
+
+            <!-- STYLE -->
+            <div class="form-group">
+
+                <label for="imageStyle">
+                    Style
+                </label>
+
+                <select id="imageStyle">
+
+                    <option value="realistic">
+                        Photorealistic
+                    </option>
+
+                    <option value="cinematic">
+                        Cinematic
+                    </option>
+
+                    <option value="digital-art">
+                        Digital Art
+                    </option>
+
+                    <option value="anime">
+                        Anime
+                    </option>
+
+                    <option value="3d">
+                        3D Render
+                    </option>
+
+                    <option value="illustration">
+                        Illustration
+                    </option>
+
+                    <option value="fantasy">
+                        Fantasy
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- ASPECT RATIO -->
+            <div class="form-group">
+
+                <label>
+                    Aspect ratio
+                </label>
+
+                <div class="ratio-grid">
+
+                    <button
+                        type="button"
+                        class="ratio-option active"
+                        data-ratio="1:1"
+                    >
+                        <span class="ratio-preview ratio-square"></span>
+                        <span>1:1</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        class="ratio-option"
+                        data-ratio="16:9"
+                    >
+                        <span class="ratio-preview ratio-wide"></span>
+                        <span>16:9</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        class="ratio-option"
+                        data-ratio="9:16"
+                    >
+                        <span class="ratio-preview ratio-tall"></span>
+                        <span>9:16</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        class="ratio-option"
+                        data-ratio="4:3"
+                    >
+                        <span class="ratio-preview ratio-landscape"></span>
+                        <span>4:3</span>
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- REFERENCE IMAGE -->
+            <div class="form-group">
+
+                <label>
+                    Reference image
+                </label>
+
+                <label
+                    for="referenceImage"
+                    class="upload-box"
+                >
+
+                    <span class="material-symbols-rounded">
+                        add_photo_alternate
+                    </span>
+
+                    <strong>
+                        Add reference image
+                    </strong>
+
+                    <small>
+                        Optional
+                    </small>
+
+                </label>
+
+                <input
+                    type="file"
+                    id="referenceImage"
+                    accept="image/*"
+                    hidden
+                >
+
+                <div
+                    id="referencePreview"
+                    class="reference-preview hidden"
+                ></div>
+
+            </div>
+
+
+            <!-- GENERATE -->
+            <button
+                type="button"
+                id="generateImage"
+                class="generate-btn"
+            >
+
+                <span class="material-symbols-rounded">
+                    auto_awesome
+                </span>
+
+                <span id="generateText">
+                    Generate Image
+                </span>
+
+            </button>
+
+        </div>
+
+
+        <!-- RIGHT PANEL -->
+        <div class="preview-panel">
+
+            <div class="preview-header">
+
+                <div>
+                    <h2>Preview</h2>
+                    <p>Your generated image will appear here.</p>
+                </div>
+
+                <span
+                    id="generationStatus"
+                    class="status-badge"
+                >
+                    Ready
+                </span>
+
+            </div>
+
+
+            <div
+                id="imagePreview"
+                class="image-preview"
+            >
+
+                <div
+                    id="emptyPreview"
+                    class="empty-preview"
+                >
+
+                    <div class="empty-icon">
+                        <span class="material-symbols-rounded">
+                            image
+                        </span>
+                    </div>
+
+                    <h3>Your creation starts here</h3>
+
+                    <p>
+                        Describe an image and click
+                        <strong>Generate Image</strong>.
+                    </p>
+
+                </div>
+
+
+                <div
+                    id="loadingPreview"
+                    class="loading-preview hidden"
+                >
+
+                    <div class="loading-spinner"></div>
+
+                    <h3>Creating your image...</h3>
+
+                    <p>
+                        EchoCall AI is bringing your idea to life.
+                    </p>
+
+                </div>
+
+
+                <img
+                    id="generatedImage"
+                    class="generated-image hidden"
+                    alt="Generated image"
+                />
+
+            </div>
+
+
+            <div
+                id="imageActions"
+                class="image-actions hidden"
+            >
+
+                <button
+                    type="button"
+                    id="downloadImage"
+                    class="secondary-btn"
+                >
+
+                    <span class="material-symbols-rounded">
+                        download
+                    </span>
+
+                    Download
+
+                </button>
+
+
+                <button
+                    type="button"
+                    id="saveImage"
+                    class="secondary-btn"
+                >
+
+                    <span class="material-symbols-rounded">
+                        bookmark
+                    </span>
+
+                    Save
+
+                </button>
+
+
+                <button
+                    type="button"
+                    id="newImage"
+                    class="secondary-btn"
+                >
+
+                    <span class="material-symbols-rounded">
+                        refresh
+                    </span>
+
+                    New Image
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- RECENT CREATIONS -->
+
+    <section class="recent-section">
+
+        <div class="section-heading">
+
+            <div>
+                <h2>Recent Creations</h2>
+
+                <p>
+                    Your latest AI-generated images.
+                </p>
+            </div>
+
+            <button
+                type="button"
+                id="clearGallery"
+                class="small-action"
+            >
+                Clear
+            </button>
+
+        </div>
+
+
+        <div
+            id="recentGallery"
+            class="recent-gallery"
+        >
+
+            <div class="gallery-empty">
+
+                <span class="material-symbols-rounded">
+                    photo_library
+                </span>
+
+                <p>
+                    Your generated images will appear here.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
