@@ -8,36 +8,188 @@ import {
     MODEL
 } from "./openaiService.js";
 
+
 // ==========================================
-// Image Generation
+// Stability AI Configuration
+// ==========================================
+
+const STABILITY_API_KEY =
+    process.env.STABILITY_API_KEY;
+
+const STABILITY_IMAGE_URL =
+    "https://api.stability.ai/v2beta/stable-image/generate/core";
+
+
+// ==========================================
+// Image Generation - Stability AI
 // ==========================================
 
 export async function generateImage(
     prompt,
-    size = "1024x1024"
+    options = {}
 ) {
 
     try {
 
+        if (!STABILITY_API_KEY) {
+
+            throw new Error(
+                "STABILITY_API_KEY is not configured."
+            );
+
+        }
+
+        if (!prompt || prompt.trim() === "") {
+
+            throw new Error(
+                "Image prompt is required."
+            );
+
+        }
+
+
+        const formData =
+            new FormData();
+
+
+        formData.append(
+            "prompt",
+            prompt.trim()
+        );
+
+
+        formData.append(
+            "output_format",
+            "png"
+        );
+
+
+        // ======================================
+        // Aspect Ratio
+        // ======================================
+
+        if (options.aspectRatio) {
+
+            formData.append(
+                "aspect_ratio",
+                options.aspectRatio
+            );
+
+        }
+
+
+        // ======================================
+        // Style
+        // ======================================
+
+        if (options.style) {
+
+            formData.append(
+                "style_preset",
+                options.style
+            );
+
+        }
+
+
+        // ======================================
+        // Request Stability
+        // ======================================
+
         const response =
-            await openai.images.generate({
+            await fetch(
+                STABILITY_IMAGE_URL,
+                {
 
-                model: "gpt-image-1",
+                    method: "POST",
 
-                prompt,
+                    headers: {
 
-                size
+                        Authorization:
+                            `Bearer ${STABILITY_API_KEY}`,
 
-            });
+                        Accept:
+                            "image/*"
 
-        return response;
+                    },
+
+                    body:
+                        formData
+
+                }
+            );
+
+
+        if (!response.ok) {
+
+            let errorMessage =
+                "Stability image generation failed.";
+
+            try {
+
+                const errorData =
+                    await response.json();
+
+                errorMessage =
+                    errorData.message ||
+                    errorData.errors?.join(", ") ||
+                    errorMessage;
+
+            }
+
+            catch {
+
+                // Ignore JSON parsing failure
+
+            }
+
+            throw new Error(
+                errorMessage
+            );
+
+        }
+
+
+        // ======================================
+        // Get Image Bytes
+        // ======================================
+
+        const imageBuffer =
+            Buffer.from(
+                await response.arrayBuffer()
+            );
+
+
+        // ======================================
+        // Convert To Base64
+        // ======================================
+
+        const base64 =
+            imageBuffer.toString(
+                "base64"
+            );
+
+
+        return {
+
+            success: true,
+
+            mimeType:
+                "image/png",
+
+            base64,
+
+            dataUrl:
+                `data:image/png;base64,${base64}`
+
+        };
 
     }
 
     catch (error) {
 
         console.error(
-            "Image Generation Error:",
+            "Stability Image Generation Error:",
             error
         );
 
@@ -47,8 +199,9 @@ export async function generateImage(
 
 }
 
+
 // ==========================================
-// Image Analysis
+// Image Analysis - OpenAI
 // ==========================================
 
 export async function analyzeImage(
@@ -75,19 +228,16 @@ export async function analyzeImage(
 
         }
 
-        // ======================================
-        // Convert image to Base64
-        // ======================================
 
         const base64Image =
-            imageBuffer.toString("base64");
+            imageBuffer.toString(
+                "base64"
+            );
+
 
         const imageDataURL =
             `data:${mimeType};base64,${base64Image}`;
 
-        // ======================================
-        // Send image to OpenAI
-        // ======================================
 
         const response =
             await openai.chat.completions.create({
@@ -130,6 +280,7 @@ export async function analyzeImage(
                 ]
 
             });
+
 
         return response
             .choices[0]
