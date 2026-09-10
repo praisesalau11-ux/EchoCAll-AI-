@@ -1,5 +1,21 @@
 // ==========================================
 // EchoCall AI - Image Studio
+// File: js/image-studio.js
+// ==========================================
+
+import { auth } from "./firebase.js";
+
+
+// ==========================================
+// EchoCall Backend
+// ==========================================
+
+const API_BASE_URL =
+    "https://echocall-ai-backend.onrender.com/api/ai";
+
+
+// ==========================================
+// Image Studio
 // ==========================================
 
 export function initializeImageStudio() {
@@ -34,9 +50,6 @@ export function initializeImageStudio() {
 
     const generateText =
         document.getElementById("generateText");
-
-    const imagePreview =
-        document.getElementById("imagePreview");
 
     const emptyPreview =
         document.getElementById("emptyPreview");
@@ -87,10 +100,18 @@ export function initializeImageStudio() {
                     document
                         .querySelectorAll(".ratio-option")
                         .forEach(item => {
-                            item.classList.remove("active");
+
+                            item.classList.remove(
+                                "active"
+                            );
+
                         });
 
-                    button.classList.add("active");
+
+                    button.classList.add(
+                        "active"
+                    );
+
 
                     selectedRatio =
                         button.dataset.ratio;
@@ -141,7 +162,7 @@ export function initializeImageStudio() {
 
 
     // ==========================================
-    // REFERENCE IMAGE
+    // REFERENCE IMAGE PREVIEW
     // ==========================================
 
     referenceImage?.addEventListener(
@@ -150,6 +171,7 @@ export function initializeImageStudio() {
 
             const file =
                 referenceImage.files?.[0];
+
 
             if (!file) {
 
@@ -160,6 +182,7 @@ export function initializeImageStudio() {
                 );
 
                 return;
+
             }
 
 
@@ -167,7 +190,13 @@ export function initializeImageStudio() {
 
                 referenceImage.value = "";
 
+                showImageStudioToast(
+                    "Please select an image file.",
+                    "warning"
+                );
+
                 return;
+
             }
 
 
@@ -175,14 +204,17 @@ export function initializeImageStudio() {
                 new FileReader();
 
 
-            reader.onload = (event) => {
+            reader.onload = event => {
 
                 referencePreview.innerHTML = `
+
                     <img
                         src="${event.target.result}"
                         alt="Reference image"
                     >
+
                 `;
+
 
                 referencePreview.classList.remove(
                     "hidden"
@@ -209,6 +241,10 @@ export function initializeImageStudio() {
                 prompt.value.trim();
 
 
+            // ======================================
+            // Validate Prompt
+            // ======================================
+
             if (!imagePrompt) {
 
                 showImageStudioToast(
@@ -219,10 +255,40 @@ export function initializeImageStudio() {
                 prompt.focus();
 
                 return;
+
             }
 
 
             try {
+
+                // ==================================
+                // Check Firebase Authentication
+                // ==================================
+
+                const user =
+                    auth.currentUser;
+
+
+                if (!user) {
+
+                    throw new Error(
+                        "Please sign in before generating an image."
+                    );
+
+                }
+
+
+                // ==================================
+                // Get Firebase ID Token
+                // ==================================
+
+                const token =
+                    await user.getIdToken();
+
+
+                // ==================================
+                // UI - Loading
+                // ==================================
 
                 generateButton.disabled =
                     true;
@@ -254,25 +320,25 @@ export function initializeImageStudio() {
                 );
 
 
-                /*
-                 * ==================================
-                 * AI GENERATION BACKEND
-                 * ==================================
-                 *
-                 * We will connect this to the
-                 * EchoCall AI image-generation
-                 * endpoint next.
-                 */
+                // ==================================
+                // Prepare Request
+                // ==================================
 
                 const response =
                     await fetch(
-                        "https://echocall-ai-backend.onrender.com/api/ai/image",
+                        `${API_BASE_URL}/generate-image`,
                         {
+
                             method: "POST",
 
                             headers: {
+
                                 "Content-Type":
-                                    "application/json"
+                                    "application/json",
+
+                                "Authorization":
+                                    `Bearer ${token}`
+
                             },
 
                             body: JSON.stringify({
@@ -280,17 +346,22 @@ export function initializeImageStudio() {
                                 prompt:
                                     imagePrompt,
 
-                                style:
-                                    style.value,
-
                                 aspectRatio:
-                                    selectedRatio
+                                    selectedRatio,
+
+                                style:
+                                    style?.value ||
+                                    "realistic"
 
                             })
 
                         }
                     );
 
+
+                // ==================================
+                // Read Response
+                // ==================================
 
                 const data =
                     await response.json();
@@ -303,40 +374,50 @@ export function initializeImageStudio() {
                 ) {
 
                     throw new Error(
+
                         data.message ||
                         "Image generation failed."
+
                     );
 
                 }
 
 
                 // ==================================
-                // SHOW RESULT
+                // SHOW GENERATED IMAGE
                 // ==================================
 
                 generatedImage.src =
                     data.imageUrl;
 
+
                 generatedImage.classList.remove(
                     "hidden"
                 );
+
 
                 loadingPreview.classList.add(
                     "hidden"
                 );
 
+
                 imageActions.classList.remove(
                     "hidden"
                 );
 
+
                 generationStatus.textContent =
                     "Complete";
+
 
                 generationStatus.style.color =
                     "#86efac";
 
 
-                // Save locally
+                // ==================================
+                // Save Recent Image Locally
+                // ==================================
+
                 saveRecentImage(
                     data.imageUrl,
                     imagePrompt
@@ -363,21 +444,27 @@ export function initializeImageStudio() {
                     "hidden"
                 );
 
+
                 emptyPreview.classList.remove(
                     "hidden"
                 );
 
+
                 generationStatus.textContent =
                     "Ready";
+
 
                 generationStatus.style.color =
                     "#86efac";
 
 
                 showImageStudioToast(
+
                     error.message ||
                     "Unable to generate image.",
+
                     "error"
+
                 );
 
             }
@@ -398,7 +485,7 @@ export function initializeImageStudio() {
 
 
     // ==========================================
-    // DOWNLOAD
+    // DOWNLOAD IMAGE
     // ==========================================
 
     downloadImage?.addEventListener(
@@ -406,8 +493,16 @@ export function initializeImageStudio() {
         async () => {
 
             if (!generatedImage.src) {
+
+                showImageStudioToast(
+                    "There is no generated image to download.",
+                    "warning"
+                );
+
                 return;
+
             }
+
 
             try {
 
@@ -416,29 +511,63 @@ export function initializeImageStudio() {
                         generatedImage.src
                     );
 
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        "Unable to download image."
+                    );
+
+                }
+
+
                 const blob =
                     await response.blob();
 
+
                 const url =
-                    URL.createObjectURL(blob);
+                    URL.createObjectURL(
+                        blob
+                    );
+
 
                 const link =
-                    document.createElement("a");
+                    document.createElement(
+                        "a"
+                    );
 
-                link.href = url;
+
+                link.href =
+                    url;
+
 
                 link.download =
                     `echocall-ai-${Date.now()}.png`;
 
-                document.body.appendChild(link);
+
+                document.body.appendChild(
+                    link
+                );
+
 
                 link.click();
 
+
                 link.remove();
 
-                URL.revokeObjectURL(url);
+
+                URL.revokeObjectURL(
+                    url
+                );
+
+
+                showImageStudioToast(
+                    "Image download started.",
+                    "success"
+                );
 
             }
+
 
             catch (error) {
 
@@ -447,6 +576,8 @@ export function initializeImageStudio() {
                     error
                 );
 
+
+                // Fallback
                 window.open(
                     generatedImage.src,
                     "_blank"
@@ -472,29 +603,54 @@ export function initializeImageStudio() {
                 new Event("input")
             );
 
+
             generatedImage.src = "";
+
 
             generatedImage.classList.add(
                 "hidden"
             );
 
+
             imageActions.classList.add(
                 "hidden"
             );
+
 
             emptyPreview.classList.remove(
                 "hidden"
             );
 
+
+            loadingPreview.classList.add(
+                "hidden"
+            );
+
+
             generationStatus.textContent =
                 "Ready";
+
+
+            generationStatus.style.color =
+                "#86efac";
+
+
+            referenceImage.value = "";
+
+
+            referencePreview.innerHTML = "";
+
+
+            referencePreview.classList.add(
+                "hidden"
+            );
 
         }
     );
 
 
     // ==========================================
-    // SAVE
+    // SAVE IMAGE
     // ==========================================
 
     saveImage?.addEventListener(
@@ -502,8 +658,17 @@ export function initializeImageStudio() {
         () => {
 
             if (!generatedImage.src) {
+
                 return;
+
             }
+
+
+            saveRecentImage(
+                generatedImage.src,
+                prompt.value.trim()
+            );
+
 
             showImageStudioToast(
                 "Image saved to your creations.",
@@ -526,6 +691,7 @@ export function initializeImageStudio() {
                 "echoCallRecentImages"
             );
 
+
             renderRecentImages();
 
         }
@@ -533,7 +699,7 @@ export function initializeImageStudio() {
 
 
     // ==========================================
-    // RECENT IMAGES
+    // SAVE RECENT IMAGE
     // ==========================================
 
     function saveRecentImage(
@@ -543,9 +709,11 @@ export function initializeImageStudio() {
 
         const images =
             JSON.parse(
+
                 localStorage.getItem(
                     "echoCallRecentImages"
                 ) || "[]"
+
             );
 
 
@@ -567,8 +735,11 @@ export function initializeImageStudio() {
 
 
         localStorage.setItem(
+
             "echoCallRecentImages",
+
             JSON.stringify(images)
+
         );
 
 
@@ -577,35 +748,49 @@ export function initializeImageStudio() {
     }
 
 
+    // ==========================================
+    // RENDER RECENT IMAGES
+    // ==========================================
+
     function renderRecentImages() {
 
         const images =
             JSON.parse(
+
                 localStorage.getItem(
                     "echoCallRecentImages"
                 ) || "[]"
+
             );
 
 
         if (!images.length) {
 
             recentGallery.innerHTML = `
+
                 <div class="gallery-empty">
+
                     <span class="material-symbols-rounded">
                         photo_library
                     </span>
+
                     <p>
                         Your generated images will appear here.
                     </p>
+
                 </div>
+
             `;
 
             return;
+
         }
 
 
         recentGallery.innerHTML =
+
             images.map(image => `
+
                 <div class="recent-image-card">
 
                     <img
@@ -614,19 +799,44 @@ export function initializeImageStudio() {
                     >
 
                 </div>
+
             `).join("");
 
     }
 
 
+    // ==========================================
+    // ESCAPE HTML
+    // ==========================================
+
     function escapeHtml(text) {
 
-        return text
-            .replaceAll("&", "&amp;")
-            .replaceAll("<", "&lt;")
-            .replaceAll(">", "&gt;")
-            .replaceAll('"', "&quot;")
-            .replaceAll("'", "&#039;");
+        return String(text)
+
+            .replaceAll(
+                "&",
+                "&amp;"
+            )
+
+            .replaceAll(
+                "<",
+                "&lt;"
+            )
+
+            .replaceAll(
+                ">",
+                "&gt;"
+            )
+
+            .replaceAll(
+                '"',
+                "&quot;"
+            )
+
+            .replaceAll(
+                "'",
+                "&#039;"
+            );
 
     }
 
@@ -640,8 +850,10 @@ export function initializeImageStudio() {
         type
     ) {
 
-        // Use existing global toast if available
-        if (typeof window.showToast === "function") {
+        if (
+            typeof window.showToast ===
+            "function"
+        ) {
 
             window.showToast(
                 message,
@@ -649,7 +861,9 @@ export function initializeImageStudio() {
             );
 
             return;
+
         }
+
 
         console.log(
             `[${type}] ${message}`
@@ -658,7 +872,10 @@ export function initializeImageStudio() {
     }
 
 
-    // Initial gallery
+    // ==========================================
+    // INITIALIZE GALLERY
+    // ==========================================
+
     renderRecentImages();
 
 }
