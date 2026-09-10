@@ -1870,84 +1870,88 @@ router.post(
 );
 
 // ==========================================
-// Image Generation
+// Image Generation - Stability AI
 // ==========================================
 
 router.post(
-
     "/generate-image",
 
     authenticateUser,
 
-    async(req,res)=>{
+    async (req, res) => {
 
-        try{
+        try {
 
             const {
-
                 prompt,
-
-                size
-
+                aspectRatio,
+                style
             } = req.body;
 
-            if(
 
+            if (
                 !prompt ||
-
-                prompt.trim()===""
-
-            ){
+                prompt.trim() === ""
+            ) {
 
                 return res.status(400).json({
 
-                    success:false,
+                    success: false,
 
                     message:
-
-                    "Prompt is required."
+                        "Prompt is required."
 
                 });
 
             }
 
-            const image =
 
+            const image =
                 await generateImage(
 
                     prompt,
 
-                    size || "1024x1024"
+                    {
+
+                        aspectRatio:
+                            aspectRatio ||
+                            "1:1",
+
+                        style:
+                            style ||
+                            "photographic"
+
+                    }
 
                 );
 
+
             return res.json({
 
-                success:true,
+                success: true,
 
-                image
+                imageUrl:
+                    image.dataUrl
 
             });
 
         }
 
-        catch(error){
+        catch (error) {
 
             console.error(
-
                 "Image Generation Error:",
-
                 error
-
             );
+
 
             return res.status(500).json({
 
-                success:false,
+                success: false,
 
                 message:
-
-                "Image generation failed."
+                    error.message ||
+                    "Image generation failed."
 
             });
 
@@ -1955,7 +1959,7 @@ router.post(
 
     }
 
-);
+);           
 
 // ==========================================
 // Export Router
