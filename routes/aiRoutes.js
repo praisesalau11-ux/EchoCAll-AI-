@@ -1878,39 +1878,115 @@ router.post(
 
     authenticateUser,
 
-    async (req, res) => {
+    upload.single("referenceImage"),
 
+    async (req, res) => {
         try {
+
+            /*
+            |--------------------------------------------------------------------------
+            | Get text fields
+            |--------------------------------------------------------------------------
+            */
 
             const {
                 prompt,
                 aspectRatio,
-                style
+                style,
+                referenceStrength
             } = req.body;
 
 
+            /*
+            |--------------------------------------------------------------------------
+            | Validate prompt
+            |--------------------------------------------------------------------------
+            */
+
             if (
                 !prompt ||
+                typeof prompt !== "string" ||
                 prompt.trim() === ""
             ) {
-
                 return res.status(400).json({
-
                     success: false,
-
-                    message:
-                        "Prompt is required."
-
+                    message: "Prompt is required."
                 });
-
             }
 
 
+            /*
+            |--------------------------------------------------------------------------
+            | Validate reference image
+            |--------------------------------------------------------------------------
+            */
+
+            let referenceBuffer = null;
+            let referenceMimeType = null;
+
+            if (req.file) {
+
+                if (
+                    !req.file.mimetype ||
+                    !req.file.mimetype.startsWith("image/")
+                ) {
+                    return res.status(400).json({
+                        success: false,
+                        message:
+                            "Reference file must be an image."
+                    });
+                }
+
+                referenceBuffer =
+                    req.file.buffer;
+
+                referenceMimeType =
+                    req.file.mimetype;
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Reference strength
+            |--------------------------------------------------------------------------
+            |
+            | Controls how strongly the generated image follows
+            | the uploaded reference image.
+            |
+            */
+
+            let parsedReferenceStrength =
+                Number(
+                    referenceStrength ?? 0.7
+                );
+
+            if (
+                Number.isNaN(
+                    parsedReferenceStrength
+                )
+            ) {
+                parsedReferenceStrength = 0.7;
+            }
+
+            parsedReferenceStrength =
+                Math.min(
+                    1,
+                    Math.max(
+                        0,
+                        parsedReferenceStrength
+                    )
+                );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Generate image
+            |--------------------------------------------------------------------------
+            */
+
             const image =
                 await generateImage(
-
-                    prompt,
-
+                    prompt.trim(),
                     {
 
                         aspectRatio:
@@ -1919,25 +1995,38 @@ router.post(
 
                         style:
                             style ||
-                            "photographic"
+                            "realistic",
+
+                        referenceBuffer,
+
+                        referenceMimeType,
+
+                        referenceStrength:
+                            parsedReferenceStrength
 
                     }
-
                 );
 
+
+            /*
+            |--------------------------------------------------------------------------
+            | Return generated image
+            |--------------------------------------------------------------------------
+            */
 
             return res.json({
 
                 success: true,
 
                 imageUrl:
-                    image.dataUrl
+                    image.dataUrl,
+
+                mimeType:
+                    image.mimeType
 
             });
 
-        }
-
-        catch (error) {
+        } catch (error) {
 
             console.error(
                 "Image Generation Error:",
@@ -1945,7 +2034,34 @@ router.post(
             );
 
 
-            return res.status(500).json({
+            /*
+            |--------------------------------------------------------------------------
+            | Better HTTP status messages
+            |--------------------------------------------------------------------------
+            */
+
+            let statusCode = 500;
+
+            if (
+                error.message?.includes(
+                    "API key"
+                )
+            ) {
+                statusCode = 503;
+            }
+
+            if (
+                error.message?.includes(
+                    "rate limit"
+                )
+            ) {
+                statusCode = 429;
+            }
+
+
+            return res.status(
+                statusCode
+            ).json({
 
                 success: false,
 
@@ -1954,11 +2070,8 @@ router.post(
                     "Image generation failed."
 
             });
-
         }
-
     }
-
 );           
 
 // ==========================================
