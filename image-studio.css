@@ -1061,3 +1061,75 @@
         border-radius: 13px;
     }
 }
+
+/* ==========================================
+   RECENT IMAGE CARDS
+   ========================================== */
+
+.recent-card {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border-radius: 18px;
+    background: var(--studio-panel);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    cursor: pointer;
+    transition:
+        transform 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.recent-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(99, 102, 241, 0.55);
+    box-shadow:
+        0 12px 35px rgba(0, 0, 0, 0.35),
+        0 0 25px rgba(99, 102, 241, 0.15);
+}
+
+.recent-card:active {
+    transform: translateY(-1px) scale(0.98);
+}
+
+
+/* ==========================================
+   RECENT IMAGE
+   ========================================== */
+
+.recent-card-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: #0b1026;
+    transition: transform 0.4s ease;
+}
+
+.recent-card:hover .recent-card-image {
+    transform: scale(1.05);
+}
+
+
+/* ==========================================
+   IMAGE LOADING FALLBACK
+   ========================================== */
+
+.recent-card-image:not([src]),
+.recent-card-image[src=""] {
+    opacity: 0;
+}
+
+
+/* ==========================================
+   MOBILE
+   ========================================== */
+
+@media (max-width: 600px) {
+
+    .recent-card {
+        border-radius: 14px;
+    }
+
+}

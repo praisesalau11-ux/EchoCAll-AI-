@@ -1,322 +1,477 @@
 // ==========================================
 // EchoCall AI
 // File: js/image-studio.js
-// Image Studio frontend — Part A
+// Purpose: Image Studio frontend
 // ==========================================
+import {
+    auth,
+    db,
+    storage
+} from "./firebase.js";
 
-import { auth } from "./firebase.js";
+import {
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
 
+import {
+    ref,
+    uploadBytes,
+    getDownloadURL,
+    deleteObject
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-storage.js";
+
+import {
+    collection,
+    addDoc,
+    getDocs,
+    deleteDoc,
+    doc,
+    query,
+    where,
+    orderBy,
+    limit
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
 // ==========================================
-// CONFIG
+// API
 // ==========================================
 
 const API_BASE_URL =
     "https://echocall-ai-backend.onrender.com";
 
+// ==========================================
+// STORAGE
+// ==========================================
+
 const RECENT_STORAGE_KEY =
-    "echocall_ai_recent_images";
+    "echocall_image_studio_recent";
 
 const MAX_RECENT_IMAGES = 12;
-
-
-// ==========================================
-// DOM ELEMENTS
-// ==========================================
-
-const imagePrompt =
-    document.getElementById("imagePrompt");
-
-const promptCounter =
-    document.getElementById("promptCounter");
-
-const styleOptions =
-    document.querySelectorAll(".style-option");
-
-const ratioOptions =
-    document.querySelectorAll(".ratio-option");
-
-const referenceImage =
-    document.getElementById("referenceImage");
-
-const referencePreview =
-    document.getElementById("referencePreview");
-
-const referencePreviewImage =
-    document.getElementById("referencePreviewImage");
-
-const referenceFileName =
-    document.getElementById("referenceFileName");
-
-const referenceEmpty =
-    document.getElementById("referenceEmpty");
-
-const removeReference =
-    document.getElementById("removeReference");
-
-const generateImageButton =
-    document.getElementById("generateImage");
-
-const generationStatus =
-    document.getElementById("generationStatus");
-
-const emptyPreview =
-    document.getElementById("emptyPreview");
-
-const loadingPreview =
-    document.getElementById("loadingPreview");
-
-const generatedImage =
-    document.getElementById("generatedImage");
-
-const previewActions =
-    document.getElementById("previewActions");
-
-const downloadImageButton =
-    document.getElementById("downloadImage");
-
-const saveImageButton =
-    document.getElementById("saveImage");
-
-const newImageButton =
-    document.getElementById("newImage");
-
-const recentGallery =
-    document.getElementById("recentGallery");
-
-const clearGalleryButton =
-    document.getElementById("clearGallery");
-
-const toast =
-    document.getElementById("toast");
-
 
 // ==========================================
 // STATE
 // ==========================================
 
 let selectedStyle = "realistic";
-
 let selectedRatio = "1:1";
-
 let selectedReferenceFile = null;
+let currentGeneratedImage = null;
+let isGenerating = false;
 
-let currentGeneratedImage = "";
-
-let currentPrompt = "";
-
-let currentImageSaved = false;
-
-let toastTimer = null;
-
+let cleanupFunctions = [];
 
 // ==========================================
-// INITIALIZATION
+// INITIALIZER
 // ==========================================
 
-document.addEventListener(
-    "DOMContentLoaded",
-    initializeImageStudio
-);
+export async function initializeImageStudio() {
 
+    console.log(
+        "EchoCall AI → Image Studio initializing..."
+    );
 
-function initializeImageStudio() {
+    // Reset state
+    selectedStyle = "realistic";
+    selectedRatio = "1:1";
+    selectedReferenceFile = null;
+    currentGeneratedImage = null;
+    isGenerating = false;
 
-    updatePromptCounter();
+    setupImageStudio();
 
-    loadRecentImages();
+    console.log(
+        "EchoCall AI → Image Studio initialized successfully."
+    );
+}
 
-    setupStyleOptions();
+// ==========================================
+// MAIN SETUP
+// ==========================================
 
-    setupRatioOptions();
+function setupImageStudio() {
 
-    setupPromptCounter();
+    console.log(
+        "Image Studio → Setting up controls..."
+    );
 
+    setupPrompt();
+    setupStyleButtons();
+    setupRatioButtons();
     setupReferenceUpload();
-
     setupGenerateButton();
-
     setupPreviewActions();
+    setupClearGallery();
+    setupKeyboardShortcut();
 
-    setupGalleryActions();
+    renderRecentGallery();
 
-    setupKeyboardShortcuts();
+    updateSelectedStyle();
+    updateSelectedRatio();
+    updatePromptCounter();
+    updateGenerateButton();
+
+    console.log(
+        "Image Studio → Controls ready."
+    );
 }
 
-
 // ==========================================
-// AUTHENTICATION
+// DOM HELPERS
 // ==========================================
 
-function getCurrentUser() {
-
-    return auth.currentUser || null;
+function getElement(id) {
+    return document.getElementById(id);
 }
 
+// ==========================================
+// PROMPT
+// ==========================================
 
-async function waitForAuthentication() {
+function setupPrompt() {
 
-    if (auth.currentUser) {
-        return auth.currentUser;
+    const prompt =
+        getElement("imagePrompt");
+
+    if (!prompt) {
+
+        console.error(
+            "Image Studio → #imagePrompt not found."
+        );
+
+        return;
     }
 
-    return new Promise((resolve) => {
+    const handler = () => {
 
-        const unsubscribe =
-            auth.onAuthStateChanged((user) => {
+        updatePromptCounter();
+        updateGenerateButton();
+    };
 
-                unsubscribe();
+    prompt.addEventListener(
+        "input",
+        handler
+    );
 
-                resolve(user || null);
-            });
+    cleanupFunctions.push(() => {
+
+        prompt.removeEventListener(
+            "input",
+            handler
+        );
     });
 }
-
 
 // ==========================================
 // PROMPT COUNTER
 // ==========================================
 
-function setupPromptCounter() {
-
-    if (!imagePrompt) {
-        return;
-    }
-
-    imagePrompt.addEventListener(
-        "input",
-        updatePromptCounter
-    );
-}
-
-
 function updatePromptCounter() {
 
-    if (!imagePrompt || !promptCounter) {
+    const prompt =
+        getElement("imagePrompt");
+
+    const counter =
+        getElement("promptCounter");
+
+    if (!prompt || !counter) {
         return;
     }
 
     const length =
-        imagePrompt.value.length;
+        prompt.value.length;
 
-    promptCounter.textContent =
+    counter.textContent =
         `${length} / 2000`;
 }
 
-
 // ==========================================
-// STYLE OPTIONS
+// STYLE BUTTONS
 // ==========================================
 
-function setupStyleOptions() {
+function setupStyleButtons() {
 
-    styleOptions.forEach((button) => {
+    const buttons =
+        document.querySelectorAll(
+            "[data-style]"
+        );
+
+    buttons.forEach(button => {
+
+        const handler = (event) => {
+
+            event.preventDefault();
+
+            const style =
+                button.dataset.style;
+
+            if (!style) {
+                return;
+            }
+
+            selectedStyle =
+                style;
+
+            updateSelectedStyle();
+
+            console.log(
+                "Image Studio → Style:",
+                selectedStyle
+            );
+        };
 
         button.addEventListener(
             "click",
-            () => {
+            handler
+        );
 
-                styleOptions.forEach(
-                    (option) => {
-                        option.classList.remove(
-                            "active"
-                        );
-                    }
-                );
+        cleanupFunctions.push(() => {
 
-                button.classList.add("active");
+            button.removeEventListener(
+                "click",
+                handler
+            );
+        });
+    });
+}
 
-                selectedStyle =
-                    button.dataset.style ||
-                    "realistic";
-            }
+// ==========================================
+// UPDATE STYLE
+// ==========================================
+
+function updateSelectedStyle() {
+
+    const buttons =
+        document.querySelectorAll(
+            "[data-style]"
+        );
+
+    buttons.forEach(button => {
+
+        const active =
+            button.dataset.style ===
+            selectedStyle;
+
+        button.classList.toggle(
+            "active",
+            active
+        );
+
+        button.setAttribute(
+            "aria-pressed",
+            active
+                ? "true"
+                : "false"
         );
     });
 }
 
-
 // ==========================================
-// ASPECT RATIO
+// RATIO BUTTONS
 // ==========================================
 
-function setupRatioOptions() {
+function setupRatioButtons() {
 
-    ratioOptions.forEach((button) => {
+    const buttons =
+        document.querySelectorAll(
+            "[data-ratio]"
+        );
+
+    buttons.forEach(button => {
+
+        const handler = (event) => {
+
+            event.preventDefault();
+
+            const ratio =
+                button.dataset.ratio;
+
+            if (!ratio) {
+                return;
+            }
+
+            selectedRatio =
+                ratio;
+
+            updateSelectedRatio();
+
+            console.log(
+                "Image Studio → Aspect ratio:",
+                selectedRatio
+            );
+        };
 
         button.addEventListener(
             "click",
-            () => {
+            handler
+        );
 
-                ratioOptions.forEach(
-                    (option) => {
-                        option.classList.remove(
-                            "active"
-                        );
-                    }
-                );
+        cleanupFunctions.push(() => {
 
-                button.classList.add("active");
+            button.removeEventListener(
+                "click",
+                handler
+            );
+        });
+    });
+}
 
-                selectedRatio =
-                    button.dataset.ratio ||
-                    "1:1";
-            }
+// ==========================================
+// UPDATE RATIO
+// ==========================================
+
+function updateSelectedRatio() {
+
+    const buttons =
+        document.querySelectorAll(
+            "[data-ratio]"
+        );
+
+    buttons.forEach(button => {
+
+        const active =
+            button.dataset.ratio ===
+            selectedRatio;
+
+        button.classList.toggle(
+            "active",
+            active
+        );
+
+        button.setAttribute(
+            "aria-pressed",
+            active
+                ? "true"
+                : "false"
         );
     });
 }
 
+// ==========================================
+// GENERATE BUTTON STATE
+// ==========================================
+
+function updateGenerateButton() {
+
+    const button =
+        getElement("generateImage");
+
+    const prompt =
+        getElement("imagePrompt");
+
+    if (!button || !prompt) {
+        return;
+    }
+
+    const hasPrompt =
+        prompt.value.trim().length > 0;
+
+    button.disabled =
+        isGenerating ||
+        !hasPrompt;
+}
 
 // ==========================================
-// REFERENCE IMAGE
+// REFERENCE IMAGE UPLOAD
 // ==========================================
 
 function setupReferenceUpload() {
 
-    if (!referenceImage) {
+    const input =
+        getElement("referenceImage");
+
+    const removeButton =
+        getElement("removeReference");
+
+    if (!input) {
+
+        console.error(
+            "Image Studio → #referenceImage not found."
+        );
+
         return;
     }
 
-    referenceImage.addEventListener(
+    // ------------------------------------------
+    // File selected
+    // ------------------------------------------
+
+    const changeHandler = () => {
+
+        const file =
+            input.files?.[0];
+
+        if (!file) {
+            return;
+        }
+
+        handleReferenceFile(file);
+    };
+
+    input.addEventListener(
         "change",
-        handleReferenceSelection
+        changeHandler
     );
 
-    if (removeReference) {
+    cleanupFunctions.push(() => {
 
-        removeReference.addEventListener(
-            "click",
-            (event) => {
-
-                event.preventDefault();
-
-                event.stopPropagation();
-
-                clearReferenceImage();
-            }
+        input.removeEventListener(
+            "change",
+            changeHandler
         );
+    });
+
+    // ------------------------------------------
+    // Remove reference
+    // ------------------------------------------
+
+    if (removeButton) {
+
+        const removeHandler = (event) => {
+
+            event.preventDefault();
+            event.stopPropagation();
+
+            clearReferenceImage();
+        };
+
+        removeButton.addEventListener(
+            "click",
+            removeHandler
+        );
+
+        cleanupFunctions.push(() => {
+
+            removeButton.removeEventListener(
+                "click",
+                removeHandler
+            );
+        });
     }
 }
 
+// ==========================================
+// HANDLE REFERENCE FILE
+// ==========================================
 
-function handleReferenceSelection(event) {
+function handleReferenceFile(file) {
 
-    const file =
-        event.target.files?.[0];
-
-    if (!file) {
-        return;
-    }
+    // ------------------------------------------
+    // Validate file type
+    // ------------------------------------------
 
     if (!file.type.startsWith("image/")) {
 
         showToast(
-            "Please select an image file."
+            "Please select an image file.",
+            "error"
         );
-
-        referenceImage.value = "";
 
         return;
     }
+
+    // ------------------------------------------
+    // Validate file size
+    // ------------------------------------------
 
     const maxSize =
         10 * 1024 * 1024;
@@ -324,76 +479,125 @@ function handleReferenceSelection(event) {
     if (file.size > maxSize) {
 
         showToast(
-            "Reference image must be 10 MB or smaller."
+            "Reference image must be 10 MB or smaller.",
+            "error"
         );
-
-        referenceImage.value = "";
 
         return;
     }
 
-    selectedReferenceFile = file;
+    selectedReferenceFile =
+        file;
+
+    // ------------------------------------------
+    // Preview
+    // ------------------------------------------
+
+    const previewImage =
+        getElement("referencePreviewImage");
+
+    const preview =
+        getElement("referencePreview");
+
+    const empty =
+        getElement("referenceEmpty");
+
+    const fileName =
+        getElement("referenceFileName");
+
+    if (
+        !previewImage ||
+        !preview ||
+        !empty
+    ) {
+        return;
+    }
 
     const objectUrl =
         URL.createObjectURL(file);
 
-    if (referencePreviewImage) {
+    previewImage.src =
+        objectUrl;
 
-        referencePreviewImage.src =
-            objectUrl;
-    }
+    previewImage.onload = () => {
 
-    if (referenceFileName) {
+        URL.revokeObjectURL(
+            objectUrl
+        );
+    };
 
-        referenceFileName.textContent =
+    if (fileName) {
+
+        fileName.textContent =
             file.name;
     }
 
-    if (referenceEmpty) {
+    empty.hidden =
+        true;
 
-        referenceEmpty.hidden = true;
-    }
+    preview.hidden =
+        false;
 
-    if (referencePreview) {
+    showToast(
+        "Reference image added.",
+        "success"
+    );
 
-        referencePreview.hidden = false;
-    }
+    console.log(
+        "Image Studio → Reference image selected:",
+        file.name
+    );
 }
 
+// ==========================================
+// CLEAR REFERENCE IMAGE
+// ==========================================
 
 function clearReferenceImage() {
 
-    selectedReferenceFile = null;
+    const input =
+        getElement("referenceImage");
 
-    if (referenceImage) {
+    const preview =
+        getElement("referencePreview");
 
-        referenceImage.value = "";
+    const empty =
+        getElement("referenceEmpty");
+
+    const previewImage =
+        getElement("referencePreviewImage");
+
+    const fileName =
+        getElement("referenceFileName");
+
+    selectedReferenceFile =
+        null;
+
+    if (input) {
+        input.value = "";
     }
 
-    if (referencePreviewImage) {
-
-        referencePreviewImage.removeAttribute(
-            "src"
-        );
+    if (previewImage) {
+        previewImage.removeAttribute("src");
     }
 
-    if (referencePreview) {
-
-        referencePreview.hidden = true;
-    }
-
-    if (referenceEmpty) {
-
-        referenceEmpty.hidden = false;
-    }
-
-    if (referenceFileName) {
-
-        referenceFileName.textContent =
+    if (fileName) {
+        fileName.textContent =
             "Reference image";
     }
-}
 
+    if (preview) {
+        preview.hidden = true;
+    }
+
+    if (empty) {
+        empty.hidden = false;
+    }
+
+    console.log(
+        "Image Studio → Reference image removed."
+    );
+}
 
 // ==========================================
 // GENERATE BUTTON
@@ -401,376 +605,504 @@ function clearReferenceImage() {
 
 function setupGenerateButton() {
 
-    if (!generateImageButton) {
+    const button =
+        getElement("generateImage");
+
+    if (!button) {
+
+        console.error(
+            "Image Studio → #generateImage not found."
+        );
+
         return;
     }
 
-    generateImageButton.addEventListener(
+    const handler = async (event) => {
+
+        event.preventDefault();
+
+        await generateImage();
+    };
+
+    button.addEventListener(
         "click",
-        generateImage
+        handler
+    );
+
+    cleanupFunctions.push(() => {
+
+        button.removeEventListener(
+            "click",
+            handler
+        );
+    });
+
+    console.log(
+        "Image Studio → Generate button found."
     );
 }
 
-
 // ==========================================
-// IMAGE GENERATION
+// GENERATE IMAGE
 // ==========================================
 
 async function generateImage() {
 
+    if (isGenerating) {
+        return;
+    }
+
+    const promptInput =
+        getElement("imagePrompt");
+
+    if (!promptInput) {
+        return;
+    }
+
     const prompt =
-        imagePrompt?.value.trim() || "";
+        promptInput.value.trim();
+
+    // ------------------------------------------
+    // Validate prompt
+    // ------------------------------------------
 
     if (!prompt) {
 
-        setStatus(
-            "Enter a prompt first.",
+        showToast(
+            "Enter a description for your image.",
             "error"
         );
 
-        imagePrompt?.focus();
+        promptInput.focus();
 
         return;
     }
 
     if (prompt.length < 3) {
 
-        setStatus(
-            "Your prompt is too short.",
+        showToast(
+            "Please provide a more detailed prompt.",
             "error"
         );
 
-        imagePrompt?.focus();
+        promptInput.focus();
 
         return;
     }
 
+    // ------------------------------------------
+    // Authentication
+    // ------------------------------------------
+
     const user =
-        await waitForAuthentication();
+        await getCurrentUser();
 
     if (!user) {
 
-        setStatus(
+        showToast(
             "Please sign in before generating an image.",
             "error"
         );
 
-        showToast(
-            "Please sign in to use Image Studio."
-        );
-
         return;
     }
 
-    currentPrompt =
-        prompt;
+    // ------------------------------------------
+    // Start generation
+    // ------------------------------------------
 
-    currentImageSaved =
-        false;
+    isGenerating =
+        true;
 
-    setGeneratingState(true);
+    updateGenerateButton();
+
+    showGenerationLoading();
+
+    setGenerationStatus(
+        "Preparing your image..."
+    );
 
     try {
+
+        console.log(
+            "Image Studio → Starting generation."
+        );
+
+        console.log(
+            "Image Studio → Style:",
+            selectedStyle
+        );
+
+        console.log(
+            "Image Studio → Ratio:",
+            selectedRatio
+        );
+
+        // --------------------------------------
+        // Firebase ID token
+        // --------------------------------------
 
         const token =
             await user.getIdToken();
 
-        const formData = new FormData();
+        // --------------------------------------
+        // FormData
+        // --------------------------------------
 
-formData.append(
-    "prompt",
-    prompt
-);
+        const formData =
+            new FormData();
 
-formData.append(
-    "aspectRatio",
-    selectedRatio
-);
+        formData.append(
+            "prompt",
+            prompt
+        );
 
-formData.append(
-    "style",
-    selectedStyle
-);
+        formData.append(
+            "style",
+            selectedStyle
+        );
 
-/*
-|--------------------------------------------------------------------------
-| Reference Image
-|--------------------------------------------------------------------------
-| Only attach the image when the user selected one.
-*/
+        /*
+         * Stability's Core model supports
+         * several standard aspect ratios.
+         *
+         * Your HTML contains 4:3.
+         * For the current backend we map
+         * 4:3 to the closest supported 3:2.
+         */
+        const backendRatio =
+            selectedRatio === "4:3"
+                ? "3:2"
+                : selectedRatio;
 
-if (selectedReferenceFile) {
+        formData.append(
+            "aspectRatio",
+            backendRatio
+        );
 
-    formData.append(
-        "referenceImage",
-        selectedReferenceFile
-    );
+        // --------------------------------------
+        // Reference image
+        // --------------------------------------
 
-    /*
-    | 0.7 = balanced reference influence.
-    | Higher = follow reference more closely.
-    */
-    formData.append(
-        "referenceStrength",
-        "0.7"
-    );
-}
+        if (selectedReferenceFile) {
 
+            formData.append(
+                "referenceImage",
+                selectedReferenceFile,
+                selectedReferenceFile.name
+            );
 
-const response =
-    await fetch(
-        `${API_BASE_URL}/api/ai/generate-image`,
-        {
-            method: "POST",
-
-            headers: {
-                "Authorization":
-                    `Bearer ${token}`
-            },
-
-            /*
-            | IMPORTANT:
-            | Do NOT manually set Content-Type here.
-            | The browser automatically creates the
-            | multipart/form-data boundary.
-            */
-            body: formData
+            formData.append(
+                "referenceStrength",
+                "0.7"
+            );
         }
-    );
 
-        let data = null;
+        setGenerationStatus(
+            "Sending your request..."
+        );
+
+        // --------------------------------------
+        // API request
+        // --------------------------------------
+
+        const response =
+            await fetch(
+                `${API_BASE_URL}/api/ai/generate-image`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        Authorization:
+                            `Bearer ${token}`
+                    },
+
+                    /*
+                     * IMPORTANT:
+                     *
+                     * Do NOT set Content-Type here.
+                     *
+                     * Because we are sending FormData,
+                     * the browser automatically creates
+                     * the correct multipart boundary.
+                     */
+                    body: formData
+                }
+            );
+
+        setGenerationStatus(
+            "Processing the generated image..."
+        );
+
+        // --------------------------------------
+        // Parse response safely
+        // --------------------------------------
+
+        let result;
 
         try {
 
-            data =
+            result =
                 await response.json();
 
-        } catch {
+        } catch (jsonError) {
 
             throw new Error(
                 `Server returned an invalid response (${response.status}).`
             );
         }
 
+        // --------------------------------------
+        // Handle HTTP errors
+        // --------------------------------------
+
         if (!response.ok) {
 
             throw new Error(
-                data?.message ||
-                data?.error ||
+                result?.message ||
                 `Image generation failed (${response.status}).`
             );
         }
 
-        if (!data?.success) {
+        // --------------------------------------
+        // Validate result
+        // --------------------------------------
+
+        if (
+            !result ||
+            !result.success ||
+            !result.imageUrl
+        ) {
 
             throw new Error(
-                data?.message ||
-                "Image generation failed."
+                result?.message ||
+                "The server did not return a generated image."
             );
         }
 
-        const imageUrl =
-            data.imageUrl ||
-            data.dataUrl ||
-            data.image?.dataUrl ||
-            data.image?.imageUrl;
-
-        if (!imageUrl) {
-
-            throw new Error(
-                "The server did not return an image."
-            );
-        }
-
-        displayGeneratedImage(
-            imageUrl
-        );
+        // --------------------------------------
+        // Display result
+        // --------------------------------------
 
         currentGeneratedImage =
-            imageUrl;
+            result.imageUrl;
 
-        addRecentImage({
-            imageUrl,
-            prompt,
-            style:
-                selectedStyle,
-            aspectRatio:
-                selectedRatio,
-            createdAt:
-                new Date().toISOString()
-        });
+        displayGeneratedImage(
+            result.imageUrl
+        );
 
-        setStatus(
+        setGenerationStatus(
+            "Image created successfully."
+        );
+
+        // --------------------------------------
+        // Add to recent creations
+        // --------------------------------------
+        showToast(
             "Image generated successfully.",
             "success"
         );
 
-        showToast(
-            "Image generated."
+        console.log(
+            "Image Studio → Image generated successfully."
         );
 
-    }
-    catch (error) {
+    } catch (error) {
 
         console.error(
-            "Image Studio generation error:",
+            "Image Studio → Generation error:",
             error
         );
 
-        setStatus(
-            error.message ||
+        hideGenerationLoading();
+
+        setGenerationStatus(
+            error?.message ||
+            "Image generation failed."
+        );
+
+        showToast(
+            error?.message ||
             "Image generation failed.",
             "error"
         );
 
-        showToast(
-            error.message ||
-            "Image generation failed."
-        );
+    } finally {
 
-    }
-    finally {
+        isGenerating =
+            false;
 
-        setGeneratingState(false);
+        updateGenerateButton();
+
+        /*
+         * Only remove the loading screen if
+         * generation did not leave a valid image.
+         */
+        if (!currentGeneratedImage) {
+            hideGenerationLoading();
+        }
     }
 }
 
+// ==========================================
+// GET CURRENT FIREBASE USER
+// ==========================================
+
+async function getCurrentUser() {
+
+    if (auth.currentUser) {
+        return auth.currentUser;
+    }
+
+    return new Promise(resolve => {
+
+        let unsubscribe;
+
+        unsubscribe =
+            onAuthStateChanged(
+                auth,
+                user => {
+
+                    if (unsubscribe) {
+                        unsubscribe();
+                    }
+
+                    resolve(user || null);
+                }
+            );
+    });
+}
 
 // ==========================================
-// DISPLAY GENERATED IMAGE
+// PREVIEW DISPLAY
 // ==========================================
 
-function displayGeneratedImage(
-    imageUrl
-) {
+function displayGeneratedImage(imageUrl) {
 
-    if (!generatedImage) {
+    const image =
+        getElement("generatedImage");
+
+    const empty =
+        getElement("emptyPreview");
+
+    const loading =
+        getElement("loadingPreview");
+
+    const actions =
+        getElement("previewActions");
+
+    if (!image) {
+
+        console.error(
+            "Image Studio → #generatedImage not found."
+        );
+
         return;
     }
 
-    generatedImage.src =
+    // ------------------------------------------
+    // Set image
+    // ------------------------------------------
+
+    image.src =
         imageUrl;
 
-    generatedImage.hidden =
+    image.hidden =
         false;
 
-    if (emptyPreview) {
+    // ------------------------------------------
+    // Hide empty/loading states
+    // ------------------------------------------
 
-        emptyPreview.hidden =
-            true;
+    if (empty) {
+        empty.hidden = true;
     }
 
-    if (loadingPreview) {
-
-        loadingPreview.hidden =
-            true;
+    if (loading) {
+        loading.hidden = true;
     }
 
-    if (previewActions) {
+    // ------------------------------------------
+    // Show action buttons
+    // ------------------------------------------
 
-        previewActions.hidden =
-            false;
+    if (actions) {
+        actions.hidden = false;
+    }
+
+    image.onload = () => {
+
+        console.log(
+            "Image Studio → Generated image loaded."
+        );
+    };
+
+    image.onerror = () => {
+
+        console.error(
+            "Image Studio → Generated image could not be displayed."
+        );
+
+        showToast(
+            "The generated image could not be displayed.",
+            "error"
+        );
+    };
+}
+
+// ==========================================
+// SHOW GENERATION LOADING
+// ==========================================
+
+function showGenerationLoading() {
+
+    const empty =
+        getElement("emptyPreview");
+
+    const loading =
+        getElement("loadingPreview");
+
+    const image =
+        getElement("generatedImage");
+
+    const actions =
+        getElement("previewActions");
+
+    if (empty) {
+        empty.hidden = true;
+    }
+
+    if (image) {
+
+        image.hidden = true;
+
+        /*
+         * Clear the old image while a new one
+         * is being generated.
+         */
+        image.removeAttribute("src");
+    }
+
+    if (actions) {
+        actions.hidden = true;
+    }
+
+    if (loading) {
+        loading.hidden = false;
     }
 }
 
-
 // ==========================================
-// GENERATING STATE
-// ==========================================
-
-function setGeneratingState(
-    isGenerating
-) {
-
-    if (generateImageButton) {
-
-        generateImageButton.disabled =
-            isGenerating;
-
-        generateImageButton.innerHTML =
-            isGenerating
-                ? `
-                    <span class="generate-button-icon">
-                        ✦
-                    </span>
-                    <span>Creating...</span>
-                  `
-                : `
-                    <span class="generate-button-icon">
-                        ✦
-                    </span>
-                    <span>Generate Image</span>
-                  `;
-    }
-
-    if (isGenerating) {
-
-        if (emptyPreview) {
-
-            emptyPreview.hidden =
-                true;
-        }
-
-        if (generatedImage) {
-
-            generatedImage.hidden =
-                true;
-        }
-
-        if (previewActions) {
-
-            previewActions.hidden =
-                true;
-        }
-
-        if (loadingPreview) {
-
-            loadingPreview.hidden =
-                false;
-        }
-
-        setStatus(
-            "EchoCall AI is creating your image...",
-            ""
-        );
-
-    } else {
-
-        if (loadingPreview) {
-
-            loadingPreview.hidden =
-                true;
-        }
-    }
-}
-
-
-// ==========================================
-// STATUS
+// HIDE GENERATION LOADING
 // ==========================================
 
-function setStatus(
-    message,
-    type = ""
-) {
+function hideGenerationLoading() {
 
-    if (!generationStatus) {
-        return;
-    }
+    const loading =
+        getElement("loadingPreview");
 
-    generationStatus.textContent =
-        message;
-
-    generationStatus.classList.remove(
-        "error",
-        "success"
-    );
-
-    if (type) {
-
-        generationStatus.classList.add(
-            type
-        );
+    if (loading) {
+        loading.hidden = true;
     }
 }
 
@@ -780,42 +1112,106 @@ function setStatus(
 
 function setupPreviewActions() {
 
-    if (downloadImageButton) {
+    const downloadButton =
+        getElement("downloadImage");
 
-        downloadImageButton.addEventListener(
+    const saveButton =
+        getElement("saveImage");
+
+    const newButton =
+        getElement("newImage");
+
+    // ------------------------------------------
+    // Download
+    // ------------------------------------------
+
+    if (downloadButton) {
+
+        const handler = async (event) => {
+
+            event.preventDefault();
+
+            await downloadCurrentImage();
+        };
+
+        downloadButton.addEventListener(
             "click",
-            downloadGeneratedImage
+            handler
         );
+
+        cleanupFunctions.push(() => {
+
+            downloadButton.removeEventListener(
+                "click",
+                handler
+            );
+        });
     }
 
-    if (saveImageButton) {
+    // ------------------------------------------
+    // Save
+    // ------------------------------------------
 
-        saveImageButton.addEventListener(
+    if (saveButton) {
+
+        const handler = async event => {
+    event.preventDefault();
+    await saveCurrentImage();
+};
+
+        saveButton.addEventListener(
             "click",
-            saveCurrentImage
+            handler
         );
+
+        cleanupFunctions.push(() => {
+
+            saveButton.removeEventListener(
+                "click",
+                handler
+            );
+        });
     }
 
-    if (newImageButton) {
+    // ------------------------------------------
+    // New image
+    // ------------------------------------------
 
-        newImageButton.addEventListener(
+    if (newButton) {
+
+        const handler = event => {
+
+            event.preventDefault();
+
+            startNewImage();
+        };
+
+        newButton.addEventListener(
             "click",
-            startNewImage
+            handler
         );
+
+        cleanupFunctions.push(() => {
+
+            newButton.removeEventListener(
+                "click",
+                handler
+            );
+        });
     }
 }
 
-
 // ==========================================
-// DOWNLOAD IMAGE
+// DOWNLOAD CURRENT IMAGE
 // ==========================================
 
-async function downloadGeneratedImage() {
+async function downloadCurrentImage() {
 
     if (!currentGeneratedImage) {
 
         showToast(
-            "There is no generated image to download."
+            "There is no generated image to download.",
+            "error"
         );
 
         return;
@@ -824,8 +1220,15 @@ async function downloadGeneratedImage() {
     try {
 
         showToast(
-            "Preparing download..."
+            "Preparing download...",
+            "info"
         );
+
+        /*
+         * Fetching the data URL also keeps this
+         * working with the backend's base64
+         * response.
+         */
 
         const response =
             await fetch(
@@ -835,164 +1238,837 @@ async function downloadGeneratedImage() {
         if (!response.ok) {
 
             throw new Error(
-                "Unable to download the image."
+                "Unable to prepare image download."
             );
         }
 
         const blob =
             await response.blob();
 
-        const url =
+        const blobUrl =
             URL.createObjectURL(blob);
 
         const link =
             document.createElement("a");
 
         link.href =
-            url;
+            blobUrl;
 
         link.download =
-            `echocall-ai-${Date.now()}.png`;
+            `echocall-ai-${getTimestamp()}.png`;
 
-        document.body.appendChild(
-            link
-        );
+        document.body.appendChild(link);
 
         link.click();
 
         link.remove();
 
-        URL.revokeObjectURL(
-            url
+        setTimeout(() => {
+
+            URL.revokeObjectURL(
+                blobUrl
+            );
+
+        }, 1000);
+
+        showToast(
+            "Image download started.",
+            "success"
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Image Studio → Download error:",
+            error
+        );
+
+        /*
+         * Fallback for browsers that block
+         * fetching a data URL.
+         */
+
+        try {
+
+            const link =
+                document.createElement("a");
+
+            link.href =
+                currentGeneratedImage;
+
+            link.download =
+                `echocall-ai-${getTimestamp()}.png`;
+
+            link.target =
+                "_blank";
+
+            document.body.appendChild(link);
+
+            link.click();
+
+            link.remove();
+
+        } catch (fallbackError) {
+
+            console.error(
+                "Image Studio → Download fallback failed:",
+                fallbackError
+            );
+
+            showToast(
+                "Unable to download the image.",
+                "error"
+            );
+        }
+    }
+}
+
+// ==========================================
+// SAVE CURRENT IMAGE
+// ==========================================
+
+async function saveCurrentImage() {
+
+    if (
+        !currentGeneratedImage
+    ) {
+
+        showToast(
+            "Generate an image first.",
+            "error"
+        );
+
+        return;
+    }
+
+    const saveButton =
+        getElement("saveImage");
+
+    if (saveButton) {
+        saveButton.disabled = true;
+    }
+
+    const prompt =
+        getElement(
+            "imagePrompt"
+        )?.value.trim() ||
+        "Generated image";
+
+    try {
+
+        const saved =
+            await saveImageToFirebase({
+
+                imageUrl:
+                    currentGeneratedImage,
+
+                prompt,
+
+                style:
+                    selectedStyle,
+
+                ratio:
+                    selectedRatio
+            });
+
+        if (saved) {
+
+            updateSaveButtonState(
+                true
+            );
+
+            await renderRecentGallery();
+        }
+
+    } finally {
+
+        if (saveButton) {
+            saveButton.disabled = false;
+        }
+    }
+}
+
+// ==========================================
+// FIREBASE IMAGE STORAGE
+// ==========================================
+
+const IMAGE_COLLECTION = "generatedImages";
+
+// ==========================================
+// SAVE IMAGE TO FIREBASE
+// ==========================================
+
+async function saveImageToFirebase(imageData) {
+
+    const user = await getCurrentUser();
+
+    if (!user) {
+
+        showToast(
+            "Please sign in before saving images.",
+            "error"
+        );
+
+        return null;
+    }
+
+    if (
+        !imageData ||
+        !imageData.imageUrl
+    ) {
+
+        showToast(
+            "There is no image to save.",
+            "error"
+        );
+
+        return null;
+    }
+
+    try {
+
+        showToast(
+            "Saving image...",
+            "info"
+        );
+
+        // --------------------------------------
+        // Convert data URL to Blob
+        // --------------------------------------
+
+        const blob =
+            await dataUrlToBlob(
+                imageData.imageUrl
+            );
+
+        // --------------------------------------
+        // Create unique Firebase Storage path
+        // --------------------------------------
+
+        const imageId =
+            generateId();
+
+        const storagePath =
+            `users/${user.uid}/image-studio/${imageId}.png`;
+
+        const storageReference =
+            ref(
+                storage,
+                storagePath
+            );
+
+        // --------------------------------------
+        // Upload image
+        // --------------------------------------
+
+        await uploadBytes(
+            storageReference,
+            blob,
+            {
+                contentType:
+                    blob.type || "image/png"
+            }
+        );
+
+        // --------------------------------------
+        // Get permanent download URL
+        // --------------------------------------
+
+        const downloadURL =
+            await getDownloadURL(
+                storageReference
+            );
+
+        // --------------------------------------
+        // Save metadata to Firestore
+        // --------------------------------------
+
+        const documentData = {
+
+            userId:
+                user.uid,
+
+            imageUrl:
+                downloadURL,
+
+            storagePath,
+
+            prompt:
+                imageData.prompt ||
+                "Generated image",
+
+            style:
+                imageData.style ||
+                "realistic",
+
+            ratio:
+                imageData.ratio ||
+                "1:1",
+
+            createdAt:
+                new Date().toISOString(),
+
+            createdAtTimestamp:
+                new Date()
+        };
+
+        const documentReference =
+            await addDoc(
+                collection(
+                    db,
+                    IMAGE_COLLECTION
+                ),
+                documentData
+            );
+
+        console.log(
+            "Image Studio → Image saved:",
+            documentReference.id
         );
 
         showToast(
-            "Image downloaded."
+            "Image saved successfully.",
+            "success"
         );
 
-    }
-    catch (error) {
+        return {
+            id:
+                documentReference.id,
+
+            ...documentData
+        };
+
+    } catch (error) {
 
         console.error(
-            "Image download error:",
+            "Image Studio → Firebase save error:",
             error
         );
 
         showToast(
-            "Download failed."
+            getFirebaseErrorMessage(error),
+            "error"
         );
+
+        return null;
+    }
+}
+
+// ==========================================
+// DATA URL → BLOB
+// ==========================================
+
+async function dataUrlToBlob(dataUrl) {
+
+    if (!dataUrl) {
+
+        throw new Error(
+            "Image data is missing."
+        );
+    }
+
+    // --------------------------------------
+    // Normal data URL
+    // --------------------------------------
+
+    if (
+        dataUrl.startsWith(
+            "data:"
+        )
+    ) {
+
+        const response =
+            await fetch(dataUrl);
+
+        return await response.blob();
+    }
+
+    // --------------------------------------
+    // Normal URL fallback
+    // --------------------------------------
+
+    const response =
+        await fetch(dataUrl);
+
+    if (!response.ok) {
+
+        throw new Error(
+            "Could not download generated image for saving."
+        );
+    }
+
+    return await response.blob();
+}
+
+// ==========================================
+// LOAD RECENT IMAGES FROM FIRESTORE
+// ==========================================
+
+async function getRecentImages() {
+
+    const user = await getCurrentUser();
+
+    if (!user) {
+        return [];
+    }
+
+    try {
+
+        const imagesReference = collection(
+            db,
+            IMAGE_COLLECTION
+        );
+
+        const imagesQuery = query(
+            imagesReference,
+            where("userId", "==", user.uid),
+            orderBy("createdAtTimestamp", "desc"),
+            limit(MAX_RECENT_IMAGES)
+        );
+
+        const snapshot = await getDocs(
+            imagesQuery
+        );
+
+        const images = [];
+
+        snapshot.forEach(documentSnapshot => {
+
+            const data =
+                documentSnapshot.data();
+
+            images.push({
+                id: documentSnapshot.id,
+                ...data
+            });
+
+        });
+
+        return images;
+
+    } catch (error) {
+
+        console.error(
+            "Image Studio → Could not load Firebase gallery:",
+            error
+        );
+
+        console.error(
+            "Firebase error code:",
+            error?.code
+        );
+
+        console.error(
+            "Firebase error message:",
+            error?.message
+        );
+
+        showToast(
+            getFirebaseErrorMessage(error),
+            "error"
+        );
+
+        return [];
     }
 }
 
 
 // ==========================================
-// SAVE IMAGE
+// RENDER FIREBASE GALLERY
 // ==========================================
 
-function saveCurrentImage() {
+async function renderRecentGallery() {
 
-    if (!currentGeneratedImage) {
+    const gallery =
+        getElement("recentGallery");
 
-        showToast(
-            "Generate an image first."
+    if (!gallery) {
+
+        console.error(
+            "Image Studio → #recentGallery not found."
         );
 
         return;
     }
 
-    if (currentImageSaved) {
+    // --------------------------------------
+    // Loading state
+    // --------------------------------------
 
-        showToast(
-            "Image is already saved."
+    gallery.innerHTML = "";
+
+    const loading =
+        document.createElement("div");
+
+    loading.className =
+        "recent-empty";
+
+    loading.textContent =
+        "Loading recent creations...";
+
+    gallery.appendChild(
+        loading
+    );
+
+    // --------------------------------------
+    // Get Firebase images
+    // --------------------------------------
+
+    const recent =
+        await getRecentImages();
+
+    gallery.innerHTML = "";
+
+    // --------------------------------------
+    // Empty state
+    // --------------------------------------
+
+    if (
+        recent.length === 0
+    ) {
+
+        const empty =
+            document.createElement("div");
+
+        empty.className =
+            "recent-empty";
+
+        empty.textContent =
+            "No saved creations yet.";
+
+        gallery.appendChild(
+            empty
         );
+
+        updateSaveButtonState();
 
         return;
     }
 
-    const images =
-        getRecentImages();
+    // --------------------------------------
+    // Render cards
+    // --------------------------------------
 
-    const exists =
-        images.some(
-            (item) =>
-                item.imageUrl ===
-                currentGeneratedImage
-        );
+    recent.forEach(
+        item => {
 
-    if (!exists) {
+            const card =
+                createRecentCard(
+                    item
+                );
 
-        images.unshift({
+            gallery.appendChild(
+                card
+            );
+        }
+    );
 
-            imageUrl:
-                currentGeneratedImage,
+    updateSaveButtonState();
+}
 
-            prompt:
-                currentPrompt,
+// ==========================================
+// CREATE RECENT IMAGE CARD
+// ==========================================
 
-            style:
-                selectedStyle,
+function createRecentCard(item) {
 
-            aspectRatio:
-                selectedRatio,
+    const card = document.createElement("div");
 
-            saved:
-                true,
+    card.className = "recent-card";
 
-            createdAt:
-                new Date().toISOString()
-        });
+    card.dataset.imageId = item.id || "";
 
-        saveRecentImages(
-            images.slice(
-                0,
-                MAX_RECENT_IMAGES
-            )
-        );
+    const image = document.createElement("img");
+
+    image.className = "recent-card-image";
+
+    image.alt = item.prompt || "Saved AI image";
+
+    image.loading = "lazy";
+
+    // Firebase saves the image URL as imageUrl
+    image.src = item.imageUrl || "";
+
+    // Open the image when clicked
+    card.addEventListener("click", () => {
+        openRecentImage(item);
+    });
+
+    card.appendChild(image);
+
+    return card;
+}
+
+// ==========================================
+// OPEN RECENT IMAGE
+// ==========================================
+
+function openRecentImage(item) {
+
+    if (
+        !item ||
+        !item.imageUrl
+    ) {
+        return;
     }
 
-    currentImageSaved =
-        true;
+    currentGeneratedImage =
+        item.imageUrl;
 
-    if (saveImageButton) {
+    displayGeneratedImage(
+        item.imageUrl
+    );
 
-        saveImageButton.innerHTML =
-            "<span>♥</span> Saved";
+    const prompt =
+        getElement("imagePrompt");
+
+    if (prompt && item.prompt) {
+
+        prompt.value =
+            item.prompt;
+
+        updatePromptCounter();
     }
 
-    renderRecentGallery();
+    if (item.style) {
+
+        selectedStyle =
+            item.style;
+
+        updateSelectedStyle();
+    }
+
+    if (item.ratio) {
+
+        selectedRatio =
+            item.ratio;
+
+        updateSelectedRatio();
+    }
+
+    updateGenerateButton();
+    updateSaveButtonState();
 
     showToast(
-        "Image saved."
+        "Image opened.",
+        "info"
     );
 }
 
+// ==========================================
+// DELETE FIREBASE IMAGE
+// ==========================================
+
+async function deleteRecentImage(
+    imageId
+) {
+
+    if (!imageId) {
+        return;
+    }
+
+    const confirmed =
+        window.confirm(
+            "Delete this saved image?"
+        );
+
+    if (!confirmed) {
+        return;
+    }
+
+    try {
+
+        const user =
+            await getCurrentUser();
+
+        if (!user) {
+
+            showToast(
+                "Please sign in.",
+                "error"
+            );
+
+            return;
+        }
+
+        // --------------------------------------
+        // Find image before deleting it
+        // --------------------------------------
+
+        const recent =
+            await getRecentImages();
+
+        const image =
+            recent.find(
+                item =>
+                    item.id ===
+                    imageId
+            );
+
+        if (!image) {
+
+            showToast(
+                "Image could not be found.",
+                "error"
+            );
+
+            return;
+        }
+
+        // --------------------------------------
+        // Delete Storage file
+        // --------------------------------------
+
+        if (image.storagePath) {
+
+            try {
+
+                const storageReference =
+                    ref(
+                        storage,
+                        image.storagePath
+                    );
+
+                await deleteObject(
+                    storageReference
+                );
+
+            } catch (storageError) {
+
+                console.warn(
+                    "Image Studio → Storage deletion warning:",
+                    storageError
+                );
+            }
+        }
+
+        // --------------------------------------
+        // Delete Firestore document
+        // --------------------------------------
+
+        await deleteDoc(
+            doc(
+                db,
+                IMAGE_COLLECTION,
+                imageId
+            )
+        );
+
+        // --------------------------------------
+        // Refresh gallery
+        // --------------------------------------
+
+        await renderRecentGallery();
+
+        updateSaveButtonState();
+
+        showToast(
+            "Image deleted.",
+            "success"
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Image Studio → Delete error:",
+            error
+        );
+
+        showToast(
+            "Could not delete the image.",
+            "error"
+        );
+    }
+}
 
 // ==========================================
-// NEW IMAGE
+// UPDATE SAVE BUTTON STATE
+// ==========================================
+
+async function updateSaveButtonState(
+    forceSaved = false
+) {
+
+    const button =
+        getElement("saveImage");
+
+    if (!button) {
+        return;
+    }
+
+    let saved =
+        Boolean(forceSaved);
+
+    if (
+        !saved &&
+        currentGeneratedImage
+    ) {
+
+        const recent =
+            await getRecentImages();
+
+        saved =
+            recent.some(
+                item =>
+                    item.imageUrl ===
+                    currentGeneratedImage
+            );
+    }
+
+    button.classList.toggle(
+        "saved",
+        saved
+    );
+
+    const icon =
+        button.querySelector("span");
+
+    if (icon) {
+
+        icon.textContent =
+            saved
+                ? "♥"
+                : "♡";
+    }
+}
+
+// ==========================================
+// START NEW IMAGE
 // ==========================================
 
 function startNewImage() {
 
-    if (imagePrompt) {
+    const prompt =
+        getElement("imagePrompt");
 
-        imagePrompt.value =
-            "";
+    const generatedImage =
+        getElement("generatedImage");
 
-        updatePromptCounter();
+    const actions =
+        getElement("previewActions");
 
-        imagePrompt.focus();
+    const empty =
+        getElement("emptyPreview");
+
+    const loading =
+        getElement("loadingPreview");
+
+    // ------------------------------------------
+    // Reset prompt
+    // ------------------------------------------
+
+    if (prompt) {
+        prompt.value = "";
     }
 
-    clearReferenceImage();
+    updatePromptCounter();
+
+    // ------------------------------------------
+    // Reset generated image
+    // ------------------------------------------
 
     currentGeneratedImage =
-        "";
-
-    currentPrompt =
-        "";
-
-    currentImageSaved =
-        false;
+        null;
 
     if (generatedImage) {
 
@@ -1004,393 +2080,226 @@ function startNewImage() {
         );
     }
 
-    if (emptyPreview) {
-
-        emptyPreview.hidden =
-            false;
+    if (actions) {
+        actions.hidden = true;
     }
 
-    if (loadingPreview) {
-
-        loadingPreview.hidden =
-            true;
+    if (loading) {
+        loading.hidden = true;
     }
 
-    if (previewActions) {
-
-        previewActions.hidden =
-            true;
+    if (empty) {
+        empty.hidden = false;
     }
 
-    if (saveImageButton) {
+    // ------------------------------------------
+    // Reset reference
+    // ------------------------------------------
 
-        saveImageButton.innerHTML =
-            "<span>♡</span> Save";
+    clearReferenceImage();
+
+    // ------------------------------------------
+    // Reset status
+    // ------------------------------------------
+
+    setGenerationStatus("");
+
+    updateGenerateButton();
+
+    updateSaveButtonState();
+
+    if (prompt) {
+        prompt.focus();
     }
 
-    setStatus(
-        "",
-        ""
+    showToast(
+        "Ready for a new image.",
+        "info"
     );
 }
 
-
 // ==========================================
-// RECENT IMAGE STORAGE
+// CLEAR GALLERY
 // ==========================================
 
-function getRecentImages() {
+function setupClearGallery() {
 
-    try {
+    const button =
+        getElement("clearGallery");
 
-        const stored =
-            localStorage.getItem(
-                RECENT_STORAGE_KEY
-            );
-
-        if (!stored) {
-
-            return [];
-        }
-
-        const parsed =
-            JSON.parse(stored);
-
-        return Array.isArray(parsed)
-            ? parsed
-            : [];
-
-    }
-    catch (error) {
+    if (!button) {
 
         console.error(
-            "Recent images read error:",
-            error
+            "Image Studio → #clearGallery not found."
         );
-
-        return [];
-    }
-}
-
-
-function saveRecentImages(
-    images
-) {
-
-    try {
-
-        localStorage.setItem(
-            RECENT_STORAGE_KEY,
-            JSON.stringify(images)
-        );
-
-    }
-    catch (error) {
-
-        console.error(
-            "Recent images save error:",
-            error
-        );
-    }
-}
-
-
-function addRecentImage(
-    image
-) {
-
-    const images =
-        getRecentImages();
-
-    const duplicateIndex =
-        images.findIndex(
-            (item) =>
-                item.imageUrl ===
-                image.imageUrl
-        );
-
-    if (duplicateIndex !== -1) {
-
-        images.splice(
-            duplicateIndex,
-            1
-        );
-    }
-
-    images.unshift(
-        image
-    );
-
-    saveRecentImages(
-        images.slice(
-            0,
-            MAX_RECENT_IMAGES
-        )
-    );
-
-    renderRecentGallery();
-}
-
-
-function loadRecentImages() {
-
-    renderRecentGallery();
-}
-
-
-// ==========================================
-// RECENT GALLERY
-// ==========================================
-
-function renderRecentGallery() {
-
-    if (!recentGallery) {
 
         return;
     }
 
-    const images =
-        getRecentImages();
+    const handler = event => {
 
-    recentGallery.innerHTML =
-        "";
+        event.preventDefault();
 
-    if (images.length === 0) {
+        clearRecentGallery();
+    };
 
-        recentGallery.innerHTML =
-            `
-                <div class="recent-empty">
-                    No recent creations yet.
-                </div>
-            `;
-
-        return;
-    }
-
-    images.forEach(
-        (item, index) => {
-
-            const galleryItem =
-                document.createElement(
-                    "button"
-                );
-
-            galleryItem.type =
-                "button";
-
-            galleryItem.className =
-                "recent-item";
-
-            galleryItem.dataset.index =
-                index;
-
-            const image =
-                document.createElement(
-                    "img"
-                );
-
-            image.src =
-                item.imageUrl;
-
-            image.alt =
-                "Recent AI creation";
-
-            image.loading =
-                "lazy";
-
-            const overlay =
-                document.createElement(
-                    "div"
-                );
-
-            overlay.className =
-                "recent-item-overlay";
-
-            overlay.textContent =
-                item.prompt ||
-                "AI image";
-
-            galleryItem.appendChild(
-                image
-            );
-
-            galleryItem.appendChild(
-                overlay
-            );
-
-            galleryItem.addEventListener(
-                "click",
-                () => {
-
-                    openRecentImage(
-                        item
-                    );
-                }
-            );
-
-            recentGallery.appendChild(
-                galleryItem
-            );
-        }
-    );
-}
-
-
-// ==========================================
-// OPEN RECENT IMAGE
-// ==========================================
-
-function openRecentImage(
-    item
-) {
-
-    if (!item?.imageUrl) {
-
-        return;
-    }
-
-    currentGeneratedImage =
-        item.imageUrl;
-
-    currentPrompt =
-        item.prompt || "";
-
-    currentImageSaved =
-        Boolean(item.saved);
-
-    if (imagePrompt) {
-
-        imagePrompt.value =
-            item.prompt || "";
-
-        updatePromptCounter();
-    }
-
-    if (item.style) {
-
-        selectedStyle =
-            item.style;
-
-        styleOptions.forEach(
-            (button) => {
-
-                button.classList.toggle(
-                    "active",
-                    button.dataset.style ===
-                    item.style
-                );
-            }
-        );
-    }
-
-    if (item.aspectRatio) {
-
-        selectedRatio =
-            item.aspectRatio;
-
-        ratioOptions.forEach(
-            (button) => {
-
-                button.classList.toggle(
-                    "active",
-                    button.dataset.ratio ===
-                    item.aspectRatio
-                );
-            }
-        );
-    }
-
-    displayGeneratedImage(
-        item.imageUrl
+    button.addEventListener(
+        "click",
+        handler
     );
 
-    if (saveImageButton) {
+    cleanupFunctions.push(() => {
 
-        saveImageButton.innerHTML =
-            item.saved
-                ? "<span>♥</span> Saved"
-                : "<span>♡</span> Save";
-    }
-
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
+        button.removeEventListener(
+            "click",
+            handler
+        );
     });
 }
 
-
 // ==========================================
-// CLEAR RECENT GALLERY
+// CLEAR FIREBASE GALLERY
 // ==========================================
 
-function setupGalleryActions() {
-
-    if (!clearGalleryButton) {
-
-        return;
-    }
-
-    clearGalleryButton.addEventListener(
-        "click",
-        clearRecentGallery
-    );
-}
-
-
-function clearRecentGallery() {
-
-    const images =
-        getRecentImages();
-
-    if (images.length === 0) {
-
-        showToast(
-            "Recent creations are already empty."
-        );
-
-        return;
-    }
+async function clearRecentGallery() {
 
     const confirmed =
         window.confirm(
-            "Clear all recent image creations?"
+            "Delete all your saved Image Studio creations?"
         );
 
     if (!confirmed) {
-
         return;
     }
 
-    localStorage.removeItem(
-        RECENT_STORAGE_KEY
-    );
+    try {
 
-    renderRecentGallery();
+        const user =
+            await getCurrentUser();
 
-    showToast(
-        "Recent creations cleared."
-    );
+        if (!user) {
+
+            showToast(
+                "Please sign in.",
+                "error"
+            );
+
+            return;
+        }
+
+        const recent =
+            await getRecentImages();
+
+        if (
+            recent.length === 0
+        ) {
+
+            showToast(
+                "There are no saved creations.",
+                "info"
+            );
+
+            return;
+        }
+
+        showToast(
+            "Deleting saved images...",
+            "info"
+        );
+
+        // --------------------------------------
+        // Delete each image
+        // --------------------------------------
+
+        for (
+            const image of recent
+        ) {
+
+            // Delete Storage file
+            if (
+                image.storagePath
+            ) {
+
+                try {
+
+                    await deleteObject(
+                        ref(
+                            storage,
+                            image.storagePath
+                        )
+                    );
+
+                } catch (storageError) {
+
+                    console.warn(
+                        "Storage delete warning:",
+                        storageError
+                    );
+                }
+            }
+
+            // Delete Firestore document
+            await deleteDoc(
+                doc(
+                    db,
+                    IMAGE_COLLECTION,
+                    image.id
+                )
+            );
+        }
+
+        await renderRecentGallery();
+
+        updateSaveButtonState();
+
+        showToast(
+            "All saved creations deleted.",
+            "success"
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Image Studio → Clear gallery error:",
+            error
+        );
+
+        showToast(
+            "Could not clear the gallery.",
+            "error"
+        );
+    }
 }
-
 
 // ==========================================
 // KEYBOARD SHORTCUT
 // ==========================================
 
-function setupKeyboardShortcuts() {
+function setupKeyboardShortcut() {
 
-    if (!imagePrompt) {
+    const handler = event => {
 
-        return;
-    }
+        /*
+         * Ctrl + Enter on desktop
+         * or Meta + Enter on Mac.
+         */
 
-    imagePrompt.addEventListener(
-        "keydown",
-        (event) => {
+        if (
+            event.key === "Enter" &&
+            (event.ctrlKey || event.metaKey)
+        ) {
+
+            const prompt =
+                getElement("imagePrompt");
+
+            /*
+             * Only trigger when the prompt
+             * textarea is the active element.
+             */
 
             if (
-                event.ctrlKey &&
-                event.key === "Enter"
+                prompt &&
+                document.activeElement === prompt
             ) {
 
                 event.preventDefault();
@@ -1398,52 +2307,345 @@ function setupKeyboardShortcuts() {
                 generateImage();
             }
         }
+    };
+
+    document.addEventListener(
+        "keydown",
+        handler
     );
+
+    cleanupFunctions.push(() => {
+
+        document.removeEventListener(
+            "keydown",
+            handler
+        );
+    });
 }
 
+// ==========================================
+// GENERATION STATUS
+// ==========================================
+
+function setGenerationStatus(message) {
+
+    const status =
+        getElement("generationStatus");
+
+    if (!status) {
+        return;
+    }
+
+    status.textContent =
+        message || "";
+
+    status.classList.toggle(
+        "visible",
+        Boolean(message)
+    );
+}
 
 // ==========================================
 // TOAST
 // ==========================================
 
+let toastTimer = null;
+
 function showToast(
-    message
+    message,
+    type = "info"
 ) {
 
+    const toast =
+        getElement("toast");
+
     if (!toast) {
+
+        console.log(
+            `Image Studio Toast [${type}]:`,
+            message
+        );
 
         return;
     }
 
+    // ------------------------------------------
+    // Clear previous timer
+    // ------------------------------------------
+
+    if (toastTimer) {
+
+        clearTimeout(
+            toastTimer
+        );
+
+        toastTimer =
+            null;
+    }
+
+    // ------------------------------------------
+    // Set message
+    // ------------------------------------------
+
     toast.textContent =
-        message;
+        message || "";
+
+    // ------------------------------------------
+    // Reset classes
+    // ------------------------------------------
+
+    toast.classList.remove(
+        "show",
+        "success",
+        "error",
+        "info"
+    );
+
+    toast.classList.add(
+        type
+    );
+
+    // Force browser to recognize the
+    // class change before showing it.
+    void toast.offsetWidth;
 
     toast.classList.add(
         "show"
     );
 
-    clearTimeout(
-        toastTimer
-    );
+    // ------------------------------------------
+    // Hide automatically
+    // ------------------------------------------
 
     toastTimer =
-        setTimeout(
-            () => {
+        setTimeout(() => {
 
-                toast.classList.remove(
-                    "show"
-                );
+            toast.classList.remove(
+                "show"
+            );
 
-            },
-            3000
-        );
+        }, 3500);
 }
 
+// ==========================================
+// UTILITY: GENERATE ID
+// ==========================================
+
+function generateId() {
+
+    if (
+        typeof crypto !== "undefined" &&
+        crypto.randomUUID
+    ) {
+
+        return crypto.randomUUID();
+    }
+
+    return (
+        Date.now().toString(36) +
+        "-" +
+        Math.random()
+            .toString(36)
+            .slice(2, 10)
+    );
+}
 
 // ==========================================
-// DEBUG
+// UTILITY: TIMESTAMP
+// ==========================================
+
+function getTimestamp() {
+
+    const now =
+        new Date();
+
+    const year =
+        now.getFullYear();
+
+    const month =
+        String(
+            now.getMonth() + 1
+        ).padStart(2, "0");
+
+    const day =
+        String(
+            now.getDate()
+        ).padStart(2, "0");
+
+    const hours =
+        String(
+            now.getHours()
+        ).padStart(2, "0");
+
+    const minutes =
+        String(
+            now.getMinutes()
+        ).padStart(2, "0");
+
+    const seconds =
+        String(
+            now.getSeconds()
+        ).padStart(2, "0");
+
+    return (
+        `${year}-${month}-${day}` +
+        `-${hours}-${minutes}-${seconds}`
+    );
+}
+
+// ==========================================
+// UTILITY: TRUNCATE TEXT
+// ==========================================
+
+function truncateText(
+    text,
+    maxLength = 70
+) {
+
+    if (!text) {
+        return "";
+    }
+
+    const value =
+        String(text);
+
+    if (
+        value.length <= maxLength
+    ) {
+        return value;
+    }
+
+    return (
+        value.slice(
+            0,
+            maxLength - 1
+        ) + "…"
+    );
+}
+
+// ==========================================
+// UTILITY: FORMAT STYLE
+// ==========================================
+
+function formatStyle(style) {
+
+    if (!style) {
+        return "Realistic";
+    }
+
+    const labels = {
+
+        "realistic":
+            "Realistic",
+
+        "cinematic":
+            "Cinematic",
+
+        "digital-art":
+            "Digital Art",
+
+        "anime":
+            "Anime",
+
+        "3d":
+            "3D",
+
+        "illustration":
+            "Illustration",
+
+        "fantasy":
+            "Fantasy"
+    };
+
+    return (
+        labels[style] ||
+        style
+            .replaceAll(
+                "-",
+                " "
+            )
+            .replace(
+                /\b\w/g,
+                character =>
+                    character.toUpperCase()
+            )
+    );
+}
+
+// ==========================================
+// ROUTER CLEANUP
+// ==========================================
+
+export function cleanupImageStudio() {
+
+    console.log(
+        "Image Studio → Cleaning up..."
+    );
+
+    cleanupFunctions.forEach(
+        cleanup => {
+
+            try {
+
+                cleanup();
+
+            } catch (error) {
+
+                console.error(
+                    "Image Studio → Cleanup error:",
+                    error
+                );
+            }
+        }
+    );
+
+    cleanupFunctions = [];
+
+    if (toastTimer) {
+
+        clearTimeout(
+            toastTimer
+        );
+
+        toastTimer =
+            null;
+    }
+
+    selectedReferenceFile =
+        null;
+
+    currentGeneratedImage =
+        null;
+
+    isGenerating =
+        false;
+
+    console.log(
+        "Image Studio → Cleanup complete."
+    );
+}
+
+// ==========================================
+// ROUTER COMPATIBILITY
+// ==========================================
+
+/*
+ * The router looks for:
+ *
+ * initializeImageStudio
+ *
+ * That function is exported at the top
+ * of this module.
+ *
+ * This file intentionally does NOT use
+ * DOMContentLoaded because the EchoCall
+ * router injects the page dynamically.
+ */
+
+// ==========================================
+// FINAL DEBUG MESSAGE
 // ==========================================
 
 console.log(
-    "EchoCall AI Image Studio loaded."
+    "EchoCall AI → image-studio.js module loaded."
 );
