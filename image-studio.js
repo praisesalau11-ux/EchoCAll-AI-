@@ -102,6 +102,7 @@ function setupImageStudio() {
     setupPreviewActions();
     setupClearGallery();
     setupKeyboardShortcut();
+    setupBackButton();
 
     renderRecentGallery();
 
@@ -113,6 +114,48 @@ function setupImageStudio() {
     console.log(
         "Image Studio → Controls ready."
     );
+}
+
+// ==========================================
+// BACK TO APP
+// ==========================================
+
+function setupBackButton() {
+
+    const backButton =
+        document.querySelector(".back-button");
+
+    if (!backButton) {
+        return;
+    }
+
+    const handler = event => {
+
+        event.preventDefault();
+
+        const appUrl =
+            new URL(
+                "../app.html",
+                import.meta.url
+            ).href;
+
+        window.location.href =
+            appUrl;
+    };
+
+    backButton.addEventListener(
+        "click",
+        handler
+    );
+
+    cleanupFunctions.push(() => {
+
+        backButton.removeEventListener(
+            "click",
+            handler
+        );
+
+    });
 }
 
 // ==========================================

@@ -3,60 +3,425 @@
 
 <head>
 
-<meta charset="UTF-8">
+    <!-- =================================================
+         PART 1 — DOCUMENT SETUP
+         ================================================= -->
 
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
 
-<title>EchoCall AI</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-<link rel="preconnect"
-href="https://fonts.googleapis.com">
+    <meta
+        name="theme-color"
+        content="#050816"
+    >
 
-<link rel="preconnect"
-href="https://fonts.gstatic.com"
-crossorigin>
+    <meta
+        name="description"
+        content="Enter EchoCall AI — an intelligent platform for communication, creation and AI-powered interaction."
+    >
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-rel="stylesheet">
+    <meta
+        name="author"
+        content="Salau Praise"
+    >
 
-<link rel="stylesheet"
-href="css/splash.css">
+    <meta
+        name="robots"
+        content="index, follow"
+    >
+
+    <title>
+        Enter EchoCall AI
+    </title>
+
+
+    <!-- =================================================
+         PART 2 — FONTS
+         ================================================= -->
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <!-- =================================================
+         PART 3 — MATERIAL ICONS
+         ================================================= -->
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded"
+        rel="stylesheet"
+    >
+
+
+    <!-- =================================================
+         PART 4 — SPLASH CSS
+         ================================================= -->
+
+    <link
+        rel="stylesheet"
+        href="css/splash.css"
+    >
 
 </head>
 
-<body class="splash-body">
 
-<div class="background"></div>
+<body>
 
-<div class="splash-container">
 
-<img
-src="assets/logo.png"
-class="logo"
-alt="EchoCall AI Logo">
+    <!-- =================================================
+         PART 5 — BACKGROUND SYSTEM
+         ================================================= -->
 
-<h1>EchoCall AI</h1>
+    <div class="splash-background">
 
-<p>Your AI Voice Companion</p>
+        <div class="splash-grid"></div>
 
-<div class="loader"></div>
 
-</div>
+        <div class="splash-glow splash-glow-one"></div>
 
-<script>
+        <div class="splash-glow splash-glow-two"></div>
 
-window.addEventListener("load",()=>{
+        <div class="splash-glow splash-glow-three"></div>
 
-setTimeout(()=>{
 
-window.location.replace("index.html");
+        <div class="splash-particles">
 
-},3000);
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
 
-});
+        </div>
 
-</script>
+    </div>
+
+
+    <!-- =================================================
+         PART 6 — MAIN SPLASH PAGE
+         ================================================= -->
+
+    <main class="splash-page">
+
+
+        <!-- =================================================
+             PART 7 — TOP NAVIGATION
+             ================================================= -->
+
+        <header class="splash-header">
+
+            <a
+                href="index.html"
+                class="splash-brand"
+                aria-label="Back to EchoCall AI home"
+            >
+
+                <div class="splash-brand-logo">
+
+                    <img
+                        src="assets/logo.png"
+                        alt="EchoCall AI"
+                    >
+
+                </div>
+
+
+                <div class="splash-brand-name">
+
+                    <span>
+                        EchoCall
+                    </span>
+
+                    <strong>
+                        AI
+                    </strong>
+
+                </div>
+
+            </a>
+
+
+            <a
+                href="index.html"
+                class="back-home-button"
+            >
+
+                <span class="material-symbols-rounded">
+                    arrow_back
+                </span>
+
+                <span>
+                    Back
+                </span>
+
+            </a>
+
+        </header>
+
+
+        <!-- =================================================
+             PART 8 — SPLASH CONTENT
+             ================================================= -->
+
+        <section class="splash-content">
+
+
+            <!-- =================================================
+                 AI VISUAL
+                 ================================================= -->
+
+            <div class="splash-visual">
+
+                <div class="visual-orbit visual-orbit-one"></div>
+
+                <div class="visual-orbit visual-orbit-two"></div>
+
+                <div class="visual-orbit visual-orbit-three"></div>
+
+
+                <div class="splash-ai-core">
+
+                    <div class="core-ring core-ring-one"></div>
+
+                    <div class="core-ring core-ring-two"></div>
+
+                    <div class="core-ring core-ring-three"></div>
+
+
+                    <div class="core-logo">
+
+                        <img
+                            src="assets/logo.png"
+                            alt="EchoCall AI"
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <div class="visual-node node-one">
+
+                    <span class="material-symbols-rounded">
+                        psychology
+                    </span>
+
+                </div>
+
+
+                <div class="visual-node node-two">
+
+                    <span class="material-symbols-rounded">
+                        graphic_eq
+                    </span>
+
+                </div>
+
+
+                <div class="visual-node node-three">
+
+                    <span class="material-symbols-rounded">
+                        bolt
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 WELCOME CONTENT
+                 ================================================= -->
+
+            <div class="splash-copy">
+
+
+                <div class="splash-label">
+
+                    <span class="label-dot"></span>
+
+                    ECHOCALL AI
+
+                </div>
+
+
+                <h1>
+
+                    Intelligence
+                    <span>
+                        starts here.
+                    </span>
+
+                </h1>
+
+
+                <p>
+
+                    Enter EchoCall AI and experience
+                    a new way to communicate, create,
+                    understand information and interact
+                    with artificial intelligence.
+
+                </p>
+
+
+                <!-- =================================================
+                     AUTHENTICATION ACTIONS
+                     ================================================= -->
+
+                <div class="splash-actions">
+
+
+                    <!-- CREATE ACCOUNT -->
+
+                    <a
+                        href="auth-choice.html"
+                        class="splash-primary-button"
+                    >
+
+                        <span class="material-symbols-rounded">
+                            person_add
+                        </span>
+
+                        <span>
+                            Create Account
+                        </span>
+
+                        <span class="material-symbols-rounded button-arrow">
+                            arrow_forward
+                        </span>
+
+                    </a>
+
+
+                    <!-- LOGIN -->
+
+                    <a
+                        href="login.html"
+                        class="splash-secondary-button"
+                    >
+
+                        <span class="material-symbols-rounded">
+                            login
+                        </span>
+
+                        <span>
+                            Login
+                        </span>
+
+                    </a>
+
+                </div>
+
+
+                <!-- =================================================
+                     SECURITY / INFORMATION
+                     ================================================= -->
+
+                <div class="splash-info">
+
+                    <div class="info-item">
+
+                        <span class="material-symbols-rounded">
+                            lock
+                        </span>
+
+                        <span>
+                            Secure authentication
+                        </span>
+
+                    </div>
+
+
+                    <div class="info-divider"></div>
+
+
+                    <div class="info-item">
+
+                        <span class="material-symbols-rounded">
+                            cloud_done
+                        </span>
+
+                        <span>
+                            Cloud powered
+                        </span>
+
+                    </div>
+
+
+                    <div class="info-divider"></div>
+
+
+                    <div class="info-item">
+
+                        <span class="material-symbols-rounded">
+                            auto_awesome
+                        </span>
+
+                        <span>
+                            AI powered
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             PART 9 — FOOTER
+             ================================================= -->
+
+        <footer class="splash-footer">
+
+            <span>
+                © 2026 EchoCall AI
+            </span>
+
+
+            <span class="footer-separator">
+                •
+            </span>
+
+
+            <span>
+                Built by Salau Praise
+            </span>
+
+        </footer>
+
+    </main>
+
+
+    <!-- =================================================
+         PART 10 — PAGE SCRIPT
+         ================================================= -->
+
+    <script src="js/splash.js"></script>
+
 
 </body>
 

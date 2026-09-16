@@ -1,163 +1,1619 @@
 <!DOCTYPE html>
 <html lang="en">
+<head>
+    <!-- =====================================================
+         PART 1 — DOCUMENT SETUP
+         ===================================================== -->
 
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#050816"
+    >
+
+    <meta
+        name="description"
+        content="EchoCall AI — an intelligent platform designed to help you communicate, create, understand information and work smarter with AI."
+    >
+
+    <meta
+        name="keywords"
+        content="EchoCall AI, artificial intelligence, AI assistant, AI calls, voice AI, AI tools"
+    >
+
+    <meta
+        name="author"
+        content="Salau Praise"
+    >
+
+    <meta
+        name="robots"
+        content="index, follow"
+    >
+
+    <title>EchoCall AI — Intelligence That Speaks</title>
+    <!DOCTYPE html>
+<html lang="en">
 <head>
 
-<meta charset="UTF-8">
+    <!-- =====================================================
+         PART 1 — DOCUMENT SETUP
+         ===================================================== -->
 
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
 
-<title>EchoCall AI</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-<link rel="preconnect"
-href="https://fonts.googleapis.com">
+    <meta
+        name="theme-color"
+        content="#050816"
+    >
 
-<link rel="preconnect"
-href="https://fonts.gstatic.com"
-crossorigin>
+    <meta
+        name="description"
+        content="EchoCall AI — an intelligent platform designed to help you communicate, create, understand information and work smarter with AI."
+    >
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-rel="stylesheet">
+    <meta
+        name="keywords"
+        content="EchoCall AI, artificial intelligence, AI assistant, AI calls, voice AI, AI tools"
+    >
 
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded"
-rel="stylesheet">
+    <meta
+        name="author"
+        content="Salau Praise"
+    >
 
-<link rel="stylesheet"
-href="css/landing.css">
+    <meta
+        name="robots"
+        content="index, follow"
+    >
+
+    <title>EchoCall AI — Intelligence That Speaks</title>
+
+
+    <!-- =====================================================
+         PART 2 — FONTS & ICONS
+         ===================================================== -->
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded"
+        rel="stylesheet"
+    >
+
+
+    <!-- =====================================================
+         PART 3 — LANDING PAGE CSS
+         ===================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="css/landing.css"
+    >
 
 </head>
 
-<body>
+  <body>
 
-<div class="background"></div>
+    <!-- =====================================================
+         PART 4 — BACKGROUND SYSTEM
+         ===================================================== -->
 
-<div class="home-page">
+    <div class="page-background">
 
-<div class="glass-card">
+        <div class="background-grid"></div>
 
-<img
-src="assets/logo.png"
-class="logo-large"
-alt="EchoCall AI Logo">
+        <div class="background-glow glow-one"></div>
 
-<h1 class="app-title">
-EchoCall AI
-</h1>
+        <div class="background-glow glow-two"></div>
 
-<p class="tagline">
-Your AI Voice Companion
-</p>
+        <div class="background-glow glow-three"></div>
 
-<div class="hero-text">
+    </div>
 
-<h2>
-Let AI Handle Your Calls
-</h2>
+        <!-- =====================================================
+         PART 5 — 3D INTRO / LOADING EXPERIENCE
+         ===================================================== -->
 
-<p>
-Type the message you want to say.
+    <div
+        class="intro-screen"
+        id="introScreen"
+        aria-label="Loading EchoCall AI"
+    >
 
-EchoCall AI will call the person,
-speak naturally,
-listen to their reply,
-and help continue the conversation.
+        <!-- Floating particles -->
+        <div class="intro-particles">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
 
-Fast, smart and secure.
-</p>
+        <!-- 3D orbital rings -->
+        <div class="intro-orbit orbit-one"></div>
+        <div class="intro-orbit orbit-two"></div>
+        <div class="intro-orbit orbit-three"></div>
 
-</div>
+        <!-- Central 3D AI core -->
+        <div class="intro-core">
 
-<div class="buttons">
+            <div class="intro-core-ring ring-one"></div>
 
-<a
-href="auth-choice.html"
-class="primary-btn">
+            <div class="intro-core-ring ring-two"></div>
 
-<span class="material-symbols-rounded">
-person_add
-</span>
+            <div class="intro-core-ring ring-three"></div>
 
-Create Account
+            <div class="intro-logo-container">
+                <img
+                    src="assets/logo.png"
+                    alt="EchoCall AI"
+                    class="intro-logo"
+                >
+            </div>
 
-</a>
+        </div>
 
-<a
-href="login.html"
-class="secondary-btn">
+        <!-- Brand -->
+        <div class="intro-brand">
 
-<span class="material-symbols-rounded">
-login
-</span>
+            <div class="intro-name">
+                EchoCall<span>AI</span>
+            </div>
 
-Login
+            <div class="intro-status">
+                <span class="status-dot"></span>
+                Initializing intelligence
+            </div>
 
-</a>
+        </div>
 
-</div>
+        <!-- Loading bar -->
+        <div class="intro-loader">
 
-<div class="features">
+            <div class="intro-loader-track">
 
-<div class="feature">
+                <div class="intro-loader-progress"></div>
 
-<span class="material-symbols-rounded">
-call
-</span>
+            </div>
 
-<h3>
-AI Calls
-</h3>
+        </div>
 
-<p>
-Your AI can make and answer phone calls on your behalf.
-</p>
+    </div>
+        <!-- =====================================================
+         PART 6 — MAIN WEBSITE
+         ===================================================== -->
 
-</div>
+    <main
+        class="landing-page"
+        id="top"
+    >
+              <!-- =================================================
+             PART 7 — NAVIGATION
+             ================================================= -->
 
-<div class="feature">
+        <header class="landing-header">
 
-<span class="material-symbols-rounded">
-psychology
-</span>
+            <nav class="navbar">
 
-<h3>
-Smart Conversations
-</h3>
+                <!-- Brand -->
+                <a
+                    href="#top"
+                    class="brand"
+                    aria-label="EchoCall AI Home"
+                >
 
-<p>
-The AI understands replies and speaks naturally.
-</p>
+                    <div class="brand-logo-wrap">
 
-</div>
+                        <img
+                            src="assets/logo.png"
+                            alt="EchoCall AI Logo"
+                            class="brand-logo"
+                        >
 
-<div class="feature">
+                    </div>
 
-<span class="material-symbols-rounded">
-shield
-</span>
+                    <div class="brand-text">
 
-<h3>
-Secure
-</h3>
+                        <span class="brand-name">
+                            EchoCall
+                        </span>
 
-<p>
-Protected with Firebase Authentication and secure cloud storage.
-</p>
+                        <span class="brand-ai">
+                            AI
+                        </span>
 
-</div>
+                    </div>
 
-</div>
+                </a>
 
-<div class="footer">
 
-© 2026 EchoCall AI
+                <!-- Desktop navigation -->
+                <div class="nav-links">
 
-</div>
+                    <a
+                        href="#about"
+                        class="nav-link"
+                    >
+                        About
+                    </a>
 
-</div>
+                    <a
+                        href="#features"
+                        class="nav-link"
+                    >
+                        Features
+                    </a>
 
-</div>
+                    <a
+                        href="#how-it-works"
+                        class="nav-link"
+                    >
+                        How It Works
+                    </a>
 
+                </div>
+
+
+                <!-- Start button -->
+                <a
+                    href="splash.html"
+                    class="nav-start-button"
+                >
+
+                    <span>
+                        Start EchoCall AI
+                    </span>
+
+                    <span class="material-symbols-rounded">
+                        arrow_forward
+                    </span>
+
+                </a>
+
+
+                <!-- Mobile menu button -->
+                <button
+                    type="button"
+                    class="mobile-menu-button"
+                    id="mobileMenuButton"
+                    aria-label="Open menu"
+                    aria-expanded="false"
+                >
+
+                    <span class="material-symbols-rounded">
+                        menu
+                    </span>
+
+                </button>
+
+            </nav>
+
+
+            <!-- Mobile navigation -->
+            <div
+                class="mobile-menu"
+                id="mobileMenu"
+            >
+
+                <a href="#about">
+                    About
+                </a>
+
+                <a href="#features">
+                    Features
+                </a>
+
+                <a href="#how-it-works">
+                    How It Works
+                </a>
+
+                <a
+                    href="splash.html"
+                    class="mobile-start-button"
+                >
+                    Start EchoCall AI
+                </a>
+
+            </div>
+
+        </header>
+
+            <!-- =================================================
+             PART 8 — HERO SECTION
+             ================================================= -->
+
+        <section class="hero-section">
+
+            <div class="hero-container">
+
+                <!-- Hero content -->
+                <div class="hero-content">
+
+                    <div class="hero-eyebrow">
+                        <span class="eyebrow-dot"></span>
+
+                        <span>
+                            THE INTELLIGENCE THAT SPEAKS
+                        </span>
+                    </div>
+
+
+                    <h1 class="hero-title">
+
+                        Your world.
+
+                        <span class="hero-title-gradient">
+                            Connected
+                        </span>
+
+                        by AI.
+
+                    </h1>
+
+
+                    <p class="hero-description">
+                        EchoCall AI is an intelligent platform designed
+                        to help people communicate, make calls, understand
+                        information and get things done with the power of AI.
+                    </p>
+
+
+                    <!-- Hero buttons -->
+                    <div class="hero-actions">
+
+                        <a
+                            href="splash.html"
+                            class="hero-primary-button"
+                        >
+
+                            <span class="material-symbols-rounded">
+                                auto_awesome
+                            </span>
+
+                            <span>
+                                Start EchoCall AI
+                            </span>
+
+                            <span class="material-symbols-rounded button-arrow">
+                                arrow_forward
+                            </span>
+
+                        </a>
+
+
+                        <a
+                            href="#about"
+                            class="hero-secondary-button"
+                        >
+
+                            <span class="material-symbols-rounded">
+                                play_circle
+                            </span>
+
+                            Explore the Idea
+
+                        </a>
+
+                    </div>
+
+
+                    <!-- Trust indicators -->
+                    <div class="hero-trust-row">
+
+                        <div class="trust-item">
+
+                            <span class="material-symbols-rounded">
+                                psychology
+                            </span>
+
+                            <span>
+                                AI Intelligence
+                            </span>
+
+                        </div>
+
+
+                        <div class="trust-separator"></div>
+
+
+                        <div class="trust-item">
+
+                            <span class="material-symbols-rounded">
+                                graphic_eq
+                            </span>
+
+                            <span>
+                                Voice Interaction
+                            </span>
+
+                        </div>
+
+
+                        <div class="trust-separator"></div>
+
+
+                        <div class="trust-item">
+
+                            <span class="material-symbols-rounded">
+                                security
+                            </span>
+
+                            <span>
+                                Secure
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- 3D Hero visual -->
+                <div class="hero-visual">
+
+                    <div class="visual-shadow"></div>
+
+                    <div class="hero-orbit hero-orbit-one"></div>
+
+                    <div class="hero-orbit hero-orbit-two"></div>
+
+                    <div class="hero-orbit hero-orbit-three"></div>
+
+
+                    <!-- AI sphere -->
+                    <div class="ai-sphere">
+
+                        <div class="sphere-glow"></div>
+
+                        <div class="sphere-inner">
+
+                            <div class="sphere-ring sphere-ring-one"></div>
+
+                            <div class="sphere-ring sphere-ring-two"></div>
+
+                            <div class="sphere-ring sphere-ring-three"></div>
+
+
+                            <div class="sphere-center">
+
+                                <img
+                                    src="assets/logo.png"
+                                    alt="EchoCall AI"
+                                    class="sphere-logo"
+                                >
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Floating card -->
+                    <div class="floating-card floating-card-top">
+
+                        <div class="floating-icon">
+
+                            <span class="material-symbols-rounded">
+                                record_voice_over
+                            </span>
+
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                Voice Intelligence
+                            </strong>
+
+                            <span>
+                                Natural conversations
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Bottom floating card -->
+                    <div class="floating-card floating-card-bottom">
+
+                        <div class="floating-icon">
+
+                            <span class="material-symbols-rounded">
+                                bolt
+                            </span>
+
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                EchoCall AI
+                            </strong>
+
+                            <span>
+                                Ready to assist
+                            </span>
+
+                        </div>
+
+                        <span class="online-dot"></span>
+
+                    </div>
+
+
+                    <!-- Visual particles -->
+                    <div class="visual-particle particle-one"></div>
+
+                    <div class="visual-particle particle-two"></div>
+
+                    <div class="visual-particle particle-three"></div>
+
+                    <div class="visual-particle particle-four"></div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Scroll indicator -->
+            <div class="hero-scroll-indicator">
+
+                <span>
+                    SCROLL TO EXPLORE
+                </span>
+
+                <span class="material-symbols-rounded">
+                    south
+                </span>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             PART 9 — ABOUT ECHOCALL AI
+             ================================================= -->
+
+        <section
+            class="about-section"
+            id="about"
+        >
+
+            <div class="section-container">
+
+                <div class="section-heading">
+
+                    <div class="section-label">
+
+                        <span></span>
+
+                        THE IDEA
+
+                    </div>
+
+
+                    <h2>
+                        AI should do more than just
+                        <span>answer questions.</span>
+                    </h2>
+
+
+                    <p>
+                        EchoCall AI is being built around a simple idea:
+                        artificial intelligence should be able to interact
+                        with the real world, not just sit inside a chat box.
+                    </p>
+
+                </div>
+
+
+                <div class="about-grid">
+
+                    <!-- Main about card -->
+                    <div class="about-main-card">
+
+                        <div class="about-card-number">
+                            01
+                        </div>
+
+
+                        <span class="material-symbols-rounded about-large-icon">
+                            hub
+                        </span>
+
+
+                        <h3>
+                            An AI interaction layer
+                        </h3>
+
+
+                        <p>
+                            EchoCall AI brings intelligent conversation,
+                            voice interaction and AI-powered tools into
+                            one connected experience.
+                        </p>
+
+
+                        <div class="about-card-line"></div>
+
+
+                        <div class="about-card-footer">
+
+                            <span>
+                                INTELLIGENCE
+                            </span>
+
+                            <span class="material-symbols-rounded">
+                                arrow_outward
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Smaller cards -->
+                    <div class="about-side-stack">
+
+                        <div class="about-small-card">
+
+                            <div class="small-card-icon">
+
+                                <span class="material-symbols-rounded">
+                                    call
+                                </span>
+
+                            </div>
+
+                            <div>
+
+                                <h3>
+                                    AI Calls
+                                </h3>
+
+                                <p>
+                                    AI-powered voice communication.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="about-small-card">
+
+                            <div class="small-card-icon">
+
+                                <span class="material-symbols-rounded">
+                                    forum
+                                </span>
+
+                            </div>
+
+                            <div>
+
+                                <h3>
+                                    Natural Conversation
+                                </h3>
+
+                                <p>
+                                    Understand and respond naturally.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="about-small-card">
+
+                            <div class="small-card-icon">
+
+                                <span class="material-symbols-rounded">
+                                    auto_awesome
+                                </span>
+
+                            </div>
+
+                            <div>
+
+                                <h3>
+                                    AI Tools
+                                </h3>
+
+                                <p>
+                                    More intelligent tools in one platform.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             PART 10 — FEATURES
+             ================================================= -->
+
+        <section
+            class="features-section"
+            id="features"
+        >
+
+            <div class="section-container">
+
+                <div class="features-heading-row">
+
+                    <div>
+
+                        <div class="section-label">
+
+                            <span></span>
+
+                            BUILT FOR WHAT'S NEXT
+
+                        </div>
+
+
+                        <h2>
+                            One platform.
+                            <br>
+                            <span>Multiple possibilities.</span>
+                        </h2>
+
+                    </div>
+
+
+                    <p>
+                        EchoCall AI is designed to expand beyond
+                        a single AI feature into a complete
+                        intelligent platform.
+                    </p>
+
+                </div>
+
+
+                <div class="features-grid">
+
+                    <!-- Feature 01 -->
+                    <article class="feature-card feature-card-large">
+
+                        <div class="feature-number">
+                            01
+                        </div>
+
+                        <div class="feature-icon">
+
+                            <span class="material-symbols-rounded">
+                                phone_in_talk
+                            </span>
+
+                        </div>
+
+                        <h3>
+                            Intelligent Calls
+                        </h3>
+
+                        <p>
+                            Give AI the ability to communicate through
+                            voice and help handle conversations.
+                        </p>
+
+                        <div class="feature-bottom">
+
+                            <span>
+                                VOICE
+                            </span>
+
+                            <span class="material-symbols-rounded">
+                                arrow_outward
+                            </span>
+
+                        </div>
+
+                    </article>
+
+
+                    <!-- Feature 02 -->
+                    <article class="feature-card">
+
+                        <div class="feature-number">
+                            02
+                        </div>
+
+                        <div class="feature-icon">
+
+                            <span class="material-symbols-rounded">
+                                psychology
+                            </span>
+
+                        </div>
+
+                        <h3>
+                            AI Intelligence
+                        </h3>
+
+                        <p>
+                            Understand requests, analyze information
+                            and help users make better decisions.
+                        </p>
+
+                        <div class="feature-bottom">
+
+                            <span>
+                                THINK
+                            </span>
+
+                            <span class="material-symbols-rounded">
+                                arrow_outward
+                            </span>
+
+                        </div>
+
+                    </article>
+
+
+                    <!-- Feature 03 -->
+                    <article class="feature-card">
+
+                        <div class="feature-number">
+                            03
+                        </div>
+
+                        <div class="feature-icon">
+
+                            <span class="material-symbols-rounded">
+                                image
+                            </span>
+
+                        </div>
+
+                        <h3>
+                            Image Studio
+                        </h3>
+
+                        <p>
+                            Create and work with AI-powered
+                            visual experiences.
+                        </p>
+
+                        <div class="feature-bottom">
+
+                            <span>
+                                CREATE
+                            </span>
+
+                            <span class="material-symbols-rounded">
+                                arrow_outward
+                            </span>
+
+                        </div>
+
+                    </article>
+
+
+                    <!-- Feature 04 -->
+                    <article class="feature-card">
+
+                        <div class="feature-number">
+                            04
+                        </div>
+
+                        <div class="feature-icon">
+
+                            <span class="material-symbols-rounded">
+                                lock
+                            </span>
+
+                        </div>
+
+                        <h3>
+                            Secure by Design
+                        </h3>
+
+                        <p>
+                            Built with authentication, cloud
+                            infrastructure and user-controlled data.
+                        </p>
+
+                        <div class="feature-bottom">
+
+                            <span>
+                                SECURE
+                            </span>
+
+                            <span class="material-symbols-rounded">
+                                arrow_outward
+                            </span>
+
+                        </div>
+
+                    </article>
+
+                </div>
+
+            </div>
+
+        </section>
+
+<!-- =================================================
+     PART 11 — HOW IT WORKS
+     ================================================= -->
+
+<section
+    class="how-section"
+    id="how-it-works"
+>
+
+    <div class="section-container">
+
+        <div class="section-heading centered">
+
+            <div class="section-label">
+
+                <span></span>
+
+                HOW IT WORKS
+
+            </div>
+
+
+            <h2>
+                From intention to
+                <span>action.</span>
+            </h2>
+
+
+            <p>
+                EchoCall AI is designed to turn a simple
+                instruction into useful, intelligent interaction.
+            </p>
+
+        </div>
+
+
+        <div class="steps-container">
+
+            <!-- Step 01 -->
+            <div class="step-card">
+
+                <div class="step-top">
+
+                    <span class="step-number">
+                        01
+                    </span>
+
+                    <span class="material-symbols-rounded">
+                        edit
+                    </span>
+
+                </div>
+
+
+                <h3>
+                    Tell EchoCall
+                </h3>
+
+
+                <p>
+                    Describe what you want the AI
+                    to help you accomplish.
+                </p>
+
+            </div>
+
+
+            <div class="step-connector"></div>
+
+
+            <!-- Step 02 -->
+            <div class="step-card">
+
+                <div class="step-top">
+
+                    <span class="step-number">
+                        02
+                    </span>
+
+                    <span class="material-symbols-rounded">
+                        psychology
+                    </span>
+
+                </div>
+
+
+                <h3>
+                    AI Understands
+                </h3>
+
+
+                <p>
+                    EchoCall AI processes your request
+                    and determines the appropriate action.
+                </p>
+
+            </div>
+
+
+            <div class="step-connector"></div>
+
+
+            <!-- Step 03 -->
+            <div class="step-card">
+
+                <div class="step-top">
+
+                    <span class="step-number">
+                        03
+                    </span>
+
+                    <span class="material-symbols-rounded">
+                        bolt
+                    </span>
+
+                </div>
+
+
+                <h3>
+                    Get Things Done
+                </h3>
+
+
+                <p>
+                    The platform turns intelligence
+                    into useful interaction.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =================================================
+     PART 12 — CEO / CREATOR
+     ================================================= -->
+
+<section class="creator-section">
+
+    <div class="section-container">
+
+        <div class="creator-card">
+
+            <div class="creator-glow"></div>
+
+
+            <div class="creator-content">
+
+                <div class="section-label">
+
+                    <span></span>
+
+                    THE CREATOR
+
+                </div>
+
+
+                <h2>
+                    Built with a vision
+                    for the future of AI.
+                </h2>
+
+
+                <p>
+                    EchoCall AI is created by
+                    <strong>Salau Praise</strong>, an AI developer
+                    and UI designer focused on building
+                    intelligent digital products.
+                </p>
+
+
+                <div class="creator-role">
+
+                    <span class="material-symbols-rounded">
+                        verified
+                    </span>
+
+                    <span>
+                        Founder &amp; CEO — EchoCall AI
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="creator-mark">
+
+                <div class="creator-circle">
+
+                    <span>
+                        SP
+                    </span>
+
+                </div>
+
+
+                <div class="creator-orbit"></div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =================================================
+     PART 13 — FINAL CALL TO ACTION
+     ================================================= -->
+
+<section class="cta-section">
+
+    <div class="cta-container">
+
+        <div class="cta-orb cta-orb-one"></div>
+
+        <div class="cta-orb cta-orb-two"></div>
+
+
+        <div class="cta-content">
+
+            <div class="section-label">
+
+                <span></span>
+
+                ENTER THE FUTURE
+
+            </div>
+
+
+            <h2>
+                Ready to meet
+                <span>EchoCall AI?</span>
+            </h2>
+
+
+            <p>
+                Start exploring a new way to interact
+                with artificial intelligence.
+            </p>
+
+
+            <a
+                href="splash.html"
+                class="cta-button"
+            >
+
+                <span class="material-symbols-rounded">
+                    auto_awesome
+                </span>
+
+                Start EchoCall AI
+
+                <span class="material-symbols-rounded">
+                    arrow_forward
+                </span>
+
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =================================================
+     PART 14 — FOOTER
+     ================================================= -->
+
+<footer class="landing-footer">
+
+    <div class="footer-container">
+
+
+        <!-- Footer Brand -->
+        <div class="footer-brand">
+
+            <a
+                href="#top"
+                class="brand"
+            >
+
+                <div class="brand-logo-wrap">
+
+                    <img
+                        src="assets/logo.png"
+                        alt="EchoCall AI"
+                        class="brand-logo"
+                    >
+
+                </div>
+
+
+                <div class="brand-text">
+
+                    <span class="brand-name">
+                        EchoCall
+                    </span>
+
+                    <span class="brand-ai">
+                        AI
+                    </span>
+
+                </div>
+
+            </a>
+
+
+            <p>
+                Intelligence that speaks,
+                understands and acts.
+            </p>
+
+        </div>
+
+
+        <!-- Footer Links -->
+        <div class="footer-links">
+
+            <a href="#about">
+                About
+            </a>
+
+            <a href="#features">
+                Features
+            </a>
+
+            <a href="#how-it-works">
+                How It Works
+            </a>
+
+            <a href="splash.html">
+                Get Started
+            </a>
+
+        </div>
+
+
+        <!-- Footer Right -->
+        <div class="footer-right">
+
+            <span>
+                © 2026 EchoCall AI
+            </span>
+
+            <span>
+                Built for the future.
+            </span>
+
+        </div>
+
+    </div>
+
+</footer>
+
+
+<!-- =================================================
+     PART 15 — PAGE SCRIPT
+     ================================================= -->
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        /*
+         * =================================================
+         * INTRO SCREEN
+         * =================================================
+         */
+
+        const introScreen =
+            document.getElementById(
+                "introScreen"
+            );
+
+
+        /*
+         * =================================================
+         * MOBILE MENU
+         * =================================================
+         */
+
+        const mobileMenuButton =
+            document.getElementById(
+                "mobileMenuButton"
+            );
+
+
+        const mobileMenu =
+            document.getElementById(
+                "mobileMenu"
+            );
+
+
+        /*
+         * Activate introduction state
+         */
+
+        document.body.classList.add(
+            "intro-active"
+        );
+
+
+        /*
+         * Hide intro after 3.2 seconds
+         */
+
+        setTimeout(
+            () => {
+
+                if (introScreen) {
+
+                    introScreen.classList.add(
+                        "intro-hidden"
+                    );
+
+                }
+
+
+                document.body.classList.remove(
+                    "intro-active"
+                );
+
+            },
+            3200
+        );
+
+
+        /*
+         * =================================================
+         * MOBILE MENU TOGGLE
+         * =================================================
+         */
+
+        if (
+            mobileMenuButton &&
+            mobileMenu
+        ) {
+
+            mobileMenuButton.addEventListener(
+                "click",
+                () => {
+
+                    const isOpen =
+                        mobileMenu.classList.toggle(
+                            "mobile-menu-open"
+                        );
+
+
+                    mobileMenuButton.setAttribute(
+                        "aria-expanded",
+                        String(isOpen)
+                    );
+
+
+                    const icon =
+                        mobileMenuButton.querySelector(
+                            ".material-symbols-rounded"
+                        );
+
+
+                    if (icon) {
+
+                        icon.textContent =
+                            isOpen
+                                ? "close"
+                                : "menu";
+
+                    }
+
+                }
+            );
+
+
+            /*
+             * Close mobile menu
+             * after selecting a link
+             */
+
+            const mobileLinks =
+                mobileMenu.querySelectorAll(
+                    "a"
+                );
+
+
+            mobileLinks.forEach(
+                (link) => {
+
+                    link.addEventListener(
+                        "click",
+                        () => {
+
+                            mobileMenu.classList.remove(
+                                "mobile-menu-open"
+                            );
+
+
+                            mobileMenuButton.setAttribute(
+                                "aria-expanded",
+                                "false"
+                            );
+
+
+                            const icon =
+                                mobileMenuButton.querySelector(
+                                    ".material-symbols-rounded"
+                                );
+
+
+                            if (icon) {
+
+                                icon.textContent =
+                                    "menu";
+
+                            }
+
+                        }
+                    );
+
+                }
+            );
+
+        }
+
+
+        /*
+         * =================================================
+         * SMOOTH SCROLLING
+         * =================================================
+         */
+
+        document
+            .querySelectorAll(
+                'a[href^="#"]'
+            )
+            .forEach(
+                (link) => {
+
+                    link.addEventListener(
+                        "click",
+                        (event) => {
+
+                            const targetId =
+                                link.getAttribute(
+                                    "href"
+                                );
+
+
+                            if (
+                                targetId &&
+                                targetId !== "#"
+                            ) {
+
+                                const target =
+                                    document.querySelector(
+                                        targetId
+                                    );
+
+
+                                if (target) {
+
+                                    event.preventDefault();
+
+
+                                    target.scrollIntoView(
+                                        {
+                                            behavior:
+                                                "smooth",
+
+                                            block:
+                                                "start"
+                                        }
+                                    );
+
+                                }
+
+                            }
+
+                        }
+                    );
+
+                }
+            );
+
+
+        /*
+         * =================================================
+         * PAGE RESTORE / BFCACHE
+         * =================================================
+         */
+
+        window.addEventListener(
+            "pageshow",
+            (event) => {
+
+                if (
+                    event.persisted &&
+                    introScreen
+                ) {
+
+                    introScreen.classList.remove(
+                        "intro-hidden"
+                    );
+
+
+                    setTimeout(
+                        () => {
+
+                            introScreen.classList.add(
+                                "intro-hidden"
+                            );
+
+                        },
+                        800
+                    );
+
+                }
+
+            }
+        );
+
+    }
+);
+
+</script>
+
+
+<!-- =================================================
+     END OF INDEX.HTML
+     ================================================= -->
+
+</main>
 
 </body>
 

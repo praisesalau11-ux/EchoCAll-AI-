@@ -1,495 +1,3100 @@
-/* ==========================================
-   EchoCall AI
-   File: css/splash.css
-   Part 1
-========================================== */
+/* =========================================================
+   ECHOCALL AI — SPLASH PAGE
+   css/splash.css
 
-/* ---------- Reset ---------- */
+   PART 1 — RESET + ROOT + GLOBAL
+   ========================================================= */
 
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:"Inter",sans-serif;
-    -webkit-tap-highlight-color:transparent;
+
+/* =========================================================
+   ROOT VARIABLES
+   ========================================================= */
+
+:root {
+
+    --background:
+        #050816;
+
+    --background-deep:
+        #02040d;
+
+    --surface:
+        rgba(10, 16, 38, 0.72);
+
+    --surface-light:
+        rgba(255, 255, 255, 0.055);
+
+    --border:
+        rgba(255, 255, 255, 0.10);
+
+    --border-strong:
+        rgba(255, 255, 255, 0.16);
+
+    --text:
+        #ffffff;
+
+    --text-secondary:
+        rgba(255, 255, 255, 0.72);
+
+    --text-muted:
+        rgba(255, 255, 255, 0.48);
+
+    --blue:
+        #2563eb;
+
+    --blue-light:
+        #3b82f6;
+
+    --blue-bright:
+        #60a5fa;
+
+    --purple:
+        #7c3aed;
+
+    --purple-light:
+        #a78bfa;
+
+    --cyan:
+        #22d3ee;
+
+    --green:
+        #22c55e;
+
+    --shadow:
+        0 30px 80px rgba(0, 0, 0, 0.45);
+
+    --shadow-blue:
+        0 20px 70px rgba(37, 99, 235, 0.28);
+
+    --radius-small:
+        14px;
+
+    --radius-medium:
+        22px;
+
+    --radius-large:
+        32px;
+
+    --radius-pill:
+        999px;
+
+    --transition:
+        0.3s ease;
+
 }
 
 
-/* ---------- Body ---------- */
+/* =========================================================
+   UNIVERSAL RESET
+   ========================================================= */
 
-.splash-body{
+* {
 
-    min-height:100vh;
+    margin: 0;
 
-    display:flex;
+    padding: 0;
 
-    justify-content:center;
-
-    align-items:center;
-
-    overflow:hidden;
-
-    background:#020617;
-
-    color:#ffffff;
+    box-sizing: border-box;
 
 }
 
 
-/* ---------- Animated Background ---------- */
+/* =========================================================
+   HTML
+   ========================================================= */
 
-.background{
+html {
 
-    position:fixed;
+    width: 100%;
 
-    inset:0;
+    min-height: 100%;
 
-    z-index:-1;
+    scroll-behavior: smooth;
+
+}
+
+
+/* =========================================================
+   BODY
+   ========================================================= */
+
+body {
+
+    width: 100%;
+
+    min-height: 100vh;
+
+    overflow-x: hidden;
 
     background:
-    linear-gradient(
-        135deg,
-        #020617,
-        #0F172A,
-        #1E3A8A,
-        #7C3AED
-    );
+        var(--background);
 
-    background-size:300% 300%;
+    color:
+        var(--text);
 
-    animation:
-    backgroundMove 12s ease infinite;
+    font-family:
+        "Inter",
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    -webkit-font-smoothing:
+        antialiased;
+
+    text-rendering:
+        optimizeLegibility;
 
 }
 
 
-.background::before{
+/* =========================================================
+   LINKS
+   ========================================================= */
 
-    content:"";
+a {
 
-    position:absolute;
+    color: inherit;
 
-    width:350px;
+    text-decoration: none;
 
-    height:350px;
+}
 
-    top:-120px;
 
-    left:-120px;
+/* =========================================================
+   BUTTONS
+   ========================================================= */
 
-    border-radius:50%;
+button {
+
+    border: none;
+
+    outline: none;
+
+    font: inherit;
+
+}
+
+
+/* =========================================================
+   IMAGES
+   ========================================================= */
+
+img {
+
+    display: block;
+
+    max-width: 100%;
+
+}
+
+
+/* =========================================================
+   MATERIAL SYMBOLS
+   ========================================================= */
+
+.material-symbols-rounded {
+
+    font-family:
+        "Material Symbols Rounded";
+
+    font-weight:
+        normal;
+
+    font-style:
+        normal;
+
+    font-size:
+        24px;
+
+    line-height:
+        1;
+
+    letter-spacing:
+        normal;
+
+    text-transform:
+        none;
+
+    display:
+        inline-block;
+
+    white-space:
+        nowrap;
+
+    word-wrap:
+        normal;
+
+    direction:
+        ltr;
+
+    -webkit-font-feature-settings:
+        "liga";
+
+    -webkit-font-smoothing:
+        antialiased;
+
+    font-feature-settings:
+        "liga";
+
+}
+
+
+/* =========================================================
+   SELECTION
+   ========================================================= */
+
+::selection {
 
     background:
-    rgba(37,99,235,.35);
+        rgba(59, 130, 246, 0.35);
 
-    filter:blur(120px);
+    color:
+        #ffffff;
 
 }
 
 
-.background::after{
+/* =========================================================
+   SCROLLBAR
+   ========================================================= */
 
-    content:"";
+::-webkit-scrollbar {
 
-    position:absolute;
+    width:
+        8px;
 
-    width:350px;
+}
 
-    height:350px;
 
-    right:-120px;
-
-    bottom:-120px;
-
-    border-radius:50%;
+::-webkit-scrollbar-track {
 
     background:
-    rgba(124,58,237,.35);
-
-    filter:blur(120px);
+        #03050d;
 
 }
 
 
-/* ---------- Splash Container ---------- */
+::-webkit-scrollbar-thumb {
 
-.splash-container{
+    background:
+        rgba(96, 165, 250, 0.28);
 
-    width:100%;
-
-    max-width:420px;
-
-    padding:30px;
-
-    display:flex;
-
-    flex-direction:column;
-
-    justify-content:center;
-
-    align-items:center;
-
-    text-align:center;
-
-    animation:
-    splashFade 1s ease;
+    border-radius:
+        999px;
 
 }
-/* ==========================================
-   EchoCall AI
-   File: css/splash.css
-   Part 2
-   Append below Part 1
-========================================== */
 
 
-/* ---------- Logo ---------- */
+::-webkit-scrollbar-thumb:hover {
 
-.logo{
+    background:
+        rgba(96, 165, 250, 0.45);
 
-    width:140px;
+}
 
-    height:140px;
 
-    object-fit:contain;
+/* =========================================================
+   FOCUS ACCESSIBILITY
+   ========================================================= */
 
-    margin-bottom:25px;
+a:focus-visible,
+button:focus-visible {
 
-    animation:
-    logoFloat 4s ease-in-out infinite;
+    outline:
+        2px solid var(--blue-bright);
+
+    outline-offset:
+        4px;
+
+}
+
+
+/* =========================================================
+   SPLASH PAGE ROOT
+   ========================================================= */
+
+.splash-page {
+
+    position:
+        relative;
+
+    width:
+        100%;
+
+    min-height:
+        100vh;
+
+    isolation:
+        isolate;
+
+    overflow:
+        hidden;
+
+}
+
+
+/* =========================================================
+   PART 2 — BACKGROUND SYSTEM
+   ========================================================= */
+
+
+/* =========================================================
+   BACKGROUND CONTAINER
+   ========================================================= */
+
+.splash-background {
+
+    position:
+        fixed;
+
+    inset:
+        0;
+
+    z-index:
+        -10;
+
+    overflow:
+        hidden;
+
+    pointer-events:
+        none;
+
+    background:
+        radial-gradient(
+            circle at 50% 45%,
+            rgba(30, 58, 138, 0.18),
+            transparent 42%
+        ),
+        radial-gradient(
+            circle at 15% 20%,
+            rgba(124, 58, 237, 0.12),
+            transparent 32%
+        ),
+        linear-gradient(
+            145deg,
+            #02040d 0%,
+            #050816 45%,
+            #030611 100%
+        );
+
+}
+
+
+/* =========================================================
+   BACKGROUND GRID
+   ========================================================= */
+
+.splash-grid {
+
+    position:
+        absolute;
+
+    inset:
+        -20%;
+
+    opacity:
+        0.28;
+
+    background-image:
+        linear-gradient(
+            rgba(96, 165, 250, 0.055) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(96, 165, 250, 0.055) 1px,
+            transparent 1px
+        );
+
+    background-size:
+        70px 70px;
+
+    transform:
+        perspective(700px)
+        rotateX(60deg)
+        translateY(18%);
+
+    transform-origin:
+        center center;
+
+    mask-image:
+        linear-gradient(
+            to bottom,
+            transparent,
+            black 18%,
+            black 78%,
+            transparent
+        );
+
+    -webkit-mask-image:
+        linear-gradient(
+            to bottom,
+            transparent,
+            black 18%,
+            black 78%,
+            transparent
+        );
+
+}
+
+
+/* =========================================================
+   BACKGROUND GLOW BASE
+   ========================================================= */
+
+.splash-glow {
+
+    position:
+        absolute;
+
+    border-radius:
+        50%;
 
     filter:
-    drop-shadow(0 15px 35px rgba(37,99,235,.45));
+        blur(90px);
+
+    opacity:
+        0.5;
+
+    will-change:
+        transform;
 
 }
 
 
-/* ---------- Title ---------- */
+/* =========================================================
+   GLOW ONE
+   ========================================================= */
 
-.splash-container h1{
+.splash-glow-one {
 
-    font-size:38px;
+    width:
+        420px;
 
-    font-weight:800;
+    height:
+        420px;
 
-    letter-spacing:.5px;
+    top:
+        -140px;
+
+    left:
+        -100px;
 
     background:
-
-    linear-gradient(
-        135deg,
-        #60A5FA,
-        #A78BFA
-    );
-
-    -webkit-background-clip:text;
-
-    -webkit-text-fill-color:transparent;
-
-}
-
-
-/* ---------- Subtitle ---------- */
-
-.splash-container p{
-
-    margin-top:12px;
-
-    color:#CBD5E1;
-
-    font-size:16px;
-
-    font-weight:400;
-
-    letter-spacing:.3px;
-
-}
-
-
-/* ---------- Loader ---------- */
-
-.loader{
-
-    width:170px;
-
-    height:6px;
-
-    margin-top:45px;
-
-    border-radius:50px;
-
-    overflow:hidden;
-
-    background:
-
-    rgba(255,255,255,.12);
-
-    position:relative;
-
-}
-
-
-.loader::before{
-
-    content:"";
-
-    position:absolute;
-
-    height:100%;
-
-    width:45%;
-
-    left:0;
-
-    top:0;
-
-    border-radius:50px;
-
-    background:
-
-    linear-gradient(
-        90deg,
-        #2563EB,
-        #7C3AED
-    );
+        rgba(37, 99, 235, 0.20);
 
     animation:
-
-    loadingMove 1.3s ease-in-out infinite;
-
-}
-
-
-/* ---------- Logo Animation ---------- */
-
-@keyframes logoFloat{
-
-    0%{
-
-        transform:translateY(0);
-
-    }
-
-
-    50%{
-
-        transform:translateY(-12px);
-
-    }
-
-
-    100%{
-
-        transform:translateY(0);
-
-    }
+        splashGlowFloatOne
+        12s
+        ease-in-out
+        infinite;
 
 }
 
 
-/* ---------- Loading Animation ---------- */
+/* =========================================================
+   GLOW TWO
+   ========================================================= */
 
-@keyframes loadingMove{
+.splash-glow-two {
 
-    0%{
+    width:
+        520px;
 
-        transform:translateX(-120%);
+    height:
+        520px;
 
-    }
+    right:
+        -180px;
 
+    top:
+        20%;
 
-    100%{
-
-        transform:translateX(300%);
-
-    }
-
-}
-/* ==========================================
-   EchoCall AI
-   File: css/splash.css
-   Part 3 (Final)
-========================================== */
-
-
-/* ---------- Background Animation ---------- */
-
-@keyframes backgroundMove{
-
-    0%{
-
-        background-position:
-        0% 50%;
-
-    }
-
-
-    50%{
-
-        background-position:
-        100% 50%;
-
-    }
-
-
-    100%{
-
-        background-position:
-        0% 50%;
-
-    }
-
-}
-
-
-/* ---------- Splash Entrance ---------- */
-
-@keyframes splashFade{
-
-    from{
-
-        opacity:0;
-
-        transform:
-        translateY(25px);
-
-    }
-
-
-    to{
-
-        opacity:1;
-
-        transform:
-        translateY(0);
-
-    }
-
-}
-
-
-/* ---------- Logo Glow ---------- */
-
-.logo{
+    background:
+        rgba(124, 58, 237, 0.16);
 
     animation:
-
-    logoFloat 4s ease-in-out infinite,
-    logoGlow 3s ease-in-out infinite;
+        splashGlowFloatTwo
+        15s
+        ease-in-out
+        infinite;
 
 }
 
 
-@keyframes logoGlow{
+/* =========================================================
+   GLOW THREE
+   ========================================================= */
 
-    0%{
+.splash-glow-three {
 
-        filter:
-        drop-shadow(
-        0 0 15px rgba(37,99,235,.35)
+    width:
+        440px;
+
+    height:
+        440px;
+
+    bottom:
+        -180px;
+
+    left:
+        35%;
+
+    background:
+        rgba(34, 211, 238, 0.10);
+
+    animation:
+        splashGlowFloatThree
+        18s
+        ease-in-out
+        infinite;
+
+}
+
+
+/* =========================================================
+   GLOW ANIMATIONS
+   ========================================================= */
+
+@keyframes splashGlowFloatOne {
+
+    0%,
+    100% {
+
+        transform:
+            translate3d(0, 0, 0)
+            scale(1);
+
+    }
+
+    50% {
+
+        transform:
+            translate3d(50px, 30px, 0)
+            scale(1.12);
+
+    }
+
+}
+
+
+@keyframes splashGlowFloatTwo {
+
+    0%,
+    100% {
+
+        transform:
+            translate3d(0, 0, 0)
+            scale(1);
+
+    }
+
+    50% {
+
+        transform:
+            translate3d(-45px, 40px, 0)
+            scale(1.08);
+
+    }
+
+}
+
+
+@keyframes splashGlowFloatThree {
+
+    0%,
+    100% {
+
+        transform:
+            translate3d(0, 0, 0)
+            scale(1);
+
+    }
+
+    50% {
+
+        transform:
+            translate3d(20px, -45px, 0)
+            scale(1.1);
+
+    }
+
+}
+
+
+/* =========================================================
+   PARTICLE FIELD
+   ========================================================= */
+
+.splash-particles {
+
+    position:
+        absolute;
+
+    inset:
+        0;
+
+    overflow:
+        hidden;
+
+}
+
+
+/* =========================================================
+   PARTICLES
+   ========================================================= */
+
+.splash-particles span {
+
+    position:
+        absolute;
+
+    width:
+        3px;
+
+    height:
+        3px;
+
+    border-radius:
+        50%;
+
+    background:
+        rgba(147, 197, 253, 0.75);
+
+    box-shadow:
+        0 0 12px
+        rgba(96, 165, 250, 0.65);
+
+    animation:
+        particleFloat
+        8s
+        ease-in-out
+        infinite;
+
+}
+
+
+/* =========================================================
+   PARTICLE POSITIONS
+   ========================================================= */
+
+.splash-particles span:nth-child(1) {
+
+    top:
+        18%;
+
+    left:
+        12%;
+
+    animation-delay:
+        -1s;
+
+}
+
+
+.splash-particles span:nth-child(2) {
+
+    top:
+        32%;
+
+    left:
+        23%;
+
+    animation-delay:
+        -4s;
+
+}
+
+
+.splash-particles span:nth-child(3) {
+
+    top:
+        15%;
+
+    right:
+        18%;
+
+    animation-delay:
+        -2s;
+
+}
+
+
+.splash-particles span:nth-child(4) {
+
+    top:
+        48%;
+
+    right:
+        9%;
+
+    animation-delay:
+        -6s;
+
+}
+
+
+.splash-particles span:nth-child(5) {
+
+    bottom:
+        22%;
+
+    left:
+        16%;
+
+    animation-delay:
+        -3s;
+
+}
+
+
+.splash-particles span:nth-child(6) {
+
+    bottom:
+        14%;
+
+    left:
+        42%;
+
+    animation-delay:
+        -7s;
+
+}
+
+
+.splash-particles span:nth-child(7) {
+
+    bottom:
+        30%;
+
+    right:
+        25%;
+
+    animation-delay:
+        -5s;
+
+}
+
+
+.splash-particles span:nth-child(8) {
+
+    top:
+        65%;
+
+    left:
+        7%;
+
+    animation-delay:
+        -2.5s;
+
+}
+
+
+@keyframes particleFloat {
+
+    0%,
+    100% {
+
+        opacity:
+            0.25;
+
+        transform:
+            translate3d(0, 0, 0)
+            scale(0.8);
+
+    }
+
+    50% {
+
+        opacity:
+            1;
+
+        transform:
+            translate3d(0, -18px, 0)
+            scale(1.3);
+
+    }
+
+}
+
+/* =========================================================
+   PART 3 — HEADER / NAVIGATION
+   ========================================================= */
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.splash-header {
+
+    position:
+        relative;
+
+    z-index:
+        20;
+
+    width:
+        min(1240px, calc(100% - 48px));
+
+    margin:
+        0 auto;
+
+    padding:
+        28px 0;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        space-between;
+
+}
+
+
+/* =========================================================
+   BRAND
+   ========================================================= */
+
+.splash-brand {
+
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    gap:
+        12px;
+
+    transition:
+        transform var(--transition),
+        opacity var(--transition);
+
+}
+
+
+.splash-brand:hover {
+
+    transform:
+        translateY(-2px);
+
+    opacity:
+        0.92;
+
+}
+
+
+/* =========================================================
+   BRAND LOGO
+   ========================================================= */
+
+.splash-brand-logo {
+
+    width:
+        48px;
+
+    height:
+        48px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.12);
+
+    border-radius:
+        15px;
+
+    background:
+        rgba(255, 255, 255, 0.055);
+
+    box-shadow:
+        0 10px 35px rgba(0, 0, 0, 0.28),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+
+    backdrop-filter:
+        blur(15px);
+
+    -webkit-backdrop-filter:
+        blur(15px);
+
+}
+
+
+.splash-brand-logo img {
+
+    width:
+        32px;
+
+    height:
+        32px;
+
+    object-fit:
+        contain;
+
+}
+
+
+/* =========================================================
+   BRAND NAME
+   ========================================================= */
+
+.splash-brand-name {
+
+    display:
+        flex;
+
+    align-items:
+        baseline;
+
+    gap:
+        3px;
+
+    font-size:
+        20px;
+
+    font-weight:
+        700;
+
+    letter-spacing:
+        -0.04em;
+
+}
+
+
+.splash-brand-name span {
+
+    color:
+        #ffffff;
+
+}
+
+
+.splash-brand-name strong {
+
+    color:
+        #60a5fa;
+
+    font-weight:
+        800;
+
+}
+
+
+/* =========================================================
+   BACK HOME BUTTON
+   ========================================================= */
+
+.back-home-button {
+
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        8px;
+
+    min-height:
+        44px;
+
+    padding:
+        0 17px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius:
+        var(--radius-pill);
+
+    background:
+        rgba(255, 255, 255, 0.045);
+
+    color:
+        rgba(255, 255, 255, 0.72);
+
+    font-size:
+        13px;
+
+    font-weight:
+        600;
+
+    backdrop-filter:
+        blur(16px);
+
+    -webkit-backdrop-filter:
+        blur(16px);
+
+    transition:
+        transform var(--transition),
+        background var(--transition),
+        border-color var(--transition),
+        color var(--transition);
+
+}
+
+
+.back-home-button .material-symbols-rounded {
+
+    font-size:
+        18px;
+
+}
+
+
+.back-home-button:hover {
+
+    transform:
+        translateY(-2px);
+
+    color:
+        #ffffff;
+
+    border-color:
+        rgba(96, 165, 250, 0.35);
+
+    background:
+        rgba(59, 130, 246, 0.10);
+
+}
+
+
+/* =========================================================
+   PART 4 — SPLASH CONTENT LAYOUT
+   ========================================================= */
+
+.splash-content {
+
+    position:
+        relative;
+
+    z-index:
+        5;
+
+    width:
+        min(1180px, calc(100% - 48px));
+
+    min-height:
+        calc(100vh - 160px);
+
+    margin:
+        0 auto;
+
+    display:
+        grid;
+
+    grid-template-columns:
+        minmax(0, 0.95fr)
+        minmax(0, 1.05fr);
+
+    align-items:
+        center;
+
+    gap:
+        clamp(45px, 7vw, 110px);
+
+    padding:
+        45px 0 70px;
+
+}
+
+
+/* =========================================================
+   SPLASH VISUAL
+   ========================================================= */
+
+.splash-visual {
+
+    position:
+        relative;
+
+    width:
+        min(500px, 100%);
+
+    aspect-ratio:
+        1 / 1;
+
+    margin:
+        0 auto;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    perspective:
+        1000px;
+
+}
+
+
+/* =========================================================
+   VISUAL ORBITS
+   ========================================================= */
+
+.visual-orbit {
+
+    position:
+        absolute;
+
+    top:
+        50%;
+
+    left:
+        50%;
+
+    border:
+        1px solid rgba(96, 165, 250, 0.13);
+
+    border-radius:
+        50%;
+
+    transform:
+        translate(-50%, -50%);
+
+    pointer-events:
+        none;
+
+}
+
+
+.visual-orbit-one {
+
+    width:
+        78%;
+
+    height:
+        78%;
+
+    animation:
+        orbitRotateOne
+        18s
+        linear
+        infinite;
+
+}
+
+
+.visual-orbit-two {
+
+    width:
+        62%;
+
+    height:
+        62%;
+
+    border-color:
+        rgba(124, 58, 237, 0.18);
+
+    transform:
+        translate(-50%, -50%)
+        rotateX(68deg);
+
+    animation:
+        orbitRotateTwo
+        14s
+        linear
+        infinite;
+
+}
+
+
+.visual-orbit-three {
+
+    width:
+        90%;
+
+    height:
+        38%;
+
+    border-color:
+        rgba(34, 211, 238, 0.13);
+
+    transform:
+        translate(-50%, -50%)
+        rotateY(68deg);
+
+    animation:
+        orbitRotateThree
+        20s
+        linear
+        infinite;
+
+}
+
+
+/* =========================================================
+   ORBIT ANIMATIONS
+   ========================================================= */
+
+@keyframes orbitRotateOne {
+
+    from {
+
+        transform:
+            translate(-50%, -50%)
+            rotate(0deg);
+
+    }
+
+    to {
+
+        transform:
+            translate(-50%, -50%)
+            rotate(360deg);
+
+    }
+
+}
+
+
+@keyframes orbitRotateTwo {
+
+    from {
+
+        transform:
+            translate(-50%, -50%)
+            rotateX(68deg)
+            rotateZ(0deg);
+
+    }
+
+    to {
+
+        transform:
+            translate(-50%, -50%)
+            rotateX(68deg)
+            rotateZ(360deg);
+
+    }
+
+}
+
+
+@keyframes orbitRotateThree {
+
+    from {
+
+        transform:
+            translate(-50%, -50%)
+            rotateY(68deg)
+            rotateZ(0deg);
+
+    }
+
+    to {
+
+        transform:
+            translate(-50%, -50%)
+            rotateY(68deg)
+            rotateZ(360deg);
+
+    }
+
+}
+
+
+/* =========================================================
+   SPLASH AI CORE
+   ========================================================= */
+
+.splash-ai-core {
+
+    position:
+        relative;
+
+    width:
+        clamp(190px, 30vw, 285px);
+
+    aspect-ratio:
+        1;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    transform-style:
+        preserve-3d;
+
+    animation:
+        coreFloat
+        5s
+        ease-in-out
+        infinite;
+
+}
+
+
+/* =========================================================
+   CORE FLOAT
+   ========================================================= */
+
+@keyframes coreFloat {
+
+    0%,
+    100% {
+
+        transform:
+            translateY(0)
+            rotateX(0deg)
+            rotateY(0deg);
+
+    }
+
+    50% {
+
+        transform:
+            translateY(-12px)
+            rotateX(4deg)
+            rotateY(-5deg);
+
+    }
+
+}
+
+
+/* =========================================================
+   CORE RINGS
+   ========================================================= */
+
+.core-ring {
+
+    position:
+        absolute;
+
+    inset:
+        0;
+
+    border-radius:
+        50%;
+
+    pointer-events:
+        none;
+
+}
+
+
+.core-ring-one {
+
+    border:
+        1px solid rgba(96, 165, 250, 0.32);
+
+    box-shadow:
+        0 0 45px rgba(37, 99, 235, 0.18);
+
+    animation:
+        coreRingOne
+        7s
+        linear
+        infinite;
+
+}
+
+
+.core-ring-two {
+
+    inset:
+        11%;
+
+    border:
+        1px solid rgba(167, 139, 250, 0.32);
+
+    animation:
+        coreRingTwo
+        5s
+        linear
+        infinite reverse;
+
+}
+
+
+.core-ring-three {
+
+    inset:
+        23%;
+
+    border:
+        1px solid rgba(34, 211, 238, 0.24);
+
+    animation:
+        coreRingThree
+        4s
+        linear
+        infinite;
+
+}
+
+
+/* =========================================================
+   CORE RING ANIMATIONS
+   ========================================================= */
+
+@keyframes coreRingOne {
+
+    from {
+
+        transform:
+            rotate(0deg)
+            scale(1);
+
+    }
+
+    50% {
+
+        transform:
+            rotate(180deg)
+            scale(1.035);
+
+    }
+
+    to {
+
+        transform:
+            rotate(360deg)
+            scale(1);
+
+    }
+
+}
+
+
+@keyframes coreRingTwo {
+
+    from {
+
+        transform:
+            rotateX(65deg)
+            rotateZ(0deg);
+
+    }
+
+    to {
+
+        transform:
+            rotateX(65deg)
+            rotateZ(360deg);
+
+    }
+
+}
+
+
+@keyframes coreRingThree {
+
+    from {
+
+        transform:
+            rotateY(65deg)
+            rotateZ(0deg);
+
+    }
+
+    to {
+
+        transform:
+            rotateY(65deg)
+            rotateZ(360deg);
+
+    }
+
+}
+
+
+/* =========================================================
+   CORE LOGO CONTAINER
+   ========================================================= */
+
+.core-logo {
+
+    position:
+        relative;
+
+    z-index:
+        5;
+
+    width:
+        42%;
+
+    aspect-ratio:
+        1;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.15);
+
+    border-radius:
+        50%;
+
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+            rgba(96, 165, 250, 0.22),
+            rgba(10, 16, 38, 0.95) 62%
         );
 
-    }
+    box-shadow:
+        0 0 80px rgba(37, 99, 235, 0.24),
+        0 0 35px rgba(124, 58, 237, 0.18),
+        inset 0 0 40px rgba(96, 165, 250, 0.08);
+
+    backdrop-filter:
+        blur(15px);
+
+    -webkit-backdrop-filter:
+        blur(15px);
+
+}
 
 
-    50%{
+/* =========================================================
+   CORE LOGO IMAGE
+   ========================================================= */
 
-        filter:
+.core-logo img {
+
+    width:
+        58%;
+
+    height:
+        58%;
+
+    object-fit:
+        contain;
+
+    filter:
         drop-shadow(
-        0 0 40px rgba(124,58,237,.55)
+            0 0 20px
+            rgba(96, 165, 250, 0.45)
         );
 
-    }
+    animation:
+        logoPulse
+        3s
+        ease-in-out
+        infinite;
+
+}
 
 
-    100%{
+@keyframes logoPulse {
+
+    0%,
+    100% {
+
+        transform:
+            scale(1);
 
         filter:
-        drop-shadow(
-        0 0 15px rgba(37,99,235,.35)
+            drop-shadow(
+                0 0 18px
+                rgba(96, 165, 250, 0.35)
+            );
+
+    }
+
+    50% {
+
+        transform:
+            scale(1.06);
+
+        filter:
+            drop-shadow(
+                0 0 32px
+                rgba(96, 165, 250, 0.65)
+            );
+
+    }
+
+}
+
+
+/* =========================================================
+   VISUAL NODES
+   ========================================================= */
+
+.visual-node {
+
+    position:
+        absolute;
+
+    z-index:
+        10;
+
+    width:
+        54px;
+
+    height:
+        54px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.12);
+
+    border-radius:
+        18px;
+
+    background:
+        rgba(8, 13, 31, 0.72);
+
+    box-shadow:
+        0 15px 35px rgba(0, 0, 0, 0.28);
+
+    color:
+        #93c5fd;
+
+    backdrop-filter:
+        blur(18px);
+
+    -webkit-backdrop-filter:
+        blur(18px);
+
+}
+
+
+.visual-node .material-symbols-rounded {
+
+    font-size:
+        25px;
+
+}
+
+
+/* =========================================================
+   NODE POSITIONS
+   ========================================================= */
+
+.node-one {
+
+    top:
+        14%;
+
+    left:
+        12%;
+
+    animation:
+        nodeFloatOne
+        5s
+        ease-in-out
+        infinite;
+
+}
+
+
+.node-two {
+
+    top:
+        21%;
+
+    right:
+        10%;
+
+    color:
+        #c4b5fd;
+
+    animation:
+        nodeFloatTwo
+        6s
+        ease-in-out
+        infinite;
+
+}
+
+
+.node-three {
+
+    bottom:
+        17%;
+
+    right:
+        16%;
+
+    color:
+        #67e8f9;
+
+    animation:
+        nodeFloatThree
+        5.5s
+        ease-in-out
+        infinite;
+
+}
+
+
+/* =========================================================
+   NODE ANIMATIONS
+   ========================================================= */
+
+@keyframes nodeFloatOne {
+
+    0%,
+    100% {
+
+        transform:
+            translateY(0)
+            rotate(0deg);
+
+    }
+
+    50% {
+
+        transform:
+            translateY(-13px)
+            rotate(4deg);
+
+    }
+
+}
+
+
+@keyframes nodeFloatTwo {
+
+    0%,
+    100% {
+
+        transform:
+            translateY(0)
+            rotate(0deg);
+
+    }
+
+    50% {
+
+        transform:
+            translateY(15px)
+            rotate(-4deg);
+
+    }
+
+}
+
+
+@keyframes nodeFloatThree {
+
+    0%,
+    100% {
+
+        transform:
+            translateY(0)
+            rotate(0deg);
+
+    }
+
+    50% {
+
+        transform:
+            translateY(-11px)
+            rotate(5deg);
+
+    }
+
+}
+
+/* =========================================================
+   PART 5 — SPLASH COPY
+   ========================================================= */
+
+
+/* =========================================================
+   COPY CONTAINER
+   ========================================================= */
+
+.splash-copy {
+
+    position:
+        relative;
+
+    width:
+        100%;
+
+    max-width:
+        610px;
+
+    margin:
+        0 auto;
+
+}
+
+
+/* =========================================================
+   SPLASH LABEL
+   ========================================================= */
+
+.splash-label {
+
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    gap:
+        9px;
+
+    min-height:
+        34px;
+
+    padding:
+        0 13px;
+
+    border:
+        1px solid rgba(96, 165, 250, 0.17);
+
+    border-radius:
+        999px;
+
+    background:
+        rgba(59, 130, 246, 0.055);
+
+    color:
+        rgba(147, 197, 253, 0.86);
+
+    font-size:
+        10px;
+
+    font-weight:
+        800;
+
+    letter-spacing:
+        0.16em;
+
+    text-transform:
+        uppercase;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+}
+
+
+/* =========================================================
+   LABEL DOT
+   ========================================================= */
+
+.label-dot {
+
+    width:
+        7px;
+
+    height:
+        7px;
+
+    flex:
+        0 0 auto;
+
+    border-radius:
+        50%;
+
+    background:
+        #60a5fa;
+
+    box-shadow:
+        0 0 12px rgba(96, 165, 250, 0.9);
+
+    animation:
+        labelDotPulse
+        2s
+        ease-in-out
+        infinite;
+
+}
+
+
+@keyframes labelDotPulse {
+
+    0%,
+    100% {
+
+        opacity:
+            0.65;
+
+        transform:
+            scale(0.9);
+
+    }
+
+    50% {
+
+        opacity:
+            1;
+
+        transform:
+            scale(1.2);
+
+    }
+
+}
+
+
+/* =========================================================
+   MAIN HEADING
+   ========================================================= */
+
+.splash-copy h1 {
+
+    max-width:
+        650px;
+
+    margin:
+        22px 0 20px;
+
+    color:
+        #ffffff;
+
+    font-size:
+        clamp(46px, 6vw, 78px);
+
+    line-height:
+        0.98;
+
+    font-weight:
+        800;
+
+    letter-spacing:
+        -0.065em;
+
+}
+
+
+/* =========================================================
+   HEADING GRADIENT
+   ========================================================= */
+
+.splash-copy h1 span {
+
+    display:
+        block;
+
+    background:
+        linear-gradient(
+            100deg,
+            #ffffff 0%,
+            #93c5fd 38%,
+            #a78bfa 72%,
+            #60a5fa 100%
         );
 
+    -webkit-background-clip:
+        text;
+
+    background-clip:
+        text;
+
+    -webkit-text-fill-color:
+        transparent;
+
+    color:
+        transparent;
+
+}
+
+
+/* =========================================================
+   DESCRIPTION
+   ========================================================= */
+
+.splash-copy > p {
+
+    max-width:
+        560px;
+
+    margin:
+        0;
+
+    color:
+        rgba(255, 255, 255, 0.60);
+
+    font-size:
+        16px;
+
+    line-height:
+        1.85;
+
+    font-weight:
+        400;
+
+}
+
+
+/* =========================================================
+   PART 6 — AUTHENTICATION ACTIONS
+   ========================================================= */
+
+.splash-actions {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        13px;
+
+    margin-top:
+        32px;
+
+}
+
+
+/* =========================================================
+   PRIMARY BUTTON
+   ========================================================= */
+
+.splash-primary-button {
+
+    position:
+        relative;
+
+    min-height:
+        58px;
+
+    padding:
+        0 20px;
+
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        11px;
+
+    overflow:
+        hidden;
+
+    border:
+        1px solid rgba(96, 165, 250, 0.42);
+
+    border-radius:
+        18px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #2563eb 0%,
+            #3b82f6 48%,
+            #6366f1 100%
+        );
+
+    color:
+        #ffffff;
+
+    font-size:
+        14px;
+
+    font-weight:
+        750;
+
+    letter-spacing:
+        -0.01em;
+
+    box-shadow:
+        0 18px 45px rgba(37, 99, 235, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.20);
+
+    transition:
+        transform var(--transition),
+        box-shadow var(--transition),
+        filter var(--transition);
+
+}
+
+
+/* =========================================================
+   PRIMARY BUTTON SHINE
+   ========================================================= */
+
+.splash-primary-button::before {
+
+    content:
+        "";
+
+    position:
+        absolute;
+
+    top:
+        0;
+
+    left:
+        -120%;
+
+    width:
+        70%;
+
+    height:
+        100%;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.20),
+            transparent
+        );
+
+    transform:
+        skewX(-20deg);
+
+    transition:
+        left 0.7s ease;
+
+}
+
+
+.splash-primary-button:hover::before {
+
+    left:
+        150%;
+
+}
+
+
+/* =========================================================
+   PRIMARY BUTTON HOVER
+   ========================================================= */
+
+.splash-primary-button:hover {
+
+    transform:
+        translateY(-4px);
+
+    box-shadow:
+        0 24px 60px rgba(37, 99, 235, 0.34),
+        inset 0 1px 0 rgba(255, 255, 255, 0.25);
+
+    filter:
+        brightness(1.08);
+
+}
+
+
+.splash-primary-button:active {
+
+    transform:
+        translateY(-1px)
+        scale(0.99);
+
+}
+
+
+/* =========================================================
+   PRIMARY BUTTON ICONS
+   ========================================================= */
+
+.splash-primary-button .material-symbols-rounded {
+
+    font-size:
+        20px;
+
+}
+
+
+.splash-primary-button .button-arrow {
+
+    font-size:
+        19px;
+
+    transition:
+        transform var(--transition);
+
+}
+
+
+.splash-primary-button:hover .button-arrow {
+
+    transform:
+        translateX(4px);
+
+}
+
+
+/* =========================================================
+   SECONDARY BUTTON
+   ========================================================= */
+
+.splash-secondary-button {
+
+    min-height:
+        58px;
+
+    padding:
+        0 22px;
+
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        10px;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.12);
+
+    border-radius:
+        18px;
+
+    background:
+        rgba(255, 255, 255, 0.045);
+
+    color:
+        rgba(255, 255, 255, 0.84);
+
+    font-size:
+        14px;
+
+    font-weight:
+        700;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+
+    backdrop-filter:
+        blur(15px);
+
+    -webkit-backdrop-filter:
+        blur(15px);
+
+    transition:
+        transform var(--transition),
+        border-color var(--transition),
+        background var(--transition),
+        color var(--transition);
+
+}
+
+
+.splash-secondary-button:hover {
+
+    transform:
+        translateY(-4px);
+
+    border-color:
+        rgba(147, 197, 253, 0.28);
+
+    background:
+        rgba(59, 130, 246, 0.08);
+
+    color:
+        #ffffff;
+
+}
+
+
+.splash-secondary-button:active {
+
+    transform:
+        translateY(-1px)
+        scale(0.99);
+
+}
+
+
+.splash-secondary-button .material-symbols-rounded {
+
+    font-size:
+        20px;
+
+    color:
+        #93c5fd;
+
+}
+
+
+/* =========================================================
+   PART 7 — INFORMATION ROW
+   ========================================================= */
+
+.splash-info {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    flex-wrap:
+        wrap;
+
+    gap:
+        14px;
+
+    margin-top:
+        25px;
+
+}
+
+
+/* =========================================================
+   INFO ITEM
+   ========================================================= */
+
+.info-item {
+
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    gap:
+        7px;
+
+    color:
+        rgba(255, 255, 255, 0.43);
+
+    font-size:
+        11px;
+
+    font-weight:
+        600;
+
+    white-space:
+        nowrap;
+
+}
+
+
+.info-item .material-symbols-rounded {
+
+    font-size:
+        16px;
+
+    color:
+        rgba(147, 197, 253, 0.62);
+
+}
+
+
+/* =========================================================
+   INFO DIVIDER
+   ========================================================= */
+
+.info-divider {
+
+    width:
+        3px;
+
+    height:
+        3px;
+
+    border-radius:
+        50%;
+
+    background:
+        rgba(255, 255, 255, 0.22);
+
+}
+
+
+/* =========================================================
+   PART 8 — FOOTER
+   ========================================================= */
+
+.splash-footer {
+
+    position:
+        relative;
+
+    z-index:
+        10;
+
+    width:
+        min(1180px, calc(100% - 48px));
+
+    margin:
+        0 auto;
+
+    padding:
+        0 0 28px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        10px;
+
+    color:
+        rgba(255, 255, 255, 0.32);
+
+    font-size:
+        11px;
+
+    font-weight:
+        500;
+
+    text-align:
+        center;
+
+}
+
+
+.footer-separator {
+
+    color:
+        rgba(255, 255, 255, 0.18);
+
+}
+
+
+/* =========================================================
+   PART 9 — PAGE ENTRY ANIMATION
+   ========================================================= */
+
+.splash-header {
+
+    animation:
+        splashHeaderEntry
+        0.8s
+        ease
+        both;
+
+}
+
+
+.splash-visual {
+
+    animation:
+        splashVisualEntry
+        1s
+        0.15s
+        ease
+        both;
+
+}
+
+
+.splash-copy {
+
+    animation:
+        splashCopyEntry
+        0.9s
+        0.2s
+        ease
+        both;
+
+}
+
+
+.splash-footer {
+
+    animation:
+        splashFooterEntry
+        0.8s
+        0.4s
+        ease
+        both;
+
+}
+
+
+/* =========================================================
+   ENTRY KEYFRAMES
+   ========================================================= */
+
+@keyframes splashHeaderEntry {
+
+    from {
+
+        opacity:
+            0;
+
+        transform:
+            translateY(-18px);
+
+    }
+
+    to {
+
+        opacity:
+            1;
+
+        transform:
+            translateY(0);
+
     }
 
 }
 
 
-/* ---------- Mobile Responsive ---------- */
+@keyframes splashVisualEntry {
 
-@media(max-width:600px){
+    from {
 
+        opacity:
+            0;
 
-    .splash-container{
-
-        padding:22px;
-
-    }
-
-
-    .logo{
-
-        width:110px;
-
-        height:110px;
+        transform:
+            translateY(30px)
+            scale(0.94);
 
     }
 
+    to {
 
-    .splash-container h1{
+        opacity:
+            1;
 
-        font-size:32px;
-
-    }
-
-
-    .splash-container p{
-
-        font-size:14px;
-
-    }
-
-
-    .loader{
-
-        width:140px;
-
-        margin-top:35px;
+        transform:
+            translateY(0)
+            scale(1);
 
     }
 
 }
 
 
-/* ---------- Small Phones ---------- */
+@keyframes splashCopyEntry {
 
-@media(max-width:380px){
+    from {
 
+        opacity:
+            0;
 
-    .logo{
-
-        width:95px;
-
-        height:95px;
-
-    }
-
-
-    .splash-container h1{
-
-        font-size:28px;
+        transform:
+            translateY(25px);
 
     }
 
+    to {
 
-    .splash-container p{
+        opacity:
+            1;
 
-        font-size:13px;
+        transform:
+            translateY(0);
 
     }
 
 }
 
 
-/* ==========================================
-   End of splash.css
-========================================== */
+@keyframes splashFooterEntry {
+
+    from {
+
+        opacity:
+            0;
+
+    }
+
+    to {
+
+        opacity:
+            1;
+
+    }
+
+}
+
+
+/* =========================================================
+   PART 10 — RESPONSIVE TABLET
+   ========================================================= */
+
+@media (max-width: 980px) {
+
+    .splash-content {
+
+        grid-template-columns:
+            1fr;
+
+        gap:
+            20px;
+
+        padding-top:
+            35px;
+
+    }
+
+
+    .splash-visual {
+
+        width:
+            min(430px, 80vw);
+
+        order:
+            1;
+
+    }
+
+
+    .splash-copy {
+
+        max-width:
+            680px;
+
+        text-align:
+            center;
+
+        order:
+            2;
+
+        margin:
+            0 auto;
+
+    }
+
+
+    .splash-label {
+
+        margin:
+            0 auto;
+
+    }
+
+
+    .splash-copy h1 {
+
+        margin-left:
+            auto;
+
+        margin-right:
+            auto;
+
+    }
+
+
+    .splash-copy > p {
+
+        margin-left:
+            auto;
+
+        margin-right:
+            auto;
+
+    }
+
+
+    .splash-actions {
+
+        justify-content:
+            center;
+
+    }
+
+
+    .splash-info {
+
+        justify-content:
+            center;
+
+    }
+
+
+    .splash-footer {
+
+        padding-bottom:
+            24px;
+
+    }
+
+}
+
+
+/* =========================================================
+   PART 11 — RESPONSIVE MOBILE
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    .splash-header {
+
+        width:
+            min(100% - 28px, 1180px);
+
+        padding:
+            18px 0;
+
+    }
+
+
+    .splash-brand-logo {
+
+        width:
+            42px;
+
+        height:
+            42px;
+
+        border-radius:
+            13px;
+
+    }
+
+
+    .splash-brand-logo img {
+
+        width:
+            28px;
+
+        height:
+            28px;
+
+    }
+
+
+    .splash-brand-name {
+
+        font-size:
+            18px;
+
+    }
+
+
+    .back-home-button {
+
+        min-height:
+            40px;
+
+        padding:
+            0 13px;
+
+        font-size:
+            12px;
+
+    }
+
+
+    .back-home-button span:last-child {
+
+        display:
+            none;
+
+    }
+
+
+    .splash-content {
+
+        width:
+            min(100% - 28px, 1180px);
+
+        min-height:
+            auto;
+
+        padding:
+            25px 0 45px;
+
+        gap:
+            10px;
+
+    }
+
+
+    .splash-visual {
+
+        width:
+            min(340px, 90vw);
+
+    }
+
+
+    .visual-node {
+
+        width:
+            46px;
+
+        height:
+            46px;
+
+        border-radius:
+            15px;
+
+    }
+
+
+    .visual-node .material-symbols-rounded {
+
+        font-size:
+            21px;
+
+    }
+
+
+    .node-one {
+
+        left:
+            5%;
+
+    }
+
+
+    .node-two {
+
+        right:
+            4%;
+
+    }
+
+
+    .node-three {
+
+        right:
+            8%;
+
+    }
+
+
+    .splash-copy h1 {
+
+        margin-top:
+            17px;
+
+        font-size:
+            clamp(40px, 12vw, 58px);
+
+        line-height:
+            1;
+
+    }
+
+
+    .splash-copy > p {
+
+        font-size:
+            14px;
+
+        line-height:
+            1.75;
+
+    }
+
+
+    .splash-actions {
+
+        flex-direction:
+            column;
+
+        width:
+            100%;
+
+        margin-top:
+            27px;
+
+    }
+
+
+    .splash-primary-button,
+    .splash-secondary-button {
+
+        width:
+            100%;
+
+        min-height:
+            56px;
+
+    }
+
+
+    .splash-info {
+
+        gap:
+            9px;
+
+        margin-top:
+            21px;
+
+    }
+
+
+    .info-item {
+
+        font-size:
+            9px;
+
+    }
+
+
+    .info-divider {
+
+        width:
+            2px;
+
+        height:
+            2px;
+
+    }
+
+
+    .splash-footer {
+
+        width:
+            min(100% - 28px, 1180px);
+
+        flex-wrap:
+            wrap;
+
+        padding-bottom:
+            20px;
+
+        font-size:
+            10px;
+
+    }
+
+}
+
+
+/* =========================================================
+   PART 12 — SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 380px) {
+
+    .splash-header {
+
+        padding-top:
+            15px;
+
+    }
+
+
+    .splash-brand-logo {
+
+        width:
+            38px;
+
+        height:
+            38px;
+
+    }
+
+
+    .splash-brand-name {
+
+        font-size:
+            16px;
+
+    }
+
+
+    .splash-content {
+
+        padding-top:
+            15px;
+
+    }
+
+
+    .splash-visual {
+
+        width:
+            285px;
+
+    }
+
+
+    .splash-copy h1 {
+
+        font-size:
+            39px;
+
+    }
+
+
+    .splash-copy > p {
+
+        font-size:
+            13px;
+
+    }
+
+
+    .splash-info {
+
+        gap:
+            7px;
+
+    }
+
+
+    .info-item {
+
+        font-size:
+            8px;
+
+    }
+
+}
+
+
+/* =========================================================
+   PART 13 — REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+
+        scroll-behavior:
+            auto !important;
+
+        animation-duration:
+            0.01ms !important;
+
+        animation-iteration-count:
+            1 !important;
+
+        transition-duration:
+            0.01ms !important;
+
+    }
+
+}
+
