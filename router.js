@@ -48,7 +48,7 @@ const routes = {
     voiceClone: {
         html: "pages/voice-clone.html",
         css: "css/voice-clone.css",
-        script: "./voice-clone.js",
+        script: "./voiceClone.js",
         initializer: "initializeVoiceClone"
     },
 
