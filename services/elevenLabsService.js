@@ -38,65 +38,55 @@ function getHeaders(){
 // ==========================================
 // Text To Speech
 // ==========================================
-
 export async function textToSpeech({
-
     text,
-
     voiceId,
+    model = "eleven_multilingual_v2",
+    stability = 0.5,
+    similarityBoost = 0.75
+}) {
 
-    model = "eleven_multilingual_v2"
+    if (!text || text.trim() === "") {
+        throw new Error("Text is required.");
+    }
 
-}){
+    if (!voiceId || voiceId.trim() === "") {
+        throw new Error("ElevenLabs voice ID is required.");
+    }
 
-    const response =
+    const response = await fetch(
+        `${API_URL}/text-to-speech/${voiceId}`,
+        {
+            method: "POST",
 
-        await fetch(
+            headers: getHeaders(),
 
-            `${API_URL}/text-to-speech/${voiceId}`,
+            body: JSON.stringify({
+                text: text.trim(),
 
-            {
+                model_id: model,
 
-                method: "POST",
+                voice_settings: {
+                    stability,
+                    similarity_boost: similarityBoost,
+                    style: 0.2,
+                    use_speaker_boost: true
+                }
+            })
+        }
+    );
 
-                headers: getHeaders(),
+    if (!response.ok) {
 
-                body: JSON.stringify({
-
-                    text,
-
-                    model_id: model,
-
-                    voice_settings: {
-
-                        stability: 0.5,
-
-                        similarity_boost: 0.75,
-
-                        style: 0.2,
-
-                        use_speaker_boost: true
-
-                    }
-
-                })
-
-            }
-
-        );
-
-    if(!response.ok){
+        const errorText =
+            await response.text();
 
         throw new Error(
-
-            await response.text()
-
+            `ElevenLabs API error ${response.status}: ${errorText}`
         );
-
     }
 
     return await response.arrayBuffer();
-
 }
 
 // ==========================================
