@@ -33,10 +33,14 @@ import {
     generateMemorySummary,
     detectLanguage,
     transcribeAudio,
-    textToSpeech,
     analyzeUploadedFile,
     askAIAboutFile
 } from "../services/openaiService.js";
+
+import {
+    textToSpeech as elevenLabsTextToSpeech,
+    getVoices
+} from "../services/elevenLabsService.js";
 
 import {
 
@@ -953,85 +957,143 @@ router.post(
 );
 
 // ==========================================
-// Text To Speech
+// ElevenLabs Text To Speech
 // ==========================================
 
 router.post(
-
     "/text-to-speech",
-
     authenticateUser,
-
-    async(req,res)=>{
-
-        try{
-
+    async (req, res) => {
+        try {
             const {
-
                 text,
-
-                voice
-
+                voiceId,
+                stability,
+                similarity
             } = req.body;
 
-            if(
+            // ------------------------------
+            // Validate text
+            // ------------------------------
 
-                !text ||
-
-                text.trim()===""
-
-            ){
-
+            if (!text || text.trim() === "") {
                 return res.status(400).json({
-
-                    success:false,
-
-                    message:
-
-                    "Text is required."
-
+                    success: false,
+                    message: "Text is required."
                 });
-
             }
 
-            const audio =
+            // ------------------------------
+            // ElevenLabs voice ID
+            // ------------------------------
 
-                await textToSpeech(
+            if (!voiceId || voiceId.trim() === "") {
+                return res.status(400).json({
+                    success: false,
+                    message: "ElevenLabs voice ID is required."
+                });
+            }
 
-                    text,
+            // ------------------------------
+            // Validate sliders
+            // ------------------------------
 
-                    voice || "alloy"
+            const safeStability =
+                typeof stability === "number"
+                    ? Math.max(0, Math.min(1, stability))
+                    : 0.5;
 
-                );
+            const safeSimilarity =
+                typeof similarity === "number"
+                    ? Math.max(0, Math.min(1, similarity))
+                    : 0.75;
 
-            return res.json({
+            // ------------------------------
+            // Generate ElevenLabs audio
+            // ------------------------------
 
-                success:true,
-
-                audio
-
+            const audioBuffer = await elevenLabsTextToSpeech({
+                text: text.trim(),
+                voiceId: voiceId.trim(),
+                model: "eleven_multilingual_v2",
+                stability: safeStability,
+                similarityBoost: safeSimilarity
             });
 
-        }
+            // ------------------------------
+            // Convert audio to Base64
+            // ------------------------------
 
-        catch(error){
+            const base64Audio =
+                Buffer.from(audioBuffer).toString("base64");
 
-            console.error(error);
+            const audioDataUrl =
+                `data:audio/mpeg;base64,${base64Audio}`;
+
+            // ------------------------------
+            // Send audio to frontend
+            // ------------------------------
+
+            return res.json({
+                success: true,
+                provider: "elevenlabs",
+                audio: audioDataUrl
+            });
+
+        } catch (error) {
+
+            console.error(
+                "ElevenLabs Text-to-Speech Error:",
+                error
+            );
 
             return res.status(500).json({
+                success: false,
+                message: "ElevenLabs Text-to-Speech failed.",
+                error:
+                    process.env.NODE_ENV === "development"
+                        ? error.message
+                        : undefined
+            });
+        }
+    }
+);
 
-                success:false,
+// ==========================================
+// ElevenLabs Voices
+// ==========================================
 
+router.get(
+    "/voices",
+    authenticateUser,
+    async (req, res) => {
+
+        try {
+
+            const voices =
+                await getVoices();
+
+            return res.json({
+                success: true,
+                voices
+            });
+
+        } catch (error) {
+
+            console.error(
+                "ElevenLabs Voices Error:",
+                error
+            );
+
+            return res.status(500).json({
+                success: false,
                 message:
-
-                "Text-to-Speech failed."
-
+                    "Unable to load ElevenLabs voices."
             });
 
         }
 
     }
-
 );
 
 // ==========================================
