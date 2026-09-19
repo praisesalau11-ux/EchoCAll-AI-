@@ -1,70 +1,56 @@
-// ============================================================
-// EchoCall AI - Voice Studio
-// File: js/voiceClone.js
-// Part 1 of 2
-// ============================================================
 
-// ------------------------------------------------------------
-// API CONFIGURATION
-// ------------------------------------------------------------
+/* ============================================================
+   EchoCall AI - Voice Studio
+   File: js/voiceClone.js
+   Part 1 of 2
+   ============================================================ */
 
 const VOICE_API_BASE_URL =
   "https://echocall-ai-backend.onrender.com/api/ai";
 
-// ------------------------------------------------------------
-// STATE
-// ------------------------------------------------------------
-
 let selectedVoiceId = "";
 let availableVoices = [];
-let isLoadingVoices = false;
 let isGeneratingVoice = false;
 let currentAudioUrl = "";
 let currentAudioBlob = null;
 
+let voicePreviewText;
+let characterCount;
+let generateVoiceButton;
+let voiceAudioPlayer;
+let audioSection;
+let audioStatus;
+let voiceStability;
+let voiceSimilarity;
+let stabilityValue;
+let similarityValue;
+let voiceBackButton;
 
-// ------------------------------------------------------------
-// DOM ELEMENTS
-// ------------------------------------------------------------
-
-const voicePreviewText = document.getElementById("voicePreviewText");
-const characterCount = document.getElementById("characterCount");
-
-const generateVoiceButton =
-  document.getElementById("generateVoiceButton");
-
-const voiceAudioPlayer =
-  document.getElementById("voiceAudioPlayer");
-
-const audioSection =
-  document.getElementById("audioSection");
-
-const audioStatus =
-  document.getElementById("audioStatus");
-
-const voiceStability =
-  document.getElementById("voiceStability");
-
-const voiceSimilarity =
-  document.getElementById("voiceSimilarity");
-
-const stabilityValue =
-  document.getElementById("stabilityValue");
-
-const similarityValue =
-  document.getElementById("similarityValue");
-
-const voiceBackButton =
-  document.getElementById("voiceBackButton");
-
-
-// ------------------------------------------------------------
-// INITIALIZE
-// ------------------------------------------------------------
+/* ============================================================
+   INITIALIZE AFTER DOM LOAD
+   ============================================================ */
 
 document.addEventListener("DOMContentLoaded", () => {
+  voicePreviewText = document.getElementById("voicePreviewText");
+  characterCount = document.getElementById("characterCount");
+  generateVoiceButton =
+    document.getElementById("generateVoiceButton");
+  voiceAudioPlayer =
+    document.getElementById("voiceAudioPlayer");
+  audioSection = document.getElementById("audioSection");
+  audioStatus = document.getElementById("audioStatus");
+  voiceStability = document.getElementById("voiceStability");
+  voiceSimilarity = document.getElementById("voiceSimilarity");
+  stabilityValue = document.getElementById("stabilityValue");
+  similarityValue = document.getElementById("similarityValue");
+  voiceBackButton = document.getElementById("voiceBackButton");
+
   initializeVoiceStudio();
 });
+
+/* ============================================================
+   STUDIO SETUP
+   ============================================================ */
 
 async function initializeVoiceStudio() {
   setupCharacterCounter();
@@ -72,30 +58,26 @@ async function initializeVoiceStudio() {
   setupGenerateButton();
   setupBackButton();
 
-  await createVoiceSelector();
+  createVoiceSelector();
   await loadElevenLabsVoices();
 }
 
-
-// ------------------------------------------------------------
-// FIREBASE AUTH TOKEN
-// ------------------------------------------------------------
+/* ============================================================
+   FIREBASE AUTHENTICATION
+   ============================================================ */
 
 async function getFirebaseAuthToken() {
   try {
     let firebaseAuth = null;
 
-    // Check normal global auth variable
     if (typeof auth !== "undefined" && auth) {
       firebaseAuth = auth;
     }
 
-    // Check window.auth
     if (!firebaseAuth && window.auth) {
       firebaseAuth = window.auth;
     }
 
-    // Check Firebase compat
     if (
       !firebaseAuth &&
       window.firebase &&
@@ -105,123 +87,96 @@ async function getFirebaseAuthToken() {
     }
 
     if (!firebaseAuth) {
-      console.warn("Firebase Auth is not available.");
-      return null;
+      throw new Error("Firebase Authentication is unavailable.");
     }
 
     const currentUser = firebaseAuth.currentUser;
 
     if (!currentUser) {
-      console.warn("No authenticated Firebase user.");
-      return null;
+      throw new Error("Please sign in before using Voice Studio.");
     }
 
-    const token = await currentUser.getIdToken();
-
-    return token;
+    return await currentUser.getIdToken(true);
   } catch (error) {
-    console.error(
-      "Failed to get Firebase authentication token:",
-      error
-    );
-
+    console.error("Firebase token error:", error);
     return null;
   }
 }
 
-
-// ------------------------------------------------------------
-// CHARACTER COUNTER
-// ------------------------------------------------------------
+/* ============================================================
+   CHARACTER COUNTER
+   ============================================================ */
 
 function setupCharacterCounter() {
-  if (!voicePreviewText || !characterCount) {
-    return;
-  }
+  if (!voicePreviewText || !characterCount) return;
 
   updateCharacterCount();
 
-  voicePreviewText.addEventListener("input", () => {
-    updateCharacterCount();
-  });
+  voicePreviewText.addEventListener("input", updateCharacterCount);
 }
 
 function updateCharacterCount() {
-  if (!voicePreviewText || !characterCount) {
-    return;
-  }
+  if (!voicePreviewText || !characterCount) return;
 
-  const length = voicePreviewText.value.length;
-
-  characterCount.textContent = `${length} characters`;
+  characterCount.textContent =
+    `${voicePreviewText.value.length} characters`;
 }
 
-
-// ------------------------------------------------------------
-// VOICE SLIDERS
-// ------------------------------------------------------------
+/* ============================================================
+   SLIDERS
+   ============================================================ */
 
 function setupVoiceSliders() {
-  if (voiceStability && stabilityValue) {
+  if (voiceStability) {
     updateStabilityValue();
 
-    voiceStability.addEventListener("input", () => {
-      updateStabilityValue();
-    });
+    voiceStability.addEventListener(
+      "input",
+      updateStabilityValue
+    );
   }
 
-  if (voiceSimilarity && similarityValue) {
+  if (voiceSimilarity) {
     updateSimilarityValue();
 
-    voiceSimilarity.addEventListener("input", () => {
-      updateSimilarityValue();
-    });
+    voiceSimilarity.addEventListener(
+      "input",
+      updateSimilarityValue
+    );
   }
 }
 
 function updateStabilityValue() {
-  if (!voiceStability || !stabilityValue) {
-    return;
-  }
-
-  const value = Number(voiceStability.value);
+  if (!voiceStability || !stabilityValue) return;
 
   stabilityValue.textContent =
-    `${Math.round(value * 100)}%`;
+    `${Math.round(Number(voiceStability.value) * 100)}%`;
 }
 
 function updateSimilarityValue() {
-  if (!voiceSimilarity || !similarityValue) {
-    return;
-  }
-
-  const value = Number(voiceSimilarity.value);
+  if (!voiceSimilarity || !similarityValue) return;
 
   similarityValue.textContent =
-    `${Math.round(value * 100)}%`;
+    `${Math.round(Number(voiceSimilarity.value) * 100)}%`;
 }
 
+/* ============================================================
+   VOICE SELECTOR
+   ============================================================ */
 
-// ------------------------------------------------------------
-// CREATE ELEVENLABS VOICE SELECTOR
-// ------------------------------------------------------------
+function createVoiceSelector() {
+  let selector = document.getElementById(
+    "elevenLabsVoiceSelector"
+  );
 
-async function createVoiceSelector() {
-  const existingSelector =
-    document.getElementById("elevenLabsVoiceSelector");
+  if (selector) return;
 
-  if (existingSelector) {
-    return;
-  }
-
-  const selectedVoiceCard =
-    document.querySelector(".selected-voice-card");
+  const selectedVoiceCard = document.querySelector(
+    ".selected-voice-card"
+  );
 
   if (!selectedVoiceCard) {
-    console.warn(
-      "Selected voice card was not found."
-    );
-
+    console.warn("Selected voice card was not found.");
     return;
   }
 
@@ -241,9 +196,7 @@ async function createVoiceSelector() {
       id="elevenLabsVoiceSelector"
       class="elevenlabs-voice-selector"
     >
-      <option value="">
-        Loading voices...
-      </option>
+      <option value="">Loading voices...</option>
     </select>
 
     <div
@@ -260,253 +213,167 @@ async function createVoiceSelector() {
   );
 }
 
-
-// ------------------------------------------------------------
-// LOAD ELEVENLABS VOICES
-// ------------------------------------------------------------
-
 async function loadElevenLabsVoices() {
-  if (isLoadingVoices) {
-    return;
-  }
+  const selector = document.getElementById(
+    "elevenLabsVoiceSelector"
+  );
 
-  isLoadingVoices = true;
-
-  const selector =
-    document.getElementById(
-      "elevenLabsVoiceSelector"
-    );
-
-  const selectorStatus =
-    document.getElementById(
-      "voiceSelectorStatus"
-    );
+  const status = document.getElementById(
+    "voiceSelectorStatus"
+  );
 
   try {
-    if (selector) {
-      selector.innerHTML = `
-        <option value="">
-          Loading voices...
-        </option>
-      `;
+    if (!selector) {
+      throw new Error("Voice selector was not found.");
     }
 
-    if (selectorStatus) {
-      selectorStatus.textContent =
-        "Connecting to ElevenLabs...";
+    selector.innerHTML =
+      `<option value="">Loading voices...</option>`;
+
+    if (status) {
+      status.textContent = "Connecting to ElevenLabs...";
     }
 
-    const token =
-      await getFirebaseAuthToken();
+    const token = await getFirebaseAuthToken();
 
     if (!token) {
-      throw new Error(
-        "You must be signed in before loading voices."
-      );
+      throw new Error("Please sign in before loading voices.");
     }
 
     const response = await fetch(
       `${VOICE_API_BASE_URL}/voices`,
       {
         method: "GET",
-
         headers: {
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json"
         }
       }
     );
 
-    const data =
-      await parseJsonResponse(response);
+    const data = await parseJsonResponse(response);
 
     if (!response.ok) {
       throw new Error(
-        data?.message ||
-        "Unable to load ElevenLabs voices."
+        data?.message || "Unable to load voices."
       );
     }
 
-    if (
-      !data ||
-      !Array.isArray(data.voices)
-    ) {
-      throw new Error(
-        "The server returned an invalid voices response."
-      );
+    if (!Array.isArray(data?.voices)) {
+      throw new Error("Invalid voices response from server.");
     }
 
     availableVoices = data.voices;
 
-    populateVoiceSelector(
-      availableVoices
-    );
-
+    populateVoiceSelector(availableVoices);
   } catch (error) {
-    console.error(
-      "Load ElevenLabs voices error:",
-      error
-    );
+    console.error("Load voices error:", error);
 
     if (selector) {
-      selector.innerHTML = `
-        <option value="">
-          Unable to load voices
-        </option>
-      `;
+      selector.innerHTML =
+        `<option value="">Unable to load voices</option>`;
     }
 
-    if (selectorStatus) {
-      selectorStatus.textContent =
-        error.message ||
-        "Unable to load ElevenLabs voices.";
+    if (status) {
+      status.textContent = error.message;
     }
-
-  } finally {
-    isLoadingVoices = false;
   }
 }
 
-
-// ------------------------------------------------------------
-// POPULATE VOICE SELECTOR
-// ------------------------------------------------------------
-
 function populateVoiceSelector(voices) {
-  const selector =
-    document.getElementById(
-      "elevenLabsVoiceSelector"
-    );
+  const selector = document.getElementById(
+    "elevenLabsVoiceSelector"
+  );
 
-  const selectorStatus =
-    document.getElementById(
-      "voiceSelectorStatus"
-    );
+  const status = document.getElementById(
+    "voiceSelectorStatus"
+  );
 
-  if (!selector) {
-    return;
-  }
+  if (!selector) return;
 
   selector.innerHTML = "";
 
   if (!voices.length) {
-    selector.innerHTML = `
-      <option value="">
-        No voices available
-      </option>
-    `;
+    selector.innerHTML =
+      `<option value="">No voices available</option>`;
 
-    if (selectorStatus) {
-      selectorStatus.textContent =
-        "No ElevenLabs voices were returned.";
+    if (status) {
+      status.textContent = "No voices were returned.";
     }
 
     selectedVoiceId = "";
-
     return;
   }
 
   voices.forEach((voice) => {
-    const option =
-      document.createElement("option");
+    const voiceId = voice.voice_id || voice.id;
+    const voiceName = voice.name || "Unnamed Voice";
 
-    option.value =
-      voice.voice_id ||
-      voice.id ||
-      "";
+    if (!voiceId) return;
 
-    option.textContent =
-      voice.name ||
-      "Unnamed Voice";
+    const option = document.createElement("option");
+
+    option.value = voiceId;
+    option.textContent = voiceName;
 
     selector.appendChild(option);
   });
 
-  selectedVoiceId =
-    selector.value || "";
+  selectedVoiceId = selector.value || "";
 
   selector.addEventListener(
     "change",
     handleVoiceSelection
   );
 
-  if (selectorStatus) {
-    selectorStatus.textContent =
-      `${voices.length} ElevenLabs voice${
-        voices.length === 1 ? "" : "s"
-      } available`;
+  if (status) {
+    status.textContent =
+      `${voices.length} ElevenLabs voices available`;
   }
 
   updateSelectedVoiceDisplay();
 }
-
-
-// ------------------------------------------------------------
-// HANDLE VOICE SELECTION
-// ------------------------------------------------------------
 
 function handleVoiceSelection(event) {
-  selectedVoiceId =
-    event.target.value || "";
+  selectedVoiceId = event.target.value || "";
 
   updateSelectedVoiceDisplay();
 }
 
-
-// ------------------------------------------------------------
-// UPDATE SELECTED VOICE DISPLAY
-// ------------------------------------------------------------
-
 function updateSelectedVoiceDisplay() {
-  const selectedVoice =
-    availableVoices.find(
-      (voice) =>
-        (voice.voice_id || voice.id) ===
-        selectedVoiceId
-    );
+  const selectedVoice = availableVoices.find(
+    (voice) =>
+      (voice.voice_id || voice.id) === selectedVoiceId
+  );
 
-  if (!selectedVoice) {
-    return;
-  }
+  if (!selectedVoice) return;
 
   const voiceName =
-    selectedVoice.name ||
-    "ElevenLabs Voice";
+    selectedVoice.name || "ElevenLabs Voice";
 
-  // Try several possible existing elements
-  const voiceNameElements =
-    document.querySelectorAll(
-      ".selected-voice-name, #selectedVoiceName, [data-selected-voice-name]"
-    );
-
-  voiceNameElements.forEach((element) => {
+  document.querySelectorAll(
+    ".selected-voice-name, #selectedVoiceName, [data-selected-voice-name]"
+  ).forEach((element) => {
     element.textContent = voiceName;
   });
 
-  // Store useful information on the card
-  const selectedVoiceCard =
-    document.querySelector(".selected-voice-card");
+  const card = document.querySelector(
+    ".selected-voice-card"
+  );
 
-  if (selectedVoiceCard) {
-    selectedVoiceCard.dataset.voiceId =
-      selectedVoiceId;
-
-    selectedVoiceCard.dataset.voiceName =
-      voiceName;
+  if (card) {
+    card.dataset.voiceId = selectedVoiceId;
+    card.dataset.voiceName = voiceName;
   }
 }
 
-
-// ------------------------------------------------------------
-// GENERATE BUTTON
-// ------------------------------------------------------------
+/* ============================================================
+   GENERATE BUTTON
+   ============================================================ */
 
 function setupGenerateButton() {
   if (!generateVoiceButton) {
-    console.warn(
-      "Generate voice button was not found."
-    );
-
+    console.warn("Generate voice button was not found.");
     return;
   }
 
@@ -516,27 +383,14 @@ function setupGenerateButton() {
   );
 }
 
-
-// ------------------------------------------------------------
-// GENERATE VOICE
-// ------------------------------------------------------------
-
 async function generateVoice() {
-  if (isGeneratingVoice) {
-    return;
-  }
+  if (isGeneratingVoice) return;
 
-  const text =
-    voicePreviewText?.value?.trim() || "";
+  const text = voicePreviewText?.value?.trim() || "";
 
   if (!text) {
-    showVoiceStatus(
-      "Enter some text first.",
-      "error"
-    );
-
+    showVoiceStatus("Enter some text first.", "error");
     voicePreviewText?.focus();
-
     return;
   }
 
@@ -545,12 +399,10 @@ async function generateVoice() {
       "Please select an ElevenLabs voice.",
       "error"
     );
-
     return;
   }
 
   isGeneratingVoice = true;
-
   setGenerateButtonLoading(true);
 
   showVoiceStatus(
@@ -559,68 +411,48 @@ async function generateVoice() {
   );
 
   try {
-    const token =
-      await getFirebaseAuthToken();
+    const token = await getFirebaseAuthToken();
 
     if (!token) {
       throw new Error(
-        "You must be signed in to generate audio."
+        "Please sign in before generating audio."
       );
     }
 
-    const stability =
-      voiceStability
-        ? Number(voiceStability.value)
-        : 0.5;
+    const stability = voiceStability
+      ? Number(voiceStability.value)
+      : 0.5;
 
-    const similarity =
-      voiceSimilarity
-        ? Number(voiceSimilarity.value)
-        : 0.75;
+    const similarity = voiceSimilarity
+      ? Number(voiceSimilarity.value)
+      : 0.75;
 
     const response = await fetch(
       `${VOICE_API_BASE_URL}/text-to-speech`,
       {
         method: "POST",
-
         headers: {
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json"
         },
-
         body: JSON.stringify({
-          text: text,
-
-          voiceId:
-            selectedVoiceId,
-
-          stability:
-            stability,
-
-          similarity:
-            similarity
+          text,
+          voiceId: selectedVoiceId,
+          stability,
+          similarity
         })
       }
     );
 
-    const data =
-      await parseJsonResponse(response);
+    const data = await parseJsonResponse(response);
 
     if (!response.ok) {
       throw new Error(
-        data?.message ||
-        "Voice generation failed."
+        data?.message || "Voice generation failed."
       );
     }
 
-    if (!data) {
-      throw new Error(
-        "The server returned an empty response."
-      );
-    }
-
-    const audioSource =
-      await extractAudioSource(data);
+    const audioSource = extractAudioSource(data);
 
     if (!audioSource) {
       throw new Error(
@@ -628,55 +460,38 @@ async function generateVoice() {
       );
     }
 
-    await displayGeneratedAudio(
-      audioSource
-    );
+    await displayGeneratedAudio(audioSource);
 
     showVoiceStatus(
       "Voice generated successfully.",
       "success"
     );
-
   } catch (error) {
-    console.error(
-      "Voice generation error:",
-      error
-    );
+    console.error("Voice generation error:", error);
 
     showVoiceStatus(
-      error.message ||
-      "Unable to generate voice.",
+      error.message || "Unable to generate voice.",
       "error"
     );
-
   } finally {
     isGeneratingVoice = false;
-
     setGenerateButtonLoading(false);
   }
 }
 
-
-// ------------------------------------------------------------
-// PARSE JSON RESPONSE
-// ------------------------------------------------------------
+/* ============================================================
+   RESPONSE PARSER
+   ============================================================ */
 
 async function parseJsonResponse(response) {
   const contentType =
-    response.headers.get(
-      "content-type"
-    ) || "";
+    response.headers.get("content-type") || "";
 
-  if (
-    contentType.includes(
-      "application/json"
-    )
-  ) {
+  if (contentType.includes("application/json")) {
     return await response.json();
   }
 
-  const text =
-    await response.text();
+  const text = await response.text();
 
   try {
     return JSON.parse(text);
@@ -689,43 +504,12 @@ async function parseJsonResponse(response) {
 }
 
 
-// ============================================================
-// END OF PART 1
-// ============================================================
-//
-// PART 2 will contain:
-//
-// - audio extraction
-// - audio player setup
-// - DOWNLOAD VOICE button
-// - Blob conversion
-// - download handling
-// - status messages
-// - loading button animation
-// - back button
-// - navigation fallback
-// - cleanup
-//
-// ============================================================
-// ============================================================
-// EchoCall AI - Voice Studio
-// File: js/voiceClone.js
-// Part 2 of 2
-// ============================================================
+/* ============================================================
+   AUDIO SOURCE EXTRACTION
+   ============================================================ */
 
-
-// ------------------------------------------------------------
-// EXTRACT AUDIO SOURCE
-// ------------------------------------------------------------
-
-async function extractAudioSource(data) {
-  if (!data) {
-    return null;
-  }
-
-  // ----------------------------------------------------------
-  // CASE 1: Server returned audio directly as a data URL
-  // ----------------------------------------------------------
+function extractAudioSource(data) {
+  if (!data) return null;
 
   if (
     typeof data.audio === "string" &&
@@ -733,11 +517,6 @@ async function extractAudioSource(data) {
   ) {
     return data.audio;
   }
-
-
-  // ----------------------------------------------------------
-  // CASE 2: Server returned a normal HTTP/HTTPS URL
-  // ----------------------------------------------------------
 
   if (
     typeof data.audio === "string" &&
@@ -749,11 +528,6 @@ async function extractAudioSource(data) {
     return data.audio;
   }
 
-
-  // ----------------------------------------------------------
-  // CASE 3: Server returned base64 audio
-  // ----------------------------------------------------------
-
   if (
     typeof data.audio === "string" &&
     isProbablyBase64(data.audio)
@@ -761,61 +535,34 @@ async function extractAudioSource(data) {
     return `data:audio/mpeg;base64,${data.audio}`;
   }
 
-
-  // ----------------------------------------------------------
-  // CASE 4: Server returned an audio object
-  // ----------------------------------------------------------
-
   if (
     data.audio &&
     typeof data.audio === "object"
   ) {
-    const audioObject = data.audio;
+    const audio = data.audio;
 
-    // data URL
-    if (
-      typeof audioObject.dataUrl === "string"
-    ) {
-      return audioObject.dataUrl;
+    if (typeof audio.dataUrl === "string") {
+      return audio.dataUrl;
     }
 
-    if (
-      typeof audioObject.url === "string"
-    ) {
-      return audioObject.url;
+    if (typeof audio.url === "string") {
+      return audio.url;
     }
 
-    if (
-      typeof audioObject.audioUrl === "string"
-    ) {
-      return audioObject.audioUrl;
+    if (typeof audio.audioUrl === "string") {
+      return audio.audioUrl;
     }
 
-    if (
-      typeof audioObject.base64 === "string"
-    ) {
-      return (
-        `data:audio/mpeg;base64,` +
-        audioObject.base64
-      );
+    if (typeof audio.base64 === "string") {
+      return `data:audio/mpeg;base64,${audio.base64}`;
     }
 
-    if (
-      typeof audioObject.data === "string"
-    ) {
-      return (
-        `data:audio/mpeg;base64,` +
-        audioObject.data
-      );
+    if (typeof audio.data === "string") {
+      return `data:audio/mpeg;base64,${audio.data}`;
     }
   }
 
-
-  // ----------------------------------------------------------
-  // CASE 5: Alternative response property names
-  // ----------------------------------------------------------
-
-  const possibleAudioFields = [
+  const alternatives = [
     data.audioUrl,
     data.audioURL,
     data.url,
@@ -824,205 +571,88 @@ async function extractAudioSource(data) {
     data.base64
   ];
 
-  for (
-    const possibleAudio of possibleAudioFields
-  ) {
-    if (
-      typeof possibleAudio !== "string"
-    ) {
-      continue;
+  for (const value of alternatives) {
+    if (typeof value !== "string") continue;
+
+    if (value.startsWith("data:audio/")) {
+      return value;
     }
 
     if (
-      possibleAudio.startsWith(
-        "data:audio/"
-      )
+      value.startsWith("https://") ||
+      value.startsWith("http://")
     ) {
-      return possibleAudio;
+      return value;
     }
 
-    if (
-      possibleAudio.startsWith(
-        "https://"
-      ) ||
-      possibleAudio.startsWith(
-        "http://"
-      )
-    ) {
-      return possibleAudio;
-    }
-
-    if (
-      isProbablyBase64(possibleAudio)
-    ) {
-      return (
-        `data:audio/mpeg;base64,` +
-        possibleAudio
-      );
+    if (isProbablyBase64(value)) {
+      return `data:audio/mpeg;base64,${value}`;
     }
   }
-
 
   return null;
 }
 
-
-// ------------------------------------------------------------
-// CHECK IF STRING IS PROBABLY BASE64
-// ------------------------------------------------------------
-
 function isProbablyBase64(value) {
-  if (
-    typeof value !== "string"
-  ) {
-    return false;
-  }
+  if (typeof value !== "string") return false;
 
-  if (value.length < 50) {
-    return false;
-  }
+  const cleaned = value.replace(/\s/g, "");
 
-  // Remove whitespace
-  const cleaned =
-    value.replace(/\s/g, "");
-
-  // Base64 characters only
-  if (
-    !/^[A-Za-z0-9+/=]+$/.test(
-      cleaned
-    )
-  ) {
-    return false;
-  }
-
-  return true;
+  return (
+    cleaned.length >= 50 &&
+    /^[A-Za-z0-9+/=]+$/.test(cleaned)
+  );
 }
 
+/* ============================================================
+   DISPLAY AUDIO
+   ============================================================ */
 
-// ------------------------------------------------------------
-// DISPLAY GENERATED AUDIO
-// ------------------------------------------------------------
-
-async function displayGeneratedAudio(
-  audioSource
-) {
+async function displayGeneratedAudio(audioSource) {
   if (!audioSection) {
-    console.warn(
-      "Audio section was not found."
-    );
-
-    return;
+    throw new Error("Audio section was not found.");
   }
-
-  // ----------------------------------------------------------
-  // Clean up previous audio
-  // ----------------------------------------------------------
 
   cleanupPreviousAudio();
 
-
-  // ----------------------------------------------------------
-  // Convert source into a usable audio URL
-  // ----------------------------------------------------------
-
-  let audioUrl =
-    await convertAudioSourceToUrl(
-      audioSource
-    );
+  const audioUrl =
+    await convertAudioSourceToUrl(audioSource);
 
   if (!audioUrl) {
-    throw new Error(
-      "Unable to prepare generated audio."
-    );
+    throw new Error("Unable to prepare generated audio.");
   }
 
   currentAudioUrl = audioUrl;
 
-
-  // ----------------------------------------------------------
-  // Set audio player
-  // ----------------------------------------------------------
-
   if (voiceAudioPlayer) {
-    voiceAudioPlayer.src =
-      audioUrl;
-
-    voiceAudioPlayer.controls =
-      true;
-
-    voiceAudioPlayer.preload =
-      "metadata";
-
+    voiceAudioPlayer.src = audioUrl;
+    voiceAudioPlayer.controls = true;
+    voiceAudioPlayer.preload = "metadata";
     voiceAudioPlayer.load();
   }
 
+  audioSection.hidden = false;
+  audioSection.style.display = "";
 
-  // ----------------------------------------------------------
-  // Make audio section visible
-  // ----------------------------------------------------------
+  createDownloadButton(audioUrl);
 
-  audioSection.hidden =
-    false;
+  try {
+    await voiceAudioPlayer?.play();
+  } catch {
+    console.log("Autoplay was blocked.");
+  }
 
-  audioSection.style.display =
-    "";
-
-
-  // ----------------------------------------------------------
-  // Create download button
-  // ----------------------------------------------------------
-
-  createDownloadButton(
-    audioUrl
-  );
-
-
-  // ----------------------------------------------------------
-  // Scroll to generated audio
-  // ----------------------------------------------------------
-
-  setTimeout(() => {
-    try {
-      audioSection.scrollIntoView({
-        behavior: "smooth",
-        block: "center"
-      });
-    } catch (error) {
-      console.warn(
-        "Could not scroll to audio section:",
-        error
-      );
-    }
-  }, 100);
-
-
-  // ----------------------------------------------------------
-  // Try to automatically load the audio
-  // ----------------------------------------------------------
-
-  if (voiceAudioPlayer) {
-    try {
-      await voiceAudioPlayer.play();
-
-      // Some browsers block autoplay.
-      // If blocked, the audio player remains available.
-
-    } catch (error) {
-      console.log(
-        "Autoplay was blocked by the browser."
-      );
-    }
+  try {
+    audioSection.scrollIntoView({
+      behavior: "smooth",
+      block: "center"
+    });
+  } catch (error) {
+    console.warn("Audio scroll error:", error);
   }
 }
 
-
-// ------------------------------------------------------------
-// CONVERT AUDIO SOURCE TO URL
-// ------------------------------------------------------------
-
-async function convertAudioSourceToUrl(
-  audioSource
-) {
+async function convertAudioSourceToUrl(audioSource) {
   if (
     !audioSource ||
     typeof audioSource !== "string"
@@ -1030,519 +660,211 @@ async function convertAudioSourceToUrl(
     return null;
   }
 
-
-  // ----------------------------------------------------------
-  // DATA URL
-  // ----------------------------------------------------------
-
-  if (
-    audioSource.startsWith(
-      "data:audio/"
-    )
-  ) {
+  if (audioSource.startsWith("data:audio/")) {
     try {
-      const blob =
-        dataUrlToBlob(
-          audioSource
-        );
+      const blob = dataUrlToBlob(audioSource);
 
-      currentAudioBlob =
-        blob;
+      currentAudioBlob = blob;
 
-      return URL.createObjectURL(
-        blob
-      );
-
+      return URL.createObjectURL(blob);
     } catch (error) {
-      console.error(
-        "Data URL conversion failed:",
-        error
-      );
-
-      // Fall back to original data URL
+      console.error("Data URL conversion error:", error);
       return audioSource;
     }
   }
 
-
-  // ----------------------------------------------------------
-  // HTTP URL
-  // ----------------------------------------------------------
-
   if (
-    audioSource.startsWith(
-      "https://"
-    ) ||
-    audioSource.startsWith(
-      "http://"
-    )
+    audioSource.startsWith("https://") ||
+    audioSource.startsWith("http://")
   ) {
     try {
-      const response =
-        await fetch(
-          audioSource
-        );
+      const response = await fetch(audioSource);
 
       if (response.ok) {
-        const blob =
-          await response.blob();
+        const blob = await response.blob();
 
-        currentAudioBlob =
-          blob;
+        currentAudioBlob = blob;
 
-        return URL.createObjectURL(
-          blob
-        );
+        return URL.createObjectURL(blob);
       }
-
     } catch (error) {
-      console.warn(
-        "Could not download remote audio:",
-        error
-      );
+      console.warn("Remote audio fetch failed:", error);
     }
 
     return audioSource;
   }
 
-
   return audioSource;
 }
 
-
-// ------------------------------------------------------------
-// DATA URL → BLOB
-// ------------------------------------------------------------
-
-function dataUrlToBlob(
-  dataUrl
-) {
-  const parts =
-    dataUrl.split(",");
+function dataUrlToBlob(dataUrl) {
+  const parts = dataUrl.split(",");
 
   if (parts.length < 2) {
-    throw new Error(
-      "Invalid audio data URL."
-    );
+    throw new Error("Invalid audio data URL.");
   }
 
-  const header =
-    parts[0];
-
-  const base64 =
-    parts.slice(1).join(",");
+  const header = parts[0];
+  const base64 = parts.slice(1).join(",");
 
   const mimeMatch =
-    header.match(
-      /data:([^;]+);base64/
-    );
+    header.match(/data:([^;]+);base64/);
 
   const mimeType =
-    mimeMatch
-      ? mimeMatch[1]
-      : "audio/mpeg";
+    mimeMatch?.[1] || "audio/mpeg";
 
-  const binaryString =
-    atob(base64);
+  const binaryString = atob(base64);
+  const bytes = new Uint8Array(binaryString.length);
 
-  const length =
-    binaryString.length;
-
-  const bytes =
-    new Uint8Array(length);
-
-  for (
-    let index = 0;
-    index < length;
-    index++
-  ) {
-    bytes[index] =
-      binaryString.charCodeAt(index);
+  for (let index = 0; index < binaryString.length; index++) {
+    bytes[index] = binaryString.charCodeAt(index);
   }
 
-  return new Blob(
-    [bytes],
-    {
-      type: mimeType
-    }
-  );
+  return new Blob([bytes], {
+    type: mimeType
+  });
 }
 
+/* ============================================================
+   DOWNLOAD BUTTON
+   ============================================================ */
 
-// ------------------------------------------------------------
-// CREATE DOWNLOAD BUTTON
-// ------------------------------------------------------------
+function createDownloadButton(audioUrl) {
+  if (!audioSection) return;
 
-function createDownloadButton(
-  audioUrl
-) {
-  if (!audioSection) {
-    return;
-  }
+  document.getElementById(
+    "voiceDownloadWrapper"
+  )?.remove();
 
+  const wrapper = document.createElement("div");
 
-  // ----------------------------------------------------------
-  // Remove previous download button
-  // ----------------------------------------------------------
+  wrapper.id = "voiceDownloadWrapper";
+  wrapper.className = "voice-download-wrapper";
 
-  const oldButton =
-    document.getElementById(
-      "downloadVoiceButton"
-    );
+  const button = document.createElement("button");
 
-  if (oldButton) {
-    oldButton.remove();
-  }
-
-
-  // ----------------------------------------------------------
-  // Create button wrapper
-  // ----------------------------------------------------------
-
-  const wrapper =
-    document.createElement("div");
-
-  wrapper.id =
-    "voiceDownloadWrapper";
-
-  wrapper.className =
-    "voice-download-wrapper";
-
-
-  // ----------------------------------------------------------
-  // Create button
-  // ----------------------------------------------------------
-
-  const button =
-    document.createElement("button");
-
-  button.type =
-    "button";
-
-  button.id =
-    "downloadVoiceButton";
-
-  button.className =
-    "download-voice-button";
+  button.type = "button";
+  button.id = "downloadVoiceButton";
+  button.className = "download-voice-button";
 
   button.innerHTML = `
-    <span class="download-icon">
-      ↓
-    </span>
-
-    <span class="download-text">
-      Download Voice
-    </span>
+    <span class="download-icon">↓</span>
+    <span class="download-text">Download Voice</span>
   `;
 
+  button.addEventListener("click", () => {
+    downloadGeneratedVoice(audioUrl);
+  });
 
-  // ----------------------------------------------------------
-  // Download event
-  // ----------------------------------------------------------
+  wrapper.appendChild(button);
 
-  button.addEventListener(
-    "click",
-    () => {
-      downloadGeneratedVoice(
-        audioUrl
-      );
-    }
-  );
-
-
-  wrapper.appendChild(
-    button
-  );
-
-
-  // ----------------------------------------------------------
-  // Put button underneath audio player
-  // ----------------------------------------------------------
-
-  const audioPlayer =
-    document.getElementById(
-      "voiceAudioPlayer"
-    );
-
-  if (audioPlayer) {
-    audioPlayer.insertAdjacentElement(
+  if (voiceAudioPlayer) {
+    voiceAudioPlayer.insertAdjacentElement(
       "afterend",
       wrapper
     );
-
-    return;
+  } else {
+    audioSection.appendChild(wrapper);
   }
-
-
-  // Fallback
-  audioSection.appendChild(
-    wrapper
-  );
 }
 
-
-// ------------------------------------------------------------
-// DOWNLOAD GENERATED VOICE
-// ------------------------------------------------------------
-
-async function downloadGeneratedVoice(
-  audioUrl
-) {
-  const button =
-    document.getElementById(
-      "downloadVoiceButton"
-    );
+async function downloadGeneratedVoice(audioUrl) {
+  const button = document.getElementById(
+    "downloadVoiceButton"
+  );
 
   if (button) {
-    button.disabled =
-      true;
-
-    button.innerHTML = `
-      <span class="download-icon">
-        ↓
-      </span>
-
-      <span class="download-text">
-        Preparing...
-      </span>
-    `;
+    button.disabled = true;
+    button.textContent = "Preparing...";
   }
 
   try {
-    let blob =
-      currentAudioBlob;
-
-
-    // --------------------------------------------------------
-    // If no cached blob, fetch the audio
-    // --------------------------------------------------------
+    let blob = currentAudioBlob;
 
     if (!blob) {
-      const response =
-        await fetch(
-          audioUrl
-        );
+      const response = await fetch(audioUrl);
 
       if (!response.ok) {
-        throw new Error(
-          "Unable to download the audio."
-        );
+        throw new Error("Unable to download audio.");
       }
 
-      blob =
-        await response.blob();
-
-      currentAudioBlob =
-        blob;
+      blob = await response.blob();
+      currentAudioBlob = blob;
     }
 
+    const downloadUrl = URL.createObjectURL(blob);
+    const extension = getAudioFileExtension(blob.type);
 
-    // --------------------------------------------------------
-    // Determine file extension
-    // --------------------------------------------------------
+    const link = document.createElement("a");
 
-    const extension =
-      getAudioFileExtension(
-        blob.type
-      );
-
-
-    // --------------------------------------------------------
-    // Create temporary download URL
-    // --------------------------------------------------------
-
-    const downloadUrl =
-      URL.createObjectURL(
-        blob
-      );
-
-
-    // --------------------------------------------------------
-    // Create invisible download link
-    // --------------------------------------------------------
-
-    const link =
-      document.createElement("a");
-
-    link.href =
-      downloadUrl;
-
+    link.href = downloadUrl;
     link.download =
       `EchoCall-Voice-${getTimestamp()}.${extension}`;
 
-    link.style.display =
-      "none";
-
-
-    document.body.appendChild(
-      link
-    );
-
+    document.body.appendChild(link);
     link.click();
-
     link.remove();
 
-
-    // --------------------------------------------------------
-    // Clean temporary URL
-    // --------------------------------------------------------
-
-    setTimeout(() => {
-      URL.revokeObjectURL(
-        downloadUrl
-      );
-    }, 1000);
-
+    URL.revokeObjectURL(downloadUrl);
 
     showVoiceStatus(
       "Voice downloaded successfully.",
       "success"
     );
-
-
   } catch (error) {
-    console.error(
-      "Voice download error:",
-      error
-    );
+    console.error("Download error:", error);
 
     showVoiceStatus(
       "Unable to download the generated voice.",
       "error"
     );
-
   } finally {
     if (button) {
-      button.disabled =
-        false;
-
+      button.disabled = false;
       button.innerHTML = `
-        <span class="download-icon">
-          ↓
-        </span>
-
-        <span class="download-text">
-          Download Voice
-        </span>
+        <span class="download-icon">↓</span>
+        <span class="download-text">Download Voice</span>
       `;
     }
   }
 }
 
+function getAudioFileExtension(mimeType) {
+  const mime = (mimeType || "").toLowerCase();
 
-// ------------------------------------------------------------
-// GET AUDIO FILE EXTENSION
-// ------------------------------------------------------------
-
-function getAudioFileExtension(
-  mimeType
-) {
-  const mime =
-    (mimeType || "").toLowerCase();
-
-  if (
-    mime.includes(
-      "audio/wav"
-    ) ||
-    mime.includes(
-      "audio/wave"
-    ) ||
-    mime.includes(
-      "audio/x-wav"
-    )
-  ) {
-    return "wav";
-  }
-
-  if (
-    mime.includes(
-      "audio/ogg"
-    )
-  ) {
-    return "ogg";
-  }
-
-  if (
-    mime.includes(
-      "audio/webm"
-    )
-  ) {
-    return "webm";
-  }
-
-  if (
-    mime.includes(
-      "audio/mp4"
-    ) ||
-    mime.includes(
-      "audio/m4a"
-    )
-  ) {
+  if (mime.includes("wav")) return "wav";
+  if (mime.includes("ogg")) return "ogg";
+  if (mime.includes("webm")) return "webm";
+  if (mime.includes("mp4") || mime.includes("m4a")) {
     return "m4a";
   }
 
-  // ElevenLabs normally returns MP3
   return "mp3";
 }
 
-
-// ------------------------------------------------------------
-// TIMESTAMP FOR FILE NAME
-// ------------------------------------------------------------
-
 function getTimestamp() {
-  const now =
-    new Date();
+  const now = new Date();
 
-  const year =
-    now.getFullYear();
+  const parts = [
+    now.getFullYear(),
+    String(now.getMonth() + 1).padStart(2, "0"),
+    String(now.getDate()).padStart(2, "0"),
+    String(now.getHours()).padStart(2, "0"),
+    String(now.getMinutes()).padStart(2, "0"),
+    String(now.getSeconds()).padStart(2, "0")
+  ];
 
-  const month =
-    String(
-      now.getMonth() + 1
-    ).padStart(2, "0");
-
-  const day =
-    String(
-      now.getDate()
-    ).padStart(2, "0");
-
-  const hours =
-    String(
-      now.getHours()
-    ).padStart(2, "0");
-
-  const minutes =
-    String(
-      now.getMinutes()
-    ).padStart(2, "0");
-
-  const seconds =
-    String(
-      now.getSeconds()
-    ).padStart(2, "0");
-
-  return (
-    `${year}-${month}-${day}-` +
-    `${hours}-${minutes}-${seconds}`
-  );
+  return `${parts[0]}-${parts[1]}-${parts[2]}-${parts[3]}-${parts[4]}-${parts[5]}`;
 }
 
+/* ============================================================
+   BUTTON LOADING STATE
+   ============================================================ */
 
-// ------------------------------------------------------------
-// GENERATE BUTTON LOADING STATE
-// ------------------------------------------------------------
+function setGenerateButtonLoading(loading) {
+  if (!generateVoiceButton) return;
 
-function setGenerateButtonLoading(
-  loading
-) {
-  if (!generateVoiceButton) {
-    return;
-  }
-
-  generateVoiceButton.disabled =
-    loading;
-
+  generateVoiceButton.disabled = loading;
 
   if (loading) {
     generateVoiceButton.dataset.originalHTML =
@@ -1553,58 +875,40 @@ function setGenerateButtonLoading(
       <span>Generating Voice...</span>
     `;
 
-    generateVoiceButton.classList.add(
-      "is-loading"
-    );
-
+    generateVoiceButton.classList.add("is-loading");
   } else {
     const originalHTML =
       generateVoiceButton.dataset.originalHTML;
 
     if (originalHTML) {
-      generateVoiceButton.innerHTML =
-        originalHTML;
+      generateVoiceButton.innerHTML = originalHTML;
     }
 
-    generateVoiceButton.classList.remove(
-      "is-loading"
-    );
+    generateVoiceButton.classList.remove("is-loading");
   }
 }
 
+/* ============================================================
+   STATUS MESSAGE
+   ============================================================ */
 
-// ------------------------------------------------------------
-// VOICE STATUS
-// ------------------------------------------------------------
-
-function showVoiceStatus(
-  message,
-  type = "info"
-) {
+function showVoiceStatus(message, type = "info") {
   if (!audioStatus) {
+    console.warn(message);
     return;
   }
 
-  audioStatus.textContent =
-    message;
-
-  audioStatus.className =
-    "audio-status";
-
-  audioStatus.classList.add(
-    `status-${type}`
-  );
+  audioStatus.textContent = message;
+  audioStatus.className = "audio-status";
+  audioStatus.classList.add(`status-${type}`);
 }
 
-
-// ------------------------------------------------------------
-// BACK BUTTON
-// ------------------------------------------------------------
+/* ============================================================
+   BACK BUTTON
+   ============================================================ */
 
 function setupBackButton() {
-  if (!voiceBackButton) {
-    return;
-  }
+  if (!voiceBackButton) return;
 
   voiceBackButton.addEventListener(
     "click",
@@ -1612,182 +916,88 @@ function setupBackButton() {
   );
 }
 
-
-// ------------------------------------------------------------
-// HANDLE BACK NAVIGATION
-// ------------------------------------------------------------
-
 function handleVoiceBack() {
   try {
-
-    // --------------------------------------------------------
-    // Custom global navigation
-    // --------------------------------------------------------
-
-    if (
-      typeof window.navigateTo ===
-      "function"
-    ) {
-      window.navigateTo(
-        "home"
-      );
-
+    if (typeof window.navigateTo === "function") {
+      window.navigateTo("home");
       return;
     }
-
-
-    // --------------------------------------------------------
-    // Router navigation
-    // --------------------------------------------------------
 
     if (
       window.router &&
-      typeof window.router.navigate ===
-      "function"
+      typeof window.router.navigate === "function"
     ) {
-      window.router.navigate(
-        "home"
-      );
-
+      window.router.navigate("home");
       return;
     }
 
-
-    // --------------------------------------------------------
-    // Browser history
-    // --------------------------------------------------------
-
-    if (
-      window.history.length > 1
-    ) {
+    if (window.history.length > 1) {
       window.history.back();
-
       return;
     }
 
-
-    // --------------------------------------------------------
-    // Fallback
-    // --------------------------------------------------------
-
-    window.location.href =
-      "../index.html";
-
+    window.location.href = "../index.html";
   } catch (error) {
-    console.error(
-      "Voice Studio navigation error:",
-      error
-    );
-
-    window.location.href =
-      "../index.html";
+    console.error("Back navigation error:", error);
+    window.location.href = "../index.html";
   }
 }
 
-
-// ------------------------------------------------------------
-// CLEANUP PREVIOUS AUDIO
-// ------------------------------------------------------------
+/* ============================================================
+   CLEANUP
+   ============================================================ */
 
 function cleanupPreviousAudio() {
-  if (
-    currentAudioUrl &&
-    currentAudioUrl.startsWith(
-      "blob:"
-    )
-  ) {
-    try {
-      URL.revokeObjectURL(
-        currentAudioUrl
-      );
-    } catch (error) {
-      console.warn(
-        "Could not revoke old audio URL:",
-        error
-      );
-    }
+  if (currentAudioUrl?.startsWith("blob:")) {
+    URL.revokeObjectURL(currentAudioUrl);
   }
 
-  currentAudioUrl =
-    "";
-
-  currentAudioBlob =
-    null;
-
+  currentAudioUrl = "";
+  currentAudioBlob = null;
 
   if (voiceAudioPlayer) {
-    try {
-      voiceAudioPlayer.pause();
-
-      voiceAudioPlayer.removeAttribute(
-        "src"
-      );
-
-      voiceAudioPlayer.load();
-
-    } catch (error) {
-      console.warn(
-        "Could not reset audio player:",
-        error
-      );
-    }
+    voiceAudioPlayer.pause();
+    voiceAudioPlayer.removeAttribute("src");
+    voiceAudioPlayer.load();
   }
 
-
-  const oldDownloadWrapper =
-    document.getElementById(
-      "voiceDownloadWrapper"
-    );
-
-  if (oldDownloadWrapper) {
-    oldDownloadWrapper.remove();
-  }
+  document.getElementById(
+    "voiceDownloadWrapper"
+  )?.remove();
 }
 
+/* ============================================================
+   AUDIO EVENTS
+   ============================================================ */
 
-// ------------------------------------------------------------
-// AUDIO PLAYER EVENTS
-// ------------------------------------------------------------
-
-if (voiceAudioPlayer) {
+function setupAudioEvents() {
+  if (!voiceAudioPlayer) return;
 
   voiceAudioPlayer.addEventListener(
     "loadedmetadata",
     () => {
-      console.log(
-        "Generated voice audio loaded."
-      );
+      console.log("Generated audio loaded.");
     }
   );
-
 
   voiceAudioPlayer.addEventListener(
     "play",
     () => {
-      console.log(
-        "Playing generated voice."
-      );
+      console.log("Playing generated audio.");
     }
   );
-
 
   voiceAudioPlayer.addEventListener(
     "ended",
     () => {
-      console.log(
-        "Generated voice finished."
-      );
+      console.log("Generated audio finished.");
     }
   );
 
-
   voiceAudioPlayer.addEventListener(
     "error",
-    (event) => {
-      console.error(
-        "Audio player error:",
-        event
-      );
+    () => {
+      console.error("Audio player error.");
 
       showVoiceStatus(
         "The generated audio could not be played.",
@@ -1797,35 +1007,17 @@ if (voiceAudioPlayer) {
   );
 }
 
+document.addEventListener("DOMContentLoaded", setupAudioEvents);
 
-// ------------------------------------------------------------
-// PAGE VISIBILITY CLEANUP
-// ------------------------------------------------------------
-
-window.addEventListener(
-  "beforeunload",
-  () => {
-    if (
-      currentAudioUrl &&
-      currentAudioUrl.startsWith(
-        "blob:"
-      )
-    ) {
-      try {
-        URL.revokeObjectURL(
-          currentAudioUrl
-        );
-      } catch (error) {
-        // Ignore cleanup errors
-      }
-    }
+window.addEventListener("beforeunload", () => {
+  if (currentAudioUrl?.startsWith("blob:")) {
+    URL.revokeObjectURL(currentAudioUrl);
   }
-);
+});
 
-
-// ------------------------------------------------------------
-// OPTIONAL GLOBAL ACCESS
-// ------------------------------------------------------------
+/* ============================================================
+   OPTIONAL GLOBAL ACCESS
+   ============================================================ */
 
 window.EchoCallVoiceStudio = {
   generateVoice,
@@ -1833,8 +1025,3 @@ window.EchoCallVoiceStudio = {
   downloadGeneratedVoice,
   getFirebaseAuthToken
 };
-
-
-// ============================================================
-// END OF voiceClone.js
-// ============================================================
