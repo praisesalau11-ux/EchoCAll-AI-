@@ -1,585 +1,346 @@
-// ==========================================
-// EchoCall AI Backend
-// File: server/routes/elevenLabsRoutes.js
-// Part 1
-// ==========================================
 
-// ==========================================
-// Imports
-// ==========================================
+/* ==========================================
+   EchoCall AI
+   File: server/routes/elevenLabsRoutes.js
+
+   ElevenLabs Voice Routes
+========================================== */
 
 import express from "express";
 
-import axios from "axios";
-
-import multer from "multer";
+import { authenticateUser } from "../middleware/authMiddleware.js";
 
 import {
+  textToSpeech,
+  getVoices,
+  getVoice,
+  testElevenLabs
+} from "../services/elevenLabsService.js";
 
-    authenticateUser
 
-} from "../middleware/authMiddleware.js";
-
-// ==========================================
-// Router
-// ==========================================
+/* ==========================================
+   ROUTER
+========================================== */
 
 const router = express.Router();
 
-const upload = multer({
 
-    storage: multer.memoryStorage()
-
-});
-
-// ==========================================
-// Environment
-// ==========================================
-
-const API_KEY =
-
-    process.env.ELEVENLABS_API_KEY;
-
-const BASE_URL =
-
-    "https://api.elevenlabs.io/v1";
-
-// ==========================================
-// Get All Voices
-// ==========================================
+/* ==========================================
+   GET AVAILABLE VOICES
+========================================== */
 
 router.get(
+  "/voices",
+  authenticateUser,
+  async (req, res) => {
 
-    "/voices",
+    try {
 
-    authenticateUser,
+      const voices = await getVoices();
 
-    async(req,res)=>{
+      return res.status(200).json({
 
-        try{
+        success: true,
 
-            const response =
+        provider: "elevenlabs",
 
-                await axios.get(
+        voices
 
-                    `${BASE_URL}/voices`,
+      });
 
-                    {
+    } catch (error) {
 
-                        headers:{
+      console.error(
+        "ElevenLabs voices error:",
+        error
+      );
 
-                            "xi-api-key":
+      return res.status(500).json({
 
-                            API_KEY
+        success: false,
 
-                        }
+        message: "Failed to load ElevenLabs voices."
 
-                    }
-
-                );
-
-            return res.json({
-
-                success:true,
-
-                voices:
-
-                response.data.voices
-
-            });
-
-        }
-
-        catch(error){
-
-            console.error(error);
-
-            return res.status(500).json({
-
-                success:false,
-
-                message:
-
-                "Unable to load voices."
-
-            });
-
-        }
+      });
 
     }
 
+  }
 );
 
-// ==========================================
-// End Part 1
-// ==========================================
 
-// ==========================================
-// Text To Speech
-// ==========================================
+/* ==========================================
+   GET ONE VOICE
+========================================== */
+
+router.get(
+  "/voices/:voiceId",
+  authenticateUser,
+  async (req, res) => {
+
+    try {
+
+      const { voiceId } = req.params;
+
+      if (!voiceId) {
+
+        return res.status(400).json({
+
+          success: false,
+
+          message: "Voice ID is required."
+
+        });
+
+      }
+
+      const voice = await getVoice(voiceId);
+
+      return res.status(200).json({
+
+        success: true,
+
+        provider: "elevenlabs",
+
+        voice
+
+      });
+
+    } catch (error) {
+
+      console.error(
+        "ElevenLabs single voice error:",
+        error
+      );
+
+      return res.status(500).json({
+
+        success: false,
+
+        message: "Failed to load voice."
+
+      });
+
+    }
+
+  }
+);
+
+
+/* ==========================================
+   TEXT TO SPEECH
+========================================== */
 
 router.post(
+  "/text-to-speech",
+  authenticateUser,
+  async (req, res) => {
 
-    "/text-to-speech",
+    try {
 
-    authenticateUser,
+      const {
 
-    async(req,res)=>{
+        text,
 
-        try{
+        voiceId,
 
-            const {
+        model = "eleven_multilingual_v2",
 
-                text,
+        stability = 0.5,
 
-                voiceId = "JBFqnCBsd6RMkjVDRZzb"
+        similarity = 0.75
 
-            } = req.body;
+      } = req.body;
 
-            if(
 
-                !text ||
+      /* ==========================================
+         VALIDATION
+      ========================================== */
 
-                text.trim()===""
+      if (
+        !text ||
+        typeof text !== "string" ||
+        !text.trim()
+      ) {
 
-            ){
+        return res.status(400).json({
 
-                return res.status(400).json({
+          success: false,
 
-                    success:false,
+          message: "Text is required."
 
-                    message:
+        });
 
-                    "Text is required."
+      }
 
-                });
 
-            }
+      if (!voiceId || typeof voiceId !== "string") {
 
-            const response =
+        return res.status(400).json({
 
-                await axios.post(
+          success: false,
 
-                    `${BASE_URL}/text-to-speech/${voiceId}`,
+          message: "Voice ID is required."
 
-                    {
+        });
 
-                        text,
+      }
 
-                        model_id:
 
-                        "eleven_multilingual_v2"
+      if (text.trim().length > 5000) {
 
-                    },
+        return res.status(400).json({
 
-                    {
+          success: false,
 
-                        headers:{
+          message: "Text cannot exceed 5000 characters."
 
-                            "xi-api-key":
+        });
 
-                            API_KEY,
+      }
 
-                            "Content-Type":
 
-                            "application/json",
+      /* ==========================================
+         SAFE SETTINGS
+      ========================================== */
 
-                            "Accept":
+      const safeStability = Math.min(
+        1,
+        Math.max(0, Number(stability))
+      );
 
-                            "audio/mpeg"
 
-                        },
+      const safeSimilarity = Math.min(
+        1,
+        Math.max(0, Number(similarity))
+      );
 
-                        responseType:
 
-                        "arraybuffer"
+      /* ==========================================
+         GENERATE AUDIO
+      ========================================== */
 
-                    }
+      const audioBuffer = await textToSpeech({
 
-                );
+        text: text.trim(),
 
-            res.set({
+        voiceId: voiceId.trim(),
 
-                "Content-Type":
+        model,
 
-                "audio/mpeg"
+        stability: safeStability,
 
-            });
+        similarityBoost: safeSimilarity
 
-            return res.send(
+      });
 
-                response.data
 
-            );
+      /* ==========================================
+         CONVERT AUDIO TO BASE64
+      ========================================== */
 
-        }
+      const base64Audio = Buffer
+        .from(audioBuffer)
+        .toString("base64");
 
-        catch(error){
 
-            console.error(error);
+      const audioDataUrl =
+        `data:audio/mpeg;base64,${base64Audio}`;
 
-            return res.status(500).json({
 
-                success:false,
+      /* ==========================================
+         RESPONSE
+      ========================================== */
 
-                message:
+      return res.status(200).json({
 
-                "Text to speech failed."
+        success: true,
 
-            });
+        provider: "elevenlabs",
 
-        }
+        audio: audioDataUrl,
+
+        mimeType: "audio/mpeg",
+
+        voiceId,
+
+        model
+
+      });
+
+
+    } catch (error) {
+
+      console.error(
+        "ElevenLabs text-to-speech error:",
+        error
+      );
+
+
+      return res.status(500).json({
+
+        success: false,
+
+        message:
+          error.message ||
+          "Failed to generate voice audio."
+
+      });
 
     }
 
+  }
 );
 
-// ==========================================
-// End Part 2
-// ==========================================
 
-// ==========================================
-// Get Voice Details
-// ==========================================
+/* ==========================================
+   TEST ELEVENLABS CONNECTION
+========================================== */
 
 router.get(
+  "/test",
+  authenticateUser,
+  async (req, res) => {
 
-    "/voices/:voiceId",
+    try {
 
-    authenticateUser,
+      const result = await testElevenLabs();
 
-    async(req,res)=>{
+      return res.status(200).json({
 
-        try{
+        success: true,
 
-            const { voiceId } = req.params;
+        provider: "elevenlabs",
 
-            const response = await axios.get(
+        result
 
-                `${BASE_URL}/voices/${voiceId}`,
+      });
 
-                {
+    } catch (error) {
 
-                    headers:{
+      console.error(
+        "ElevenLabs test error:",
+        error
+      );
 
-                        "xi-api-key": API_KEY
+      return res.status(500).json({
 
-                    }
+        success: false,
 
-                }
+        message:
+          error.message ||
+          "ElevenLabs connection test failed."
 
-            );
-
-            return res.json({
-
-                success:true,
-
-                voice: response.data
-
-            });
-
-        }
-
-        catch(error){
-
-            console.error(error);
-
-            return res.status(500).json({
-
-                success:false,
-
-                message:"Unable to load voice."
-
-            });
-
-        }
+      });
 
     }
 
+  }
 );
 
-// ==========================================
-// End Part 3
-// ==========================================
 
-// ==========================================
-// Delete Voice
-// ==========================================
-
-router.delete(
-
-    "/voices/:voiceId",
-
-    authenticateUser,
-
-    async(req,res)=>{
-
-        try{
-
-            const {
-
-                voiceId
-
-            } = req.params;
-
-            await axios.delete(
-
-                `${BASE_URL}/voices/${voiceId}`,
-
-                {
-
-                    headers:{
-
-                        "xi-api-key":
-
-                        API_KEY
-
-                    }
-
-                }
-
-            );
-
-            return res.json({
-
-                success:true,
-
-                message:
-
-                "Voice deleted successfully."
-
-            });
-
-        }
-
-        catch(error){
-
-            console.error(error);
-
-            return res.status(500).json({
-
-                success:false,
-
-                message:
-
-                "Unable to delete voice."
-
-            });
-
-        }
-
-    }
-
-);
-
-// ==========================================
-// Get User Subscription
-// ==========================================
-
-router.get(
-
-    "/subscription",
-
-    authenticateUser,
-
-    async(req,res)=>{
-
-        try{
-
-            const response =
-
-                await axios.get(
-
-                    `${BASE_URL}/user/subscription`,
-
-                    {
-
-                        headers:{
-
-                            "xi-api-key":
-
-                            API_KEY
-
-                        }
-
-                    }
-
-                );
-
-            return res.json({
-
-                success:true,
-
-                subscription:
-
-                response.data
-
-            });
-
-        }
-
-        catch(error){
-
-            console.error(error);
-
-            return res.status(500).json({
-
-                success:false,
-
-                message:
-
-                "Unable to load subscription."
-
-            });
-
-        }
-
-    }
-
-);
-
-// ==========================================
-// End Part 4
-// ==========================================
-
-// ==========================================
-// User Information
-// ==========================================
-
-router.get(
-
-    "/user",
-
-    authenticateUser,
-
-    async(req,res)=>{
-
-        try{
-
-            const response =
-
-                await axios.get(
-
-                    `${BASE_URL}/user`,
-
-                    {
-
-                        headers:{
-
-                            "xi-api-key":
-
-                            API_KEY
-
-                        }
-
-                    }
-
-                );
-
-            return res.json({
-
-                success:true,
-
-                user:
-
-                response.data
-
-            });
-
-        }
-
-        catch(error){
-
-            console.error(error);
-
-            return res.status(500).json({
-
-                success:false,
-
-                message:
-
-                "Unable to load user information."
-
-            });
-
-        }
-
-    }
-
-);
-
-// ==========================================
-// Voice Generation History
-// ==========================================
-
-router.get(
-
-    "/history",
-
-    authenticateUser,
-
-    async(req,res)=>{
-
-        try{
-
-            const response =
-
-                await axios.get(
-
-                    `${BASE_URL}/history`,
-
-                    {
-
-                        headers:{
-
-                            "xi-api-key":
-
-                            API_KEY
-
-                        }
-
-                    }
-
-                );
-
-            return res.json({
-
-                success:true,
-
-                history:
-
-                response.data
-
-            });
-
-        }
-
-        catch(error){
-
-            console.error(error);
-
-            return res.status(500).json({
-
-                success:false,
-
-                message:
-
-                "Unable to load history."
-
-            });
-
-        }
-
-    }
-
-);
-
-// ==========================================
-// Export Router
-// ==========================================
+/* ==========================================
+   EXPORT ROUTER
+========================================== */
 
 export default router;
-
-// ==========================================
-// End of File
-// ==========================================
