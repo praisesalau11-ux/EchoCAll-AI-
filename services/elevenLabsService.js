@@ -1,227 +1,338 @@
-// ==========================================
-// EchoCall AI Backend
-// File: server/services/elevenLabsService.js
-// ==========================================
+
+/*
+==========================================
+EchoCall AI Backend
+File: server/services/elevenLabsService.js
+Provider: ElevenLabs
+==========================================
+*/
+
 
 // ==========================================
 // Constants
 // ==========================================
 
-const API_URL =
+const API_URL = "https://api.elevenlabs.io/v1";
 
-    "https://api.elevenlabs.io/v1";
+const API_KEY = process.env.ELEVENLABS_API_KEY;
+
 
 // ==========================================
-// API Key
+// API Key Validation
 // ==========================================
 
-const API_KEY =
+function validateApiKey() {
 
-    process.env.ELEVENLABS_API_KEY;
+    if (!API_KEY || API_KEY.trim() === "") {
+
+        throw new Error(
+            "ELEVENLABS_API_KEY is missing from environment variables."
+        );
+
+    }
+
+}
+
 
 // ==========================================
 // Headers
 // ==========================================
 
-function getHeaders(){
+function getHeaders() {
+
+    validateApiKey();
 
     return {
 
         "xi-api-key": API_KEY,
 
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+
+        "Accept": "application/json"
 
     };
 
 }
 
+
 // ==========================================
 // Text To Speech
 // ==========================================
+
 export async function textToSpeech({
+
     text,
+
     voiceId,
+
     model = "eleven_multilingual_v2",
+
     stability = 0.5,
+
     similarityBoost = 0.75
+
 }) {
 
+    validateApiKey();
+
+
     if (!text || text.trim() === "") {
+
         throw new Error("Text is required.");
+
     }
+
 
     if (!voiceId || voiceId.trim() === "") {
-        throw new Error("ElevenLabs voice ID is required.");
+
+        throw new Error(
+            "ElevenLabs voice ID is required."
+        );
+
     }
 
+
+    const safeStability = Math.max(
+        0,
+        Math.min(1, Number(stability))
+    );
+
+
+    const safeSimilarityBoost = Math.max(
+        0,
+        Math.min(1, Number(similarityBoost))
+    );
+
+
     const response = await fetch(
-        `${API_URL}/text-to-speech/${voiceId}`,
+
+        `${API_URL}/text-to-speech/${encodeURIComponent(voiceId)}`,
+
         {
+
             method: "POST",
 
-            headers: getHeaders(),
+            headers: {
+
+                "xi-api-key": API_KEY,
+
+                "Content-Type": "application/json",
+
+                "Accept": "audio/mpeg"
+
+            },
 
             body: JSON.stringify({
+
                 text: text.trim(),
 
                 model_id: model,
 
                 voice_settings: {
-                    stability,
-                    similarity_boost: similarityBoost,
+
+                    stability: safeStability,
+
+                    similarity_boost: safeSimilarityBoost,
+
                     style: 0.2,
+
                     use_speaker_boost: true
+
                 }
+
             })
+
         }
+
     );
+
 
     if (!response.ok) {
 
-        const errorText =
-            await response.text();
+        const errorText = await response.text();
+
+        console.error(
+            "ElevenLabs Text-to-Speech Error:",
+            response.status,
+            errorText
+        );
 
         throw new Error(
-            `ElevenLabs API error ${response.status}: ${errorText}`
+
+            `ElevenLabs TTS failed with status ${response.status}.`
+
         );
+
     }
+
 
     return await response.arrayBuffer();
+
 }
 
+
 // ==========================================
-// Get Voices
+// Get All Voices
 // ==========================================
 
-export async function getVoices(){
+export async function getVoices() {
 
-    const response =
+    const response = await fetch(
 
-        await fetch(
+        `${API_URL}/voices`,
 
-            `${API_URL}/voices`,
+        {
 
-            {
+            method: "GET",
 
-                headers: getHeaders()
+            headers: getHeaders()
 
-            }
+        }
 
+    );
+
+
+    if (!response.ok) {
+
+        const errorText = await response.text();
+
+        console.error(
+            "ElevenLabs Get Voices Error:",
+            response.status,
+            errorText
         );
-
-    if(!response.ok){
 
         throw new Error(
 
-            await response.text()
+            `Unable to load ElevenLabs voices. Status: ${response.status}`
 
         );
 
     }
 
-    const data =
 
-        await response.json();
+    const data = await response.json();
 
-    return data.voices;
+
+    return data.voices || [];
 
 }
 
+
 // ==========================================
-// Voice Details
+// Get One Voice
 // ==========================================
 
-export async function getVoice(
+export async function getVoice(voiceId) {
 
-    voiceId
+    validateApiKey();
 
-){
 
-    const response =
+    if (!voiceId || voiceId.trim() === "") {
 
-        await fetch(
+        throw new Error("Voice ID is required.");
 
-            `${API_URL}/voices/${voiceId}`,
+    }
 
-            {
 
-                headers: getHeaders()
+    const response = await fetch(
 
-            }
+        `${API_URL}/voices/${encodeURIComponent(voiceId)}`,
 
-        );
+        {
 
-    if(!response.ok){
+            method: "GET",
+
+            headers: getHeaders()
+
+        }
+
+    );
+
+
+    if (!response.ok) {
+
+        const errorText = await response.text();
 
         throw new Error(
 
-            await response.text()
+            `Unable to retrieve voice. Status: ${response.status}`
 
         );
 
     }
+
 
     return await response.json();
 
 }
 
+
 // ==========================================
 // Delete Voice
 // ==========================================
 
-export async function deleteVoice(
+export async function deleteVoice(voiceId) {
 
-    voiceId
+    validateApiKey();
 
-){
 
-    const response =
+    if (!voiceId || voiceId.trim() === "") {
 
-        await fetch(
+        throw new Error("Voice ID is required.");
 
-            `${API_URL}/voices/${voiceId}`,
+    }
 
-            {
 
-                method: "DELETE",
+    const response = await fetch(
 
-                headers: getHeaders()
+        `${API_URL}/voices/${encodeURIComponent(voiceId)}`,
 
-            }
+        {
 
-        );
+            method: "DELETE",
 
-    if(!response.ok){
+            headers: getHeaders()
+
+        }
+
+    );
+
+
+    if (!response.ok) {
+
+        const errorText = await response.text();
 
         throw new Error(
 
-            await response.text()
+            `Unable to delete voice. Status: ${response.status}`
 
         );
 
     }
 
+
     return true;
 
 }
 
+
 // ==========================================
-// Health Check
+// ElevenLabs Health Check
 // ==========================================
 
-export async function testElevenLabs(){
+export async function testElevenLabs() {
 
-    const voices =
+    const voices = await getVoices();
 
-        await getVoices();
 
     return {
 
         success: true,
 
-        totalVoices:
+        provider: "elevenlabs",
 
-            voices.length
+        totalVoices: voices.length
 
     };
 
