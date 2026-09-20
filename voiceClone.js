@@ -26,40 +26,84 @@ let similarityValue;
 let voiceBackButton;
 
 /* ============================================================
-   INITIALIZE AFTER DOM LOAD
+   VOICE STUDIO INITIALIZATION
    ============================================================ */
 
-document.addEventListener("DOMContentLoaded", () => {
-  voicePreviewText = document.getElementById("voicePreviewText");
-  characterCount = document.getElementById("characterCount");
-  generateVoiceButton =
-    document.getElementById("generateVoiceButton");
-  voiceAudioPlayer =
-    document.getElementById("voiceAudioPlayer");
-  audioSection = document.getElementById("audioSection");
-  audioStatus = document.getElementById("audioStatus");
-  voiceStability = document.getElementById("voiceStability");
-  voiceSimilarity = document.getElementById("voiceSimilarity");
-  stabilityValue = document.getElementById("stabilityValue");
-  similarityValue = document.getElementById("similarityValue");
-  voiceBackButton = document.getElementById("voiceBackButton");
-
-  initializeVoiceStudio();
-});
-
-/* ============================================================
-   STUDIO SETUP
-   ============================================================ */
+let voiceStudioInitialized = false;
 
 async function initializeVoiceStudio() {
+  if (voiceStudioInitialized) {
+    return;
+  }
+
+  voicePreviewText =
+    document.getElementById("voicePreviewText");
+
+  characterCount =
+    document.getElementById("characterCount");
+
+  generateVoiceButton =
+    document.getElementById("generateVoiceButton");
+
+  voiceAudioPlayer =
+    document.getElementById("voiceAudioPlayer");
+
+  audioSection =
+    document.getElementById("audioSection");
+
+  audioStatus =
+    document.getElementById("audioStatus");
+
+  voiceStability =
+    document.getElementById("voiceStability");
+
+  voiceSimilarity =
+    document.getElementById("voiceSimilarity");
+
+  stabilityValue =
+    document.getElementById("stabilityValue");
+
+  similarityValue =
+    document.getElementById("similarityValue");
+
+  voiceBackButton =
+    document.getElementById("voiceBackButton");
+
   setupCharacterCounter();
   setupVoiceSliders();
   setupGenerateButton();
   setupBackButton();
+  setupAudioEvents();
 
   createVoiceSelector();
+
+  voiceStudioInitialized = true;
+
   await loadElevenLabsVoices();
 }
+
+/* ============================================================
+   ROUTER INITIALIZATION
+   ============================================================ */
+
+async function initializeVoiceClone() {
+  console.log(
+    "🎙️ initializeVoiceClone() started"
+  );
+
+  await initializeVoiceStudio();
+
+  console.log(
+    "🎙️ Voice Studio initialized successfully"
+  );
+}
+
+/* ============================================================
+   GLOBAL ROUTER ACCESS
+   ============================================================ */
+
+window.initializeVoiceClone =
+  initializeVoiceClone;
 
 /* ============================================================
    FIREBASE AUTHENTICATION
@@ -1019,6 +1063,8 @@ window.addEventListener("beforeunload", () => {
    ============================================================ */
 
 window.EchoCallVoiceStudio = {
+  initializeVoiceClone,
+  initializeVoiceStudio,
   generateVoice,
   loadElevenLabsVoices,
   downloadGeneratedVoice,
