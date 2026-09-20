@@ -4,9 +4,8 @@
    File: js/voiceClone.js
    Part 1 of 2
    ============================================================ */
-
 const VOICE_API_BASE_URL =
-  "https://echocall-ai-backend.onrender.com/api/ai";
+  "https://echocall-ai-backend.onrender.com/api/ai/elevenlabs";
 
 let selectedVoiceId = "";
 let availableVoices = [];

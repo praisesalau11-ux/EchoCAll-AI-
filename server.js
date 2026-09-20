@@ -108,6 +108,10 @@ app.get("/health", (req, res) => {
  app.use("/api/ai", aiRoutes);
  app.use("/api/twilio", twilioRoutes);
  app.use("/api/voice-clone", elevenLabsRoutes);
+app.use(
+  "/api/ai/elevenlabs",
+  elevenLabsRoutes
+);
 
 // ==========================================
 // 404 Handler
