@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#0B1120"
+    >
+
+    <title>
+        Messages | EchoCall AI
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..700,0..1,0"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../css/messages.css"
+    >
+
+</head>
+
+
+<body>
+
+    <main
+        id="messagesPage"
+        class="messages-page"
+    >
+
+        <!-- ======================================
+             BACKGROUND
+        ======================================= -->
+
+        <div
+            class="messages-background"
+            aria-hidden="true"
+        >
+
+            <span
+                class="messages-glow messages-glow-one"
+            ></span>
+
+            <span
+                class="messages-glow messages-glow-two"
+            ></span>
+
+            <span
+                class="messages-glow messages-glow-three"
+            ></span>
+
+        </div>
+
+
+        <!-- ======================================
+             PAGE HEADER
+        ======================================= -->
+
+        <header
+            class="messages-header glass"
+        >
+
+            <div
+                class="messages-header-left"
+            >
+
+                <button
+                    type="button"
+                    id="messagesBackButton"
+                    class="icon-button"
+                    aria-label="Back to Communication Hub"
+                >
+
+                    <span
+                        class="material-symbols-rounded"
+                    >
+                        arrow_back
+                    </span>
+
+                </button>
+
+
+                <div
+                    class="messages-title-block"
+                >
+
+                    <span
+                        class="messages-eyebrow"
+                    >
+                        ECHOCALL
+                    </span>
+
+                    <h1>
+                        Messages
+                    </h1>
+
+                    <p>
+                        Your conversations
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="messages-header-actions"
+            >
+
+                <button
+                    type="button"
+                    id="messagesSearchButton"
+                    class="icon-button"
+                    aria-label="Search messages"
+                    aria-expanded="false"
+                >
+
+                    <span
+                        class="material-symbols-rounded"
+                    >
+                        search
+                    </span>
+
+                </button>
+
+
+                <button
+                    type="button"
+                    id="messagesMoreButton"
+                    class="icon-button"
+                    aria-label="More message options"
+                    aria-expanded="false"
+                >
+
+                    <span
+                        class="material-symbols-rounded"
+                    >
+                        more_vert
+                    </span>
+
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <!-- ======================================
+             SEARCH PANEL
+        ======================================= -->
+
+        <section
+            id="messagesSearchPanel"
+            class="messages-search-panel glass"
+            aria-hidden="true"
+        >
+
+            <div
+                class="messages-search-box"
+            >
+
+                <span
+                    class="material-symbols-rounded"
+                    aria-hidden="true"
+                >
+                    search
+                </span>
+
+
+                <input
+                    type="search"
+                    id="messagesSearchInput"
+                    placeholder="Search conversations..."
+                    autocomplete="off"
+                >
+
+
+                <button
+                    type="button"
+                    id="messagesSearchClear"
+                    class="icon-button small"
+                    aria-label="Clear search"
+                >
+
+                    <span
+                        class="material-symbols-rounded"
+                    >
+                        close
+                    </span>
+
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- ======================================
+             MORE MENU
+        ======================================= -->
+
+        <div
+            id="messagesMoreMenu"
+            class="messages-more-menu glass"
+            aria-hidden="true"
+        >
+
+            <button
+                type="button"
+                data-message-action="new-chat"
+            >
+
+                <span
+                    class="material-symbols-rounded"
+                >
+                    edit_square
+                </span>
+
+                <span>
+                    New message
+                </span>
+
+            </button>
+
+
+            <button
+                type="button"
+                data-message-action="unread"
+            >
+
+                <span
+                    class="material-symbols-rounded"
+                >
+                    mark_chat_unread
+                </span>
+
+                <span>
+                    Mark unread
+                </span>
+
+            </button>
+
+
+            <button
+                type="button"
+                id="refreshMessagesButton"
+            >
+
+                <span
+                    class="material-symbols-rounded"
+                >
+                    refresh
+                </span>
+
+                <span>
+                    Refresh
+                </span>
+
+            </button>
+
+
+            <button
+                type="button"
+                data-message-action="settings"
+            >
+
+                <span
+                    class="material-symbols-rounded"
+                >
+                    settings
+                </span>
+
+                <span>
+                    Message settings
+                </span>
+
+            </button>
+
+        </div>
+
+
+        <!-- ======================================
+             MAIN MESSAGES CONTENT
+        ======================================= -->
+
+        <section
+            class="messages-content"
+        >
+
+            <!-- ==================================
+                 WELCOME
+            =================================== -->
+
+            <section
+                id="messagesWelcome"
+                class="messages-welcome"
+            >
+
+                <div
+                    class="messages-welcome-orb"
+                >
+
+                    <span
+                        class="material-symbols-rounded"
+                    >
+                        chat
+                    </span>
+
+                </div>
+
+
+                <div
+                    class="messages-welcome-copy"
+                >
+
+                    <span
+                        class="section-kicker"
+                    >
+                        COMMUNICATION
+                    </span>
+
+                    <h2>
+                        Stay connected.
+                    </h2>
+
+                    <p>
+                        Send messages, media, files,
+                        voice notes and more.
+                    </p>
+
+                </div>
+
+            </section>
+
+
+            <!-- ==================================
+                 FILTERS
+            =================================== -->
+
+            <nav
+                id="messageFilters"
+                class="message-filters glass"
+                aria-label="Message filters"
+            >
+
+                <button
+                    type="button"
+                    class="message-filter active"
+                    data-filter="all"
+                    aria-current="true"
+                >
+
+                    <span>
+                        All
+                    </span>
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="message-filter"
+                    data-filter="unread"
+                >
+
+                    <span>
+                        Unread
+                    </span>
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="message-filter"
+                    data-filter="groups"
+                >
+
+                    <span>
+                        Groups
+                    </span>
+
+                </button>
+
+            </nav>
+
+
+            <!-- ==================================
+                 CONVERSATION LIST
+            =================================== -->
+
+            <section
+                class="conversation-section"
+            >
+
+                <div
+                    class="section-heading"
+                >
+
+                    <div>
+
+                        <span
+                            class="section-kicker"
+                        >
+                            RECENT
+                        </span>
+
+                        <h2>
+                            Conversations
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Loading -->
+
+                <div
+                    id="messagesLoading"
+                    class="messages-loading"
+                    hidden
+                >
+
+                    <div
+                        class="conversation-skeleton"
+                    ></div>
+
+                    <div
+                        class="conversation-skeleton"
+                    ></div>
+
+                    <div
+                        class="conversation-skeleton"
+                    ></div>
+
+                </div>
+
+
+                <!-- Actual list -->
+
+                <div
+                    id="conversationList"
+                    class="conversation-list"
+                    aria-live="polite"
+                ></div>
+
+
+                <!-- Empty -->
+
+                <div
+                    id="messagesEmpty"
+                    class="messages-empty glass"
+                    hidden
+                >
+
+                    <div
+                        class="empty-icon"
+                    >
+
+                        <span
+                            class="material-symbols-rounded"
+                        >
+                            forum
+                        </span>
+
+                    </div>
+
+
+                    <h3>
+                        No conversations yet
+                    </h3>
+
+
+                    <p>
+                        Start a new conversation
+                        with one of your contacts.
+                    </p>
+
+
+                    <button
+                        type="button"
+                        class="primary-button"
+                        data-message-action="new-chat"
+                    >
+
+                        <span
+                            class="material-symbols-rounded"
+                        >
+                            add
+                        </span>
+
+                        New message
+
+                    </button>
+
+                </div>
+
+
+                <!-- Search has no results -->
+
+                <div
+                    id="messagesNoResults"
+                    class="messages-empty glass"
+                    hidden
+                >
+
+                    <div
+                        class="empty-icon"
+                    >
+
+                        <span
+                            class="material-symbols-rounded"
+                        >
+                            search_off
+                        </span>
+
+                    </div>
+
+
+                    <h3>
+                        No results
+                    </h3>
+
+
+                    <p>
+                        No conversation matches
+                        your search.
+                    </p>
+
+                </div>
+
+            </section>
+
+        </section>
+                <!-- ======================================
+             OPEN CONVERSATION
+        ======================================= -->
+
+        <section
+            id="openConversation"
+            class="open-conversation"
+            aria-hidden="true"
+        >
+
+            <!-- ==================================
+                 CONVERSATION HEADER
+            =================================== -->
+
+            <header
+                class="conversation-header glass"
+            >
+
+                <div
+                    class="conversation-header-left"
+                >
+
+                    <button
+                        type="button"
+                        id="closeConversationButton"
+                        class="icon-button"
+                        aria-label="Back to conversations"
+                    >
+
+                        <span
+                            class="material-symbols-rounded"
+                        >
+                            arrow_back
+                        </span>
+
+                    </button>
+
+
+                    <button
+                        type="button"
+                        id="conversationProfileButton"
+                        class="conversation-profile"
+                    >
+
+                        <div
+                            id="conversationAvatar"
+                            class="conversation-avatar"
+                        >
+
+                            <span
+                                class="material-symbols-rounded"
+                            >
+                                person
+                            </span>
+
+                        </div>
+
+
+                        <div
+                            class="conversation-person"
+                        >
+
+                            <strong
+                                id="conversationName"
+                            >
+                                Contact
+                            </strong>
+
+
+                            <span
+                                id="conversationStatus"
+                            >
+                                Offline
+                            </span>
+
+                        </div>
+
+                    </button>
+
+                </div>
+
+
+                <div
+                    class="conversation-header-actions"
+                >
+
+                    <button
+                        type="button"
+                        id="conversationSearchButton"
+                        class="icon-button"
+                        aria-label="Search in conversation"
+                    >
+
+                        <span
+                            class="material-symbols-rounded"
+                        >
+                            search
+                        </span>
+
+                    </button>
+
+
+                    <button
+                        type="button"
+                        id="conversationVoiceCallButton"
+                        class="icon-button"
+                        aria-label="Start voice call"
+                    >
+
+                        <span
+                            class="material-symbols-rounded"
+                        >
+                            call
+                        </span>
+
+                    </button>
+
+
+                    <button
+                        type="button"
+                        id="conversationVideoCallButton"
+                        class="icon-button"
+                        aria-label="Start video call"
+                    >
+
+                        <span
+                            class="material-symbols-rounded"
+                        >
+                            videocam
+                        </span>
+
+                    </button>
+
+
+                    <button
+                        type="button"
+                        id="conversationMoreButton"
+                        class="icon-button"
+                        aria-label="Conversation options"
+                    >
+
+                        <span
+                            class="material-symbols-rounded"
+                        >
+                            more_vert
+                        </span>
+
+                    </button>
+
+                </div>
+
+            </header>
+
+
+            <!-- ==================================
+                 CONVERSATION SEARCH
+            =================================== -->
+
+            <div
+                id="conversationSearchPanel"
+                class="conversation-search-panel glass"
+                aria-hidden="true"
+            >
+
+                <div
+                    class="conversation-search-box"
+                >
+
+                    <span
+                        class="material-symbols-rounded"
+                    >
+                        search
+                    </span>
+
+
+                    <input
+                        type="search"
+                        id="conversationSearchInput"
+                        placeholder="Search this conversation..."
+                        autocomplete="off"
+                    >
+
+
+                    <button
+                        type="button"
+                        id="conversationSearchClear"
+                        class="icon-button small"
+                        aria-label="Clear conversation search"
+                    >
+
+                        <span
+                            class="material-symbols-rounded"
+                        >
+                            close
+                        </span>
+
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- ==================================
+                 CONVERSATION BODY
+            =================================== -->
+
+            <div
+                id="conversationBody"
+                class="conversation-body"
+            >
+
+                <!-- ==================================
+                     DATE / ENCRYPTION NOTICE
+                =================================== -->
+
+                <div
+                    class="conversation-security-note"
+                >
+
+                    <span
+                        class="material-symbols-rounded"
+                    >
+                        lock
+                    </span>
+
+                    <span>
+                        Messages are protected by
+                        EchoCall security.
+                    </span>
+
+                </div>
+
+
+                <!-- ==================================
+                     MESSAGE LOADING
+                =================================== -->
+
+                <div
+                    id="conversationMessagesLoading"
+                    class="conversation-messages-loading"
+                    hidden
+                >
+
+                    <div
+                        class="message-loading received"
+                    ></div>
+
+                    <div
+                        class="message-loading sent"
+                    ></div>
+
+                    <div
+                        class="message-loading received"
+                    ></div>
+
+                </div>
+
+
+                <!-- ==================================
+                     MESSAGES
+                =================================== -->
+
+                <div
+                    id="conversationMessages"
+                    class="conversation-messages"
+                    aria-live="polite"
+                    aria-label="Messages"
+                ></div>
+
+
+                <!-- ==================================
+                     EMPTY CONVERSATION
+                =================================== -->
+
+                <div
+                    id="conversationMessagesEmpty"
+                    class="conversation-messages-empty"
+                    hidden
+                >
+
+                    <div
+                        class="conversation-empty-avatar"
+                    >
+
+                        <span
+                            class="material-symbols-rounded"
+                        >
+                            chat
+                        </span>
+
+                    </div>
+
+
+                    <h3>
+                        Start the conversation
+                    </h3>
+
+
+                    <p>
+                        Send a message to begin
+                        chatting.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- ==================================
+                 SCROLL TO BOTTOM
+            =================================== -->
+
+            <button
+                type="button"
+                id="conversationScrollButton"
+                class="conversation-scroll-button"
+                aria-label="Scroll to latest messages"
+                hidden
+            >
+
+                <span
+                    class="material-symbols-rounded"
+                >
+                    keyboard_arrow_down
+                </span>
+
+            </button>
+
+
+            <!-- ==================================
+                 REPLY PREVIEW
+            =================================== -->
+
+            <div
+                id="messageReplyPreview"
+                class="message-reply-preview glass"
+                hidden
+            >
+
+                <div
+                    class="reply-preview-icon"
+                >
+
+                    <span
+                        class="material-symbols-rounded"
+                    >
+                        reply
+                    </span>
+
+                </div>
+
+
+                <div
+                    class="reply-preview-content"
+                >
+
+                    <span
+                        class="reply-preview-label"
+                    >
+                        Replying to
+                    </span>
+
+
+                    <span
+                        id="replyPreviewText"
+                    >
+                        Message
+                    </span>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    id="cancelReplyButton"
+                    class="icon-button small"
+                    aria-label="Cancel reply"
+                >
+
+                    <span
+                        class="material-symbols-rounded"
+                    >
+                        close
+                    </span>
+
+                </button>
+
+            </div>
+
+
+            <!-- ==================================
+                 EDIT MESSAGE BAR
+            =================================== -->
+
+            <div
+                id="messageEditBar"
+                class="message-edit-bar glass"
+                hidden
+            >
+
+                <div
+                    class="edit-message-icon"
+                >
+
+                    <span
+                        class="material-symbols-rounded"
+                    >
+                        edit
+                    </span>
+
+                </div>
+
+
+                <div
+                    class="edit-message-content"
+                >
+
+                    <span>
+                        Editing message
+                    </span>
+
+                    <strong
+                        id="editingMessagePreview"
+                    >
+                        Message
+                    </strong>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    id="cancelEditButton"
+                    class="icon-button small"
+                    aria-label="Cancel editing"
+                >
+
+                    <span
+                        class="material-symbols-rounded"
+                    >
+                        close
+                    </span>
+
+                </button>
+
+            </div>
+                    <!-- ==========================================
+             MESSAGE ATTACHMENT MENU
+        =========================================== -->
+
+        <div
+            id="messageAttachmentMenu"
+            class="message-attachment-menu glass"
+            aria-hidden="true"
+        >
+
+            <button
+                type="button"
+                class="attachment-option"
+                data-message-action="camera"
+                title="Camera"
+            >
+                <span class="material-symbols-rounded">
+                    photo_camera
+                </span>
+
+                <span>Camera</span>
+            </button>
+
+
+            <button
+                type="button"
+                class="attachment-option"
+                data-message-action="media"
+                title="Photos and videos"
+            >
+                <span class="material-symbols-rounded">
+                    photo_library
+                </span>
+
+                <span>Photos & Videos</span>
+            </button>
+
+
+            <button
+                type="button"
+                class="attachment-option"
+                data-message-action="file"
+                title="File"
+            >
+                <span class="material-symbols-rounded">
+                    description
+                </span>
+
+                <span>Document</span>
+            </button>
+
+        </div>
+
+
+        <!-- ==========================================
+             ATTACHMENT PREVIEW
+        =========================================== -->
+
+        <div
+            id="messageAttachmentPreview"
+            class="message-attachment-preview glass"
+            aria-hidden="true"
+        >
+
+            <div
+                id="attachmentPreviewContent"
+                class="attachment-preview-content"
+            >
+                <!-- JavaScript inserts preview here -->
+            </div>
+
+
+            <button
+                type="button"
+                id="removeAttachmentPreview"
+                class="attachment-preview-remove"
+                aria-label="Remove attachment"
+                title="Remove attachment"
+            >
+                <span class="material-symbols-rounded">
+                    close
+                </span>
+            </button>
+
+        </div>
+
+
+        <!-- ==========================================
+             VOICE RECORDING BAR
+        =========================================== -->
+
+        <div
+            id="voiceRecordingBar"
+            class="voice-recording-bar glass"
+            aria-hidden="true"
+        >
+
+            <div class="voice-recording-indicator">
+
+                <span class="voice-recording-dot"></span>
+
+                <span class="material-symbols-rounded">
+                    mic
+                </span>
+
+            </div>
+
+
+            <div class="voice-recording-info">
+
+                <span class="voice-recording-label">
+                    Recording voice message
+                </span>
+
+                <span
+                    id="voiceRecordingTimer"
+                    class="voice-recording-timer"
+                >
+                    00:00
+                </span>
+
+            </div>
+
+
+            <button
+                type="button"
+                id="cancelVoiceRecordingButton"
+                class="voice-recording-cancel"
+                aria-label="Cancel voice recording"
+                title="Cancel"
+            >
+                <span class="material-symbols-rounded">
+                    delete
+                </span>
+            </button>
+
+
+            <button
+                type="button"
+                id="stopVoiceRecordingButton"
+                class="voice-recording-stop"
+                data-message-action="voice"
+                aria-label="Send voice message"
+                title="Send voice message"
+            >
+                <span class="material-symbols-rounded">
+                    send
+                </span>
+            </button>
+
+        </div>
+
+
+        <!-- ==========================================
+             MESSAGE COMPOSER
+        =========================================== -->
+
+        <div
+            id="messageComposer"
+            class="message-composer glass"
+        >
+
+            <!-- Composer action buttons -->
+
+            <div
+                id="messageComposerActions"
+                class="message-composer-actions"
+            >
+
+                <button
+                    type="button"
+                    id="messageCameraButton"
+                    class="composer-action-button"
+                    data-message-action="camera"
+                    aria-label="Open camera"
+                    title="Camera"
+                >
+                    <span class="material-symbols-rounded">
+                        photo_camera
+                    </span>
+                </button>
+
+
+                <button
+                    type="button"
+                    id="messageMediaButton"
+                    class="composer-action-button"
+                    data-message-action="media"
+                    aria-label="Choose photos or videos"
+                    title="Photos & Videos"
+                >
+                    <span class="material-symbols-rounded">
+                        image
+                    </span>
+                </button>
+
+
+                <button
+                    type="button"
+                    id="messageFileButton"
+                    class="composer-action-button"
+                    data-message-action="file"
+                    aria-label="Attach a file"
+                    title="Attach file"
+                >
+                    <span class="material-symbols-rounded">
+                        attach_file
+                    </span>
+                </button>
+
+            </div>
+
+
+            <!-- Text input area -->
+
+            <div class="message-input-wrapper">
+
+                <textarea
+                    id="messageInput"
+                    class="message-input"
+                    placeholder="Type a message..."
+                    rows="1"
+                    maxlength="5000"
+                    autocomplete="off"
+                    spellcheck="true"
+                ></textarea>
+
+            </div>
+
+
+            <!-- View-once -->
+
+            <button
+                type="button"
+                id="messageViewOnceButton"
+                class="composer-action-button view-once-button"
+                data-message-action="view-once"
+                aria-label="View once"
+                title="Send as view-once media"
+            >
+                <span class="material-symbols-rounded">
+                    timer
+                </span>
+            </button>
+
+
+            <!-- Voice -->
+
+            <button
+                type="button"
+                id="voiceMessageButton"
+                class="composer-action-button voice-message-button"
+                data-message-action="voice"
+                aria-label="Record voice message"
+                title="Voice message"
+            >
+                <span class="material-symbols-rounded">
+                    mic
+                </span>
+            </button>
+
+
+            <!-- Send -->
+
+            <button
+                type="button"
+                id="sendMessageButton"
+                class="send-message-button"
+                aria-label="Send message"
+                title="Send"
+            >
+                <span class="material-symbols-rounded">
+                    send
+                </span>
+            </button>
+
+        </div>
+
+
+        <!-- ==========================================
+             COMPOSER STATUS
+        =========================================== -->
+
+        <div
+            id="messageComposerStatus"
+            class="message-composer-status"
+            aria-live="polite"
+        ></div>
+                <!-- ==========================================
+             HIDDEN FILE INPUTS
+        =========================================== -->
+
+        <input
+            type="file"
+            id="messageImageInput"
+            accept="image/*"
+            hidden
+        />
+
+        <input
+            type="file"
+            id="messageMediaInput"
+            accept="image/*,video/*"
+            multiple
+            hidden
+        />
+
+        <input
+            type="file"
+            id="messageFileInput"
+            accept="*/*"
+            multiple
+            hidden
+        />
+
+        <input
+            type="file"
+            id="messageCameraInput"
+            accept="image/*,video/*"
+            capture="environment"
+            hidden
+        />
+
+
+    </section>
+    <!-- END OPEN CONVERSATION -->
+
+
+    <!-- ==========================================
+         BOTTOM NAVIGATION
+    =========================================== -->
+
+    <nav
+        id="messagesBottomNavigation"
+        class="messages-bottom-navigation glass"
+        aria-label="Messages navigation"
+    >
+
+        <button
+            type="button"
+            class="messages-bottom-item"
+            data-messages-route="call"
+        >
+            <span class="material-symbols-rounded">
+                hub
+            </span>
+
+            <span>Connect</span>
+        </button>
+
+
+        <button
+            type="button"
+            class="messages-bottom-item active"
+            data-messages-route="messages"
+        >
+            <span class="material-symbols-rounded">
+                chat
+            </span>
+
+            <span>Messages</span>
+        </button>
+
+
+        <button
+            type="button"
+            class="messages-bottom-item"
+            data-messages-route="call-history"
+        >
+            <span class="material-symbols-rounded">
+                history
+            </span>
+
+            <span>History</span>
+        </button>
+
+
+        <button
+            type="button"
+            class="messages-bottom-item"
+            data-messages-route="contacts"
+        >
+            <span class="material-symbols-rounded">
+                contacts
+            </span>
+
+            <span>Contacts</span>
+        </button>
+
+
+        <button
+            type="button"
+            class="messages-bottom-item"
+            data-messages-route="profile"
+        >
+            <span class="material-symbols-rounded">
+                person
+            </span>
+
+            <span>Profile</span>
+        </button>
+
+    </nav>
+
+
+    <!-- ==========================================
+         TOAST
+    =========================================== -->
+
+    <div
+        id="messagesToast"
+        class="messages-toast"
+        role="status"
+        aria-live="polite"
+        aria-hidden="true"
+    >
+        <span
+            id="messagesToastIcon"
+            class="material-symbols-rounded"
+        >
+            info
+        </span>
+
+        <span id="messagesToastText">
+            Done
+        </span>
+    </div>
+
+
+    <!-- ==========================================
+         ERROR MESSAGE
+    =========================================== -->
+
+    <div
+        id="messagesError"
+        class="messages-error"
+        role="alert"
+        aria-hidden="true"
+    >
+
+        <span
+            class="material-symbols-rounded"
+        >
+            error
+        </span>
+
+        <span id="messagesErrorText">
+            Something went wrong.
+        </span>
+
+        <button
+            type="button"
+            id="messagesErrorClose"
+            class="messages-error-close"
+            aria-label="Close error"
+        >
+            <span class="material-symbols-rounded">
+                close
+            </span>
+        </button>
+
+    </div>
+
+
+</main>
+
+
+<!-- ==========================================
+     MESSAGES JAVASCRIPT
+========================================== -->
+
+<script
+    type="module"
+    src="../js/messages.js"
+></script>
+
+</body>
+</html>

@@ -1,9 +1,11 @@
-
 /* ============================================================
    EchoCall AI - Voice Studio
    File: js/voiceClone.js
-   Part 1 of 2
+   Part A
    ============================================================ */
+
+import { auth } from "./firebase.js";
+
 const VOICE_API_BASE_URL =
   "https://echocall-ai-backend.onrender.com/api/ai/elevenlabs";
 
@@ -31,86 +33,121 @@ let voiceBackButton;
 
 let voiceStudioInitialized = false;
 
-async function initializeVoiceStudio() {
+export async function initializeVoiceClone() {
+
+  console.log(
+    "🎙️ initializeVoiceClone() started"
+  );
+
   if (voiceStudioInitialized) {
+
+    console.log(
+      "🎙️ Voice Studio already initialized."
+    );
+
     return;
   }
 
+  /* ==========================================================
+     GET DOM ELEMENTS
+     ========================================================== */
+
   voicePreviewText =
-    document.getElementById("voicePreviewText");
+    document.getElementById(
+      "voicePreviewText"
+    );
 
   characterCount =
-    document.getElementById("characterCount");
+    document.getElementById(
+      "characterCount"
+    );
 
   generateVoiceButton =
-    document.getElementById("generateVoiceButton");
+    document.getElementById(
+      "generateVoiceButton"
+    );
 
   voiceAudioPlayer =
-    document.getElementById("voiceAudioPlayer");
+    document.getElementById(
+      "voiceAudioPlayer"
+    );
 
   audioSection =
-    document.getElementById("audioSection");
+    document.getElementById(
+      "audioSection"
+    );
 
   audioStatus =
-    document.getElementById("audioStatus");
+    document.getElementById(
+      "audioStatus"
+    );
 
   voiceStability =
-    document.getElementById("voiceStability");
+    document.getElementById(
+      "voiceStability"
+    );
 
   voiceSimilarity =
-    document.getElementById("voiceSimilarity");
+    document.getElementById(
+      "voiceSimilarity"
+    );
 
   stabilityValue =
-    document.getElementById("stabilityValue");
+    document.getElementById(
+      "stabilityValue"
+    );
 
   similarityValue =
-    document.getElementById("similarityValue");
+    document.getElementById(
+      "similarityValue"
+    );
 
   voiceBackButton =
-    document.getElementById("voiceBackButton");
+    document.getElementById(
+      "voiceBackButton"
+    );
+
+  /* ==========================================================
+     SETUP
+     ========================================================== */
 
   setupCharacterCounter();
+
   setupVoiceSliders();
+
   setupGenerateButton();
+
   setupBackButton();
+
   setupAudioEvents();
 
   createVoiceSelector();
 
   voiceStudioInitialized = true;
 
+  console.log(
+    "🎙️ Voice Studio controls initialized."
+  );
+
+  /* ==========================================================
+     LOAD ELEVENLABS VOICES
+     ========================================================== */
+
   await loadElevenLabsVoices();
-}
-
-/* ============================================================
-   ROUTER INITIALIZATION
-   ============================================================ */
-
-async function initializeVoiceClone() {
-  console.log(
-    "🎙️ initializeVoiceClone() started"
-  );
-
-  await initializeVoiceStudio();
 
   console.log(
-    "🎙️ Voice Studio initialized successfully"
+    "🎙️ Voice Studio initialization complete."
   );
 }
-
-/* ============================================================
-   GLOBAL ROUTER ACCESS
-   ============================================================ */
-
-window.initializeVoiceClone =
-  initializeVoiceClone;
 
 /* ============================================================
    FIREBASE AUTHENTICATION
    ============================================================ */
 
 async function getFirebaseAuthToken() {
+
   try {
+
     let firebaseAuth = null;
 
     if (typeof auth !== "undefined" && auth) {
@@ -130,18 +167,29 @@ async function getFirebaseAuthToken() {
     }
 
     if (!firebaseAuth) {
-      throw new Error("Firebase Authentication is unavailable.");
+      throw new Error(
+        "Firebase Authentication is unavailable."
+      );
     }
 
-    const currentUser = firebaseAuth.currentUser;
+    const currentUser =
+      firebaseAuth.currentUser;
 
     if (!currentUser) {
-      throw new Error("Please sign in before using Voice Studio.");
+      throw new Error(
+        "Please sign in before using Voice Studio."
+      );
     }
 
     return await currentUser.getIdToken(true);
+
   } catch (error) {
-    console.error("Firebase token error:", error);
+
+    console.error(
+      "Firebase token error:",
+      error
+    );
+
     return null;
   }
 }
@@ -151,15 +199,30 @@ async function getFirebaseAuthToken() {
    ============================================================ */
 
 function setupCharacterCounter() {
-  if (!voicePreviewText || !characterCount) return;
+
+  if (
+    !voicePreviewText ||
+    !characterCount
+  ) {
+    return;
+  }
 
   updateCharacterCount();
 
-  voicePreviewText.addEventListener("input", updateCharacterCount);
+  voicePreviewText.addEventListener(
+    "input",
+    updateCharacterCount
+  );
 }
 
 function updateCharacterCount() {
-  if (!voicePreviewText || !characterCount) return;
+
+  if (
+    !voicePreviewText ||
+    !characterCount
+  ) {
+    return;
+  }
 
   characterCount.textContent =
     `${voicePreviewText.value.length} characters`;
@@ -170,7 +233,9 @@ function updateCharacterCount() {
    ============================================================ */
 
 function setupVoiceSliders() {
+
   if (voiceStability) {
+
     updateStabilityValue();
 
     voiceStability.addEventListener(
@@ -180,6 +245,7 @@ function setupVoiceSliders() {
   }
 
   if (voiceSimilarity) {
+
     updateSimilarityValue();
 
     voiceSimilarity.addEventListener(
@@ -190,17 +256,33 @@ function setupVoiceSliders() {
 }
 
 function updateStabilityValue() {
-  if (!voiceStability || !stabilityValue) return;
+
+  if (
+    !voiceStability ||
+    !stabilityValue
+  ) {
+    return;
+  }
 
   stabilityValue.textContent =
-    `${Math.round(Number(voiceStability.value) * 100)}%`;
+    `${Math.round(
+      Number(voiceStability.value) * 100
+    )}%`;
 }
 
 function updateSimilarityValue() {
-  if (!voiceSimilarity || !similarityValue) return;
+
+  if (
+    !voiceSimilarity ||
+    !similarityValue
+  ) {
+    return;
+  }
 
   similarityValue.textContent =
-    `${Math.round(Number(voiceSimilarity.value) * 100)}%`;
+    `${Math.round(
+      Number(voiceSimilarity.value) * 100
+    )}%`;
 }
 
 /* ============================================================
@@ -208,24 +290,35 @@ function updateSimilarityValue() {
    ============================================================ */
 
 function createVoiceSelector() {
-  let selector = document.getElementById(
-    "elevenLabsVoiceSelector"
-  );
 
-  if (selector) return;
+  let selector =
+    document.getElementById(
+      "elevenLabsVoiceSelector"
+    );
 
-  const selectedVoiceCard = document.querySelector(
-    ".selected-voice-card"
-  );
-
-  if (!selectedVoiceCard) {
-    console.warn("Selected voice card was not found.");
+  if (selector) {
     return;
   }
 
-  const wrapper = document.createElement("div");
+  const selectedVoiceCard =
+    document.querySelector(
+      ".selected-voice-card"
+    );
 
-  wrapper.className = "voice-selector-wrapper";
+  if (!selectedVoiceCard) {
+
+    console.warn(
+      "Selected voice card was not found."
+    );
+
+    return;
+  }
+
+  const wrapper =
+    document.createElement("div");
+
+  wrapper.className =
+    "voice-selector-wrapper";
 
   wrapper.innerHTML = `
     <label
@@ -239,7 +332,9 @@ function createVoiceSelector() {
       id="elevenLabsVoiceSelector"
       class="elevenlabs-voice-selector"
     >
-      <option value="">Loading voices...</option>
+      <option value="">
+        Loading voices...
+      </option>
     </select>
 
     <div
@@ -257,112 +352,189 @@ function createVoiceSelector() {
 }
 
 async function loadElevenLabsVoices() {
-  const selector = document.getElementById(
-    "elevenLabsVoiceSelector"
-  );
 
-  const status = document.getElementById(
-    "voiceSelectorStatus"
-  );
-
-  try {
-    if (!selector) {
-      throw new Error("Voice selector was not found.");
-    }
-
-    selector.innerHTML =
-      `<option value="">Loading voices...</option>`;
-
-    if (status) {
-      status.textContent = "Connecting to ElevenLabs...";
-    }
-
-    const token = await getFirebaseAuthToken();
-
-    if (!token) {
-      throw new Error("Please sign in before loading voices.");
-    }
-
-    const response = await fetch(
-      `${VOICE_API_BASE_URL}/voices`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
-        }
-      }
+  const selector =
+    document.getElementById(
+      "elevenLabsVoiceSelector"
     );
 
-    const data = await parseJsonResponse(response);
+  const status =
+    document.getElementById(
+      "voiceSelectorStatus"
+    );
 
-    if (!response.ok) {
+  try {
+
+    if (!selector) {
+
       throw new Error(
-        data?.message || "Unable to load voices."
+        "Voice selector was not found."
       );
     }
 
-    if (!Array.isArray(data?.voices)) {
-      throw new Error("Invalid voices response from server.");
+    selector.innerHTML =
+      `<option value="">
+        Loading voices...
+      </option>`;
+
+    if (status) {
+
+      status.textContent =
+        "Connecting to ElevenLabs...";
     }
 
-    availableVoices = data.voices;
+    const token =
+      await getFirebaseAuthToken();
 
-    populateVoiceSelector(availableVoices);
+    if (!token) {
+
+      throw new Error(
+        "Please sign in before loading voices."
+      );
+    }
+
+    const response =
+      await fetch(
+        `${VOICE_API_BASE_URL}/voices`,
+        {
+          method: "GET",
+
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+
+            "Content-Type":
+              "application/json"
+          }
+        }
+      );
+
+    const data =
+      await parseJsonResponse(
+        response
+      );
+
+    if (!response.ok) {
+
+      throw new Error(
+        data?.message ||
+        "Unable to load voices."
+      );
+    }
+
+    if (
+      !Array.isArray(
+        data?.voices
+      )
+    ) {
+
+      throw new Error(
+        "Invalid voices response from server."
+      );
+    }
+
+    availableVoices =
+      data.voices;
+
+    populateVoiceSelector(
+      availableVoices
+    );
+
   } catch (error) {
-    console.error("Load voices error:", error);
+
+    console.error(
+      "Load voices error:",
+      error
+    );
 
     if (selector) {
+
       selector.innerHTML =
-        `<option value="">Unable to load voices</option>`;
+        `<option value="">
+          Unable to load voices
+        </option>`;
     }
 
     if (status) {
-      status.textContent = error.message;
+
+      status.textContent =
+        error.message;
     }
   }
 }
 
-function populateVoiceSelector(voices) {
-  const selector = document.getElementById(
-    "elevenLabsVoiceSelector"
-  );
+function populateVoiceSelector(
+  voices
+) {
 
-  const status = document.getElementById(
-    "voiceSelectorStatus"
-  );
+  const selector =
+    document.getElementById(
+      "elevenLabsVoiceSelector"
+    );
 
-  if (!selector) return;
+  const status =
+    document.getElementById(
+      "voiceSelectorStatus"
+    );
+
+  if (!selector) {
+    return;
+  }
 
   selector.innerHTML = "";
 
   if (!voices.length) {
+
     selector.innerHTML =
-      `<option value="">No voices available</option>`;
+      `<option value="">
+        No voices available
+      </option>`;
 
     if (status) {
-      status.textContent = "No voices were returned.";
+
+      status.textContent =
+        "No voices were returned.";
     }
 
     selectedVoiceId = "";
+
     return;
   }
 
-  voices.forEach((voice) => {
-    const voiceId = voice.voice_id || voice.id;
-    const voiceName = voice.name || "Unnamed Voice";
+  voices.forEach(
+    (voice) => {
 
-    if (!voiceId) return;
+      const voiceId =
+        voice.voice_id ||
+        voice.id;
 
-    const option = document.createElement("option");
+      const voiceName =
+        voice.name ||
+        "Unnamed Voice";
 
-    option.value = voiceId;
-    option.textContent = voiceName;
+      if (!voiceId) {
+        return;
+      }
 
-    selector.appendChild(option);
-  });
+      const option =
+        document.createElement(
+          "option"
+        );
 
-  selectedVoiceId = selector.value || "";
+      option.value =
+        voiceId;
+
+      option.textContent =
+        voiceName;
+
+      selector.appendChild(
+        option
+      );
+    }
+  );
+
+  selectedVoiceId =
+    selector.value || "";
 
   selector.addEventListener(
     "change",
@@ -370,6 +542,7 @@ function populateVoiceSelector(voices) {
   );
 
   if (status) {
+
     status.textContent =
       `${voices.length} ElevenLabs voices available`;
   }
@@ -377,46 +550,78 @@ function populateVoiceSelector(voices) {
   updateSelectedVoiceDisplay();
 }
 
-function handleVoiceSelection(event) {
-  selectedVoiceId = event.target.value || "";
+function handleVoiceSelection(
+  event
+) {
+
+  selectedVoiceId =
+    event.target.value || "";
 
   updateSelectedVoiceDisplay();
 }
 
 function updateSelectedVoiceDisplay() {
-  const selectedVoice = availableVoices.find(
-    (voice) =>
-      (voice.voice_id || voice.id) === selectedVoiceId
-  );
 
-  if (!selectedVoice) return;
+  const selectedVoice =
+    availableVoices.find(
+      (voice) =>
+        (
+          voice.voice_id ||
+          voice.id
+        ) === selectedVoiceId
+    );
+
+  if (!selectedVoice) {
+    return;
+  }
 
   const voiceName =
-    selectedVoice.name || "ElevenLabs Voice";
+    selectedVoice.name ||
+    "ElevenLabs Voice";
 
   document.querySelectorAll(
     ".selected-voice-name, #selectedVoiceName, [data-selected-voice-name]"
-  ).forEach((element) => {
-    element.textContent = voiceName;
-  });
+  ).forEach(
+    (element) => {
 
-  const card = document.querySelector(
-    ".selected-voice-card"
+      element.textContent =
+        voiceName;
+    }
   );
 
+  const card =
+    document.querySelector(
+      ".selected-voice-card"
+    );
+
   if (card) {
-    card.dataset.voiceId = selectedVoiceId;
-    card.dataset.voiceName = voiceName;
+
+    card.dataset.voiceId =
+      selectedVoiceId;
+
+    card.dataset.voiceName =
+      voiceName;
   }
 }
+
+/* ============================================================
+   EchoCall AI - Voice Studio
+   File: js/voiceClone.js
+   Part B
+   ============================================================ */
 
 /* ============================================================
    GENERATE BUTTON
    ============================================================ */
 
 function setupGenerateButton() {
+
   if (!generateVoiceButton) {
-    console.warn("Generate voice button was not found.");
+
+    console.warn(
+      "Generate voice button was not found."
+    );
+
     return;
   }
 
@@ -427,25 +632,39 @@ function setupGenerateButton() {
 }
 
 async function generateVoice() {
-  if (isGeneratingVoice) return;
 
-  const text = voicePreviewText?.value?.trim() || "";
+  if (isGeneratingVoice) {
+    return;
+  }
+
+  const text =
+    voicePreviewText?.value?.trim() ||
+    "";
 
   if (!text) {
-    showVoiceStatus("Enter some text first.", "error");
+
+    showVoiceStatus(
+      "Enter some text first.",
+      "error"
+    );
+
     voicePreviewText?.focus();
+
     return;
   }
 
   if (!selectedVoiceId) {
+
     showVoiceStatus(
       "Please select an ElevenLabs voice.",
       "error"
     );
+
     return;
   }
 
   isGeneratingVoice = true;
+
   setGenerateButtonLoading(true);
 
   showVoiceStatus(
@@ -454,71 +673,107 @@ async function generateVoice() {
   );
 
   try {
-    const token = await getFirebaseAuthToken();
+
+    const token =
+      await getFirebaseAuthToken();
 
     if (!token) {
+
       throw new Error(
         "Please sign in before generating audio."
       );
     }
 
-    const stability = voiceStability
-      ? Number(voiceStability.value)
-      : 0.5;
+    const stability =
+      voiceStability
+        ? Number(
+            voiceStability.value
+          )
+        : 0.5;
 
-    const similarity = voiceSimilarity
-      ? Number(voiceSimilarity.value)
-      : 0.75;
+    const similarity =
+      voiceSimilarity
+        ? Number(
+            voiceSimilarity.value
+          )
+        : 0.75;
 
-    const response = await fetch(
-      `${VOICE_API_BASE_URL}/text-to-speech`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          text,
-          voiceId: selectedVoiceId,
-          stability,
-          similarity
-        })
-      }
-    );
+    const response =
+      await fetch(
+        `${VOICE_API_BASE_URL}/text-to-speech`,
+        {
+          method: "POST",
 
-    const data = await parseJsonResponse(response);
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+
+            "Content-Type":
+              "application/json"
+          },
+
+          body: JSON.stringify({
+            text,
+            voiceId:
+              selectedVoiceId,
+            stability,
+            similarity
+          })
+        }
+      );
+
+    const data =
+      await parseJsonResponse(
+        response
+      );
 
     if (!response.ok) {
+
       throw new Error(
-        data?.message || "Voice generation failed."
+        data?.message ||
+        "Voice generation failed."
       );
     }
 
-    const audioSource = extractAudioSource(data);
+    const audioSource =
+      extractAudioSource(data);
 
     if (!audioSource) {
+
       throw new Error(
         "No audio was returned by the server."
       );
     }
 
-    await displayGeneratedAudio(audioSource);
+    await displayGeneratedAudio(
+      audioSource
+    );
 
     showVoiceStatus(
       "Voice generated successfully.",
       "success"
     );
+
   } catch (error) {
-    console.error("Voice generation error:", error);
+
+    console.error(
+      "Voice generation error:",
+      error
+    );
 
     showVoiceStatus(
-      error.message || "Unable to generate voice.",
+      error.message ||
+      "Unable to generate voice.",
       "error"
     );
+
   } finally {
+
     isGeneratingVoice = false;
-    setGenerateButtonLoading(false);
+
+    setGenerateButtonLoading(
+      false
+    );
   }
 }
 
@@ -526,124 +781,232 @@ async function generateVoice() {
    RESPONSE PARSER
    ============================================================ */
 
-async function parseJsonResponse(response) {
-  const contentType =
-    response.headers.get("content-type") || "";
+async function parseJsonResponse(
+  response
+) {
 
-  if (contentType.includes("application/json")) {
+  const contentType =
+    response.headers.get(
+      "content-type"
+    ) || "";
+
+  if (
+    contentType.includes(
+      "application/json"
+    )
+  ) {
+
     return await response.json();
   }
 
-  const text = await response.text();
+  const text =
+    await response.text();
 
   try {
+
     return JSON.parse(text);
+
   } catch {
+
     return {
-      success: response.ok,
-      message: text
+      success:
+        response.ok,
+
+      message:
+        text
     };
   }
 }
-
 
 /* ============================================================
    AUDIO SOURCE EXTRACTION
    ============================================================ */
 
-function extractAudioSource(data) {
-  if (!data) return null;
+function extractAudioSource(
+  data
+) {
+
+  if (!data) {
+    return null;
+  }
 
   if (
     typeof data.audio === "string" &&
-    data.audio.startsWith("data:audio/")
+    data.audio.startsWith(
+      "data:audio/"
+    )
   ) {
+
     return data.audio;
   }
 
   if (
     typeof data.audio === "string" &&
     (
-      data.audio.startsWith("https://") ||
-      data.audio.startsWith("http://")
+      data.audio.startsWith(
+        "https://"
+      ) ||
+      data.audio.startsWith(
+        "http://"
+      )
     )
   ) {
+
     return data.audio;
   }
 
   if (
     typeof data.audio === "string" &&
-    isProbablyBase64(data.audio)
+    isProbablyBase64(
+      data.audio
+    )
   ) {
-    return `data:audio/mpeg;base64,${data.audio}`;
+
+    return (
+      "data:audio/mpeg;base64," +
+      data.audio
+    );
   }
 
   if (
     data.audio &&
     typeof data.audio === "object"
   ) {
-    const audio = data.audio;
 
-    if (typeof audio.dataUrl === "string") {
+    const audio =
+      data.audio;
+
+    if (
+      typeof audio.dataUrl ===
+      "string"
+    ) {
+
       return audio.dataUrl;
     }
 
-    if (typeof audio.url === "string") {
+    if (
+      typeof audio.url ===
+      "string"
+    ) {
+
       return audio.url;
     }
 
-    if (typeof audio.audioUrl === "string") {
+    if (
+      typeof audio.audioUrl ===
+      "string"
+    ) {
+
       return audio.audioUrl;
     }
 
-    if (typeof audio.base64 === "string") {
-      return `data:audio/mpeg;base64,${audio.base64}`;
+    if (
+      typeof audio.base64 ===
+      "string"
+    ) {
+
+      return (
+        "data:audio/mpeg;base64," +
+        audio.base64
+      );
     }
 
-    if (typeof audio.data === "string") {
-      return `data:audio/mpeg;base64,${audio.data}`;
+    if (
+      typeof audio.data ===
+      "string"
+    ) {
+
+      return (
+        "data:audio/mpeg;base64," +
+        audio.data
+      );
     }
   }
 
   const alternatives = [
+
     data.audioUrl,
+
     data.audioURL,
+
     data.url,
+
     data.audio_data,
+
     data.audioData,
+
     data.base64
+
   ];
 
-  for (const value of alternatives) {
-    if (typeof value !== "string") continue;
+  for (
+    const value of alternatives
+  ) {
 
-    if (value.startsWith("data:audio/")) {
+    if (
+      typeof value !== "string"
+    ) {
+      continue;
+    }
+
+    if (
+      value.startsWith(
+        "data:audio/"
+      )
+    ) {
+
       return value;
     }
 
     if (
-      value.startsWith("https://") ||
-      value.startsWith("http://")
+      value.startsWith(
+        "https://"
+      ) ||
+      value.startsWith(
+        "http://"
+      )
     ) {
+
       return value;
     }
 
-    if (isProbablyBase64(value)) {
-      return `data:audio/mpeg;base64,${value}`;
+    if (
+      isProbablyBase64(
+        value
+      )
+    ) {
+
+      return (
+        "data:audio/mpeg;base64," +
+        value
+      );
     }
   }
 
   return null;
 }
 
-function isProbablyBase64(value) {
-  if (typeof value !== "string") return false;
+function isProbablyBase64(
+  value
+) {
 
-  const cleaned = value.replace(/\s/g, "");
+  if (
+    typeof value !== "string"
+  ) {
+    return false;
+  }
+
+  const cleaned =
+    value.replace(
+      /\s/g,
+      ""
+    );
 
   return (
     cleaned.length >= 50 &&
-    /^[A-Za-z0-9+/=]+$/.test(cleaned)
+    /^[A-Za-z0-9+/=]+$/.test(
+      cleaned
+    )
   );
 }
 
@@ -651,87 +1014,167 @@ function isProbablyBase64(value) {
    DISPLAY AUDIO
    ============================================================ */
 
-async function displayGeneratedAudio(audioSource) {
+async function displayGeneratedAudio(
+  audioSource
+) {
+
   if (!audioSection) {
-    throw new Error("Audio section was not found.");
+
+    throw new Error(
+      "Audio section was not found."
+    );
   }
 
   cleanupPreviousAudio();
 
   const audioUrl =
-    await convertAudioSourceToUrl(audioSource);
+    await convertAudioSourceToUrl(
+      audioSource
+    );
 
   if (!audioUrl) {
-    throw new Error("Unable to prepare generated audio.");
+
+    throw new Error(
+      "Unable to prepare generated audio."
+    );
   }
 
-  currentAudioUrl = audioUrl;
+  currentAudioUrl =
+    audioUrl;
 
   if (voiceAudioPlayer) {
-    voiceAudioPlayer.src = audioUrl;
-    voiceAudioPlayer.controls = true;
-    voiceAudioPlayer.preload = "metadata";
+
+    voiceAudioPlayer.src =
+      audioUrl;
+
+    voiceAudioPlayer.controls =
+      true;
+
+    voiceAudioPlayer.preload =
+      "metadata";
+
     voiceAudioPlayer.load();
   }
 
-  audioSection.hidden = false;
-  audioSection.style.display = "";
+  audioSection.hidden =
+    false;
 
-  createDownloadButton(audioUrl);
+  audioSection.style.display =
+    "";
+
+  createDownloadButton(
+    audioUrl
+  );
 
   try {
+
     await voiceAudioPlayer?.play();
+
   } catch {
-    console.log("Autoplay was blocked.");
+
+    console.log(
+      "Autoplay was blocked."
+    );
   }
 
   try {
+
     audioSection.scrollIntoView({
-      behavior: "smooth",
-      block: "center"
+      behavior:
+        "smooth",
+
+      block:
+        "center"
     });
+
   } catch (error) {
-    console.warn("Audio scroll error:", error);
+
+    console.warn(
+      "Audio scroll error:",
+      error
+    );
   }
 }
 
-async function convertAudioSourceToUrl(audioSource) {
+async function convertAudioSourceToUrl(
+  audioSource
+) {
+
   if (
     !audioSource ||
-    typeof audioSource !== "string"
+    typeof audioSource !==
+      "string"
   ) {
+
     return null;
   }
 
-  if (audioSource.startsWith("data:audio/")) {
+  if (
+    audioSource.startsWith(
+      "data:audio/"
+    )
+  ) {
+
     try {
-      const blob = dataUrlToBlob(audioSource);
 
-      currentAudioBlob = blob;
+      const blob =
+        dataUrlToBlob(
+          audioSource
+        );
 
-      return URL.createObjectURL(blob);
+      currentAudioBlob =
+        blob;
+
+      return URL.createObjectURL(
+        blob
+      );
+
     } catch (error) {
-      console.error("Data URL conversion error:", error);
+
+      console.error(
+        "Data URL conversion error:",
+        error
+      );
+
       return audioSource;
     }
   }
 
   if (
-    audioSource.startsWith("https://") ||
-    audioSource.startsWith("http://")
+    audioSource.startsWith(
+      "https://"
+    ) ||
+    audioSource.startsWith(
+      "http://"
+    )
   ) {
+
     try {
-      const response = await fetch(audioSource);
+
+      const response =
+        await fetch(
+          audioSource
+        );
 
       if (response.ok) {
-        const blob = await response.blob();
 
-        currentAudioBlob = blob;
+        const blob =
+          await response.blob();
 
-        return URL.createObjectURL(blob);
+        currentAudioBlob =
+          blob;
+
+        return URL.createObjectURL(
+          blob
+        );
       }
+
     } catch (error) {
-      console.warn("Remote audio fetch failed:", error);
+
+      console.warn(
+        "Remote audio fetch failed:",
+        error
+      );
     }
 
     return audioSource;
@@ -740,145 +1183,293 @@ async function convertAudioSourceToUrl(audioSource) {
   return audioSource;
 }
 
-function dataUrlToBlob(dataUrl) {
-  const parts = dataUrl.split(",");
+function dataUrlToBlob(
+  dataUrl
+) {
 
-  if (parts.length < 2) {
-    throw new Error("Invalid audio data URL.");
+  const parts =
+    dataUrl.split(",");
+
+  if (
+    parts.length < 2
+  ) {
+
+    throw new Error(
+      "Invalid audio data URL."
+    );
   }
 
-  const header = parts[0];
-  const base64 = parts.slice(1).join(",");
+  const header =
+    parts[0];
+
+  const base64 =
+    parts
+      .slice(1)
+      .join(",");
 
   const mimeMatch =
-    header.match(/data:([^;]+);base64/);
+    header.match(
+      /data:([^;]+);base64/
+    );
 
   const mimeType =
-    mimeMatch?.[1] || "audio/mpeg";
+    mimeMatch?.[1] ||
+    "audio/mpeg";
 
-  const binaryString = atob(base64);
-  const bytes = new Uint8Array(binaryString.length);
+  const binaryString =
+    atob(base64);
 
-  for (let index = 0; index < binaryString.length; index++) {
-    bytes[index] = binaryString.charCodeAt(index);
+  const bytes =
+    new Uint8Array(
+      binaryString.length
+    );
+
+  for (
+    let index = 0;
+    index <
+    binaryString.length;
+    index++
+  ) {
+
+    bytes[index] =
+      binaryString.charCodeAt(
+        index
+      );
   }
 
-  return new Blob([bytes], {
-    type: mimeType
-  });
+  return new Blob(
+    [bytes],
+    {
+      type:
+        mimeType
+    }
+  );
 }
 
 /* ============================================================
    DOWNLOAD BUTTON
    ============================================================ */
 
-function createDownloadButton(audioUrl) {
-  if (!audioSection) return;
+function createDownloadButton(
+  audioUrl
+) {
+
+  if (!audioSection) {
+    return;
+  }
 
   document.getElementById(
     "voiceDownloadWrapper"
   )?.remove();
 
-  const wrapper = document.createElement("div");
+  const wrapper =
+    document.createElement(
+      "div"
+    );
 
-  wrapper.id = "voiceDownloadWrapper";
-  wrapper.className = "voice-download-wrapper";
+  wrapper.id =
+    "voiceDownloadWrapper";
 
-  const button = document.createElement("button");
+  wrapper.className =
+    "voice-download-wrapper";
 
-  button.type = "button";
-  button.id = "downloadVoiceButton";
-  button.className = "download-voice-button";
+  const button =
+    document.createElement(
+      "button"
+    );
+
+  button.type =
+    "button";
+
+  button.id =
+    "downloadVoiceButton";
+
+  button.className =
+    "download-voice-button";
 
   button.innerHTML = `
-    <span class="download-icon">↓</span>
-    <span class="download-text">Download Voice</span>
+    <span class="download-icon">
+      ↓
+    </span>
+
+    <span class="download-text">
+      Download Voice
+    </span>
   `;
 
-  button.addEventListener("click", () => {
-    downloadGeneratedVoice(audioUrl);
-  });
+  button.addEventListener(
+    "click",
+    () => {
 
-  wrapper.appendChild(button);
+      downloadGeneratedVoice(
+        audioUrl
+      );
+    }
+  );
+
+  wrapper.appendChild(
+    button
+  );
 
   if (voiceAudioPlayer) {
+
     voiceAudioPlayer.insertAdjacentElement(
       "afterend",
       wrapper
     );
+
   } else {
-    audioSection.appendChild(wrapper);
+
+    audioSection.appendChild(
+      wrapper
+    );
   }
 }
 
-async function downloadGeneratedVoice(audioUrl) {
-  const button = document.getElementById(
-    "downloadVoiceButton"
-  );
+async function downloadGeneratedVoice(
+  audioUrl
+) {
+
+  const button =
+    document.getElementById(
+      "downloadVoiceButton"
+    );
 
   if (button) {
-    button.disabled = true;
-    button.textContent = "Preparing...";
+
+    button.disabled =
+      true;
+
+    button.textContent =
+      "Preparing...";
   }
 
   try {
-    let blob = currentAudioBlob;
+
+    let blob =
+      currentAudioBlob;
 
     if (!blob) {
-      const response = await fetch(audioUrl);
+
+      const response =
+        await fetch(
+          audioUrl
+        );
 
       if (!response.ok) {
-        throw new Error("Unable to download audio.");
+
+        throw new Error(
+          "Unable to download audio."
+        );
       }
 
-      blob = await response.blob();
-      currentAudioBlob = blob;
+      blob =
+        await response.blob();
+
+      currentAudioBlob =
+        blob;
     }
 
-    const downloadUrl = URL.createObjectURL(blob);
-    const extension = getAudioFileExtension(blob.type);
+    const downloadUrl =
+      URL.createObjectURL(
+        blob
+      );
 
-    const link = document.createElement("a");
+    const extension =
+      getAudioFileExtension(
+        blob.type
+      );
 
-    link.href = downloadUrl;
+    const link =
+      document.createElement(
+        "a"
+      );
+
+    link.href =
+      downloadUrl;
+
     link.download =
       `EchoCall-Voice-${getTimestamp()}.${extension}`;
 
-    document.body.appendChild(link);
+    document.body.appendChild(
+      link
+    );
+
     link.click();
+
     link.remove();
 
-    URL.revokeObjectURL(downloadUrl);
+    URL.revokeObjectURL(
+      downloadUrl
+    );
 
     showVoiceStatus(
       "Voice downloaded successfully.",
       "success"
     );
+
   } catch (error) {
-    console.error("Download error:", error);
+
+    console.error(
+      "Download error:",
+      error
+    );
 
     showVoiceStatus(
       "Unable to download the generated voice.",
       "error"
     );
+
   } finally {
+
     if (button) {
-      button.disabled = false;
+
+      button.disabled =
+        false;
+
       button.innerHTML = `
-        <span class="download-icon">↓</span>
-        <span class="download-text">Download Voice</span>
+        <span class="download-icon">
+          ↓
+        </span>
+
+        <span class="download-text">
+          Download Voice
+        </span>
       `;
     }
   }
 }
 
-function getAudioFileExtension(mimeType) {
-  const mime = (mimeType || "").toLowerCase();
+function getAudioFileExtension(
+  mimeType
+) {
 
-  if (mime.includes("wav")) return "wav";
-  if (mime.includes("ogg")) return "ogg";
-  if (mime.includes("webm")) return "webm";
-  if (mime.includes("mp4") || mime.includes("m4a")) {
+  const mime =
+    (mimeType || "")
+      .toLowerCase();
+
+  if (
+    mime.includes("wav")
+  ) {
+    return "wav";
+  }
+
+  if (
+    mime.includes("ogg")
+  ) {
+    return "ogg";
+  }
+
+  if (
+    mime.includes("webm")
+  ) {
+    return "webm";
+  }
+
+  if (
+    mime.includes("mp4") ||
+    mime.includes("m4a")
+  ) {
     return "m4a";
   }
 
@@ -886,30 +1477,58 @@ function getAudioFileExtension(mimeType) {
 }
 
 function getTimestamp() {
-  const now = new Date();
+
+  const now =
+    new Date();
 
   const parts = [
+
     now.getFullYear(),
-    String(now.getMonth() + 1).padStart(2, "0"),
-    String(now.getDate()).padStart(2, "0"),
-    String(now.getHours()).padStart(2, "0"),
-    String(now.getMinutes()).padStart(2, "0"),
-    String(now.getSeconds()).padStart(2, "0")
+
+    String(
+      now.getMonth() + 1
+    ).padStart(2, "0"),
+
+    String(
+      now.getDate()
+    ).padStart(2, "0"),
+
+    String(
+      now.getHours()
+    ).padStart(2, "0"),
+
+    String(
+      now.getMinutes()
+    ).padStart(2, "0"),
+
+    String(
+      now.getSeconds()
+    ).padStart(2, "0")
+
   ];
 
-  return `${parts[0]}-${parts[1]}-${parts[2]}-${parts[3]}-${parts[4]}-${parts[5]}`;
+  return (
+    `${parts[0]}-${parts[1]}-${parts[2]}-${parts[3]}-${parts[4]}-${parts[5]}`
+  );
 }
 
 /* ============================================================
    BUTTON LOADING STATE
    ============================================================ */
 
-function setGenerateButtonLoading(loading) {
-  if (!generateVoiceButton) return;
+function setGenerateButtonLoading(
+  loading
+) {
 
-  generateVoiceButton.disabled = loading;
+  if (!generateVoiceButton) {
+    return;
+  }
+
+  generateVoiceButton.disabled =
+    loading;
 
   if (loading) {
+
     generateVoiceButton.dataset.originalHTML =
       generateVoiceButton.innerHTML;
 
@@ -918,16 +1537,26 @@ function setGenerateButtonLoading(loading) {
       <span>Generating Voice...</span>
     `;
 
-    generateVoiceButton.classList.add("is-loading");
+    generateVoiceButton.classList.add(
+      "is-loading"
+    );
+
   } else {
+
     const originalHTML =
-      generateVoiceButton.dataset.originalHTML;
+      generateVoiceButton
+        .dataset
+        .originalHTML;
 
     if (originalHTML) {
-      generateVoiceButton.innerHTML = originalHTML;
+
+      generateVoiceButton.innerHTML =
+        originalHTML;
     }
 
-    generateVoiceButton.classList.remove("is-loading");
+    generateVoiceButton.classList.remove(
+      "is-loading"
+    );
   }
 }
 
@@ -935,15 +1564,29 @@ function setGenerateButtonLoading(loading) {
    STATUS MESSAGE
    ============================================================ */
 
-function showVoiceStatus(message, type = "info") {
+function showVoiceStatus(
+  message,
+  type = "info"
+) {
+
   if (!audioStatus) {
-    console.warn(message);
+
+    console.warn(
+      message
+    );
+
     return;
   }
 
-  audioStatus.textContent = message;
-  audioStatus.className = "audio-status";
-  audioStatus.classList.add(`status-${type}`);
+  audioStatus.textContent =
+    message;
+
+  audioStatus.className =
+    "audio-status";
+
+  audioStatus.classList.add(
+    `status-${type}`
+  );
 }
 
 /* ============================================================
@@ -951,7 +1594,10 @@ function showVoiceStatus(message, type = "info") {
    ============================================================ */
 
 function setupBackButton() {
-  if (!voiceBackButton) return;
+
+  if (!voiceBackButton) {
+    return;
+  }
 
   voiceBackButton.addEventListener(
     "click",
@@ -960,29 +1606,55 @@ function setupBackButton() {
 }
 
 function handleVoiceBack() {
+
   try {
-    if (typeof window.navigateTo === "function") {
-      window.navigateTo("home");
+
+    if (
+      typeof window.navigateTo ===
+      "function"
+    ) {
+
+      window.navigateTo(
+        "home"
+      );
+
       return;
     }
 
     if (
       window.router &&
-      typeof window.router.navigate === "function"
+      typeof window.router.navigate ===
+        "function"
     ) {
-      window.router.navigate("home");
+
+      window.router.navigate(
+        "home"
+      );
+
       return;
     }
 
-    if (window.history.length > 1) {
+    if (
+      window.history.length > 1
+    ) {
+
       window.history.back();
+
       return;
     }
 
-    window.location.href = "../index.html";
+    window.location.href =
+      "../index.html";
+
   } catch (error) {
-    console.error("Back navigation error:", error);
-    window.location.href = "../index.html";
+
+    console.error(
+      "Back navigation error:",
+      error
+    );
+
+    window.location.href =
+      "../index.html";
   }
 }
 
@@ -991,16 +1663,32 @@ function handleVoiceBack() {
    ============================================================ */
 
 function cleanupPreviousAudio() {
-  if (currentAudioUrl?.startsWith("blob:")) {
-    URL.revokeObjectURL(currentAudioUrl);
+
+  if (
+    currentAudioUrl?.startsWith(
+      "blob:"
+    )
+  ) {
+
+    URL.revokeObjectURL(
+      currentAudioUrl
+    );
   }
 
-  currentAudioUrl = "";
-  currentAudioBlob = null;
+  currentAudioUrl =
+    "";
+
+  currentAudioBlob =
+    null;
 
   if (voiceAudioPlayer) {
+
     voiceAudioPlayer.pause();
-    voiceAudioPlayer.removeAttribute("src");
+
+    voiceAudioPlayer.removeAttribute(
+      "src"
+    );
+
     voiceAudioPlayer.load();
   }
 
@@ -1014,33 +1702,48 @@ function cleanupPreviousAudio() {
    ============================================================ */
 
 function setupAudioEvents() {
-  if (!voiceAudioPlayer) return;
+
+  if (!voiceAudioPlayer) {
+    return;
+  }
 
   voiceAudioPlayer.addEventListener(
     "loadedmetadata",
     () => {
-      console.log("Generated audio loaded.");
+
+      console.log(
+        "Generated audio loaded."
+      );
     }
   );
 
   voiceAudioPlayer.addEventListener(
     "play",
     () => {
-      console.log("Playing generated audio.");
+
+      console.log(
+        "Playing generated audio."
+      );
     }
   );
 
   voiceAudioPlayer.addEventListener(
     "ended",
     () => {
-      console.log("Generated audio finished.");
+
+      console.log(
+        "Generated audio finished."
+      );
     }
   );
 
   voiceAudioPlayer.addEventListener(
     "error",
     () => {
-      console.error("Audio player error.");
+
+      console.error(
+        "Audio player error."
+      );
 
       showVoiceStatus(
         "The generated audio could not be played.",
@@ -1050,23 +1753,41 @@ function setupAudioEvents() {
   );
 }
 
-document.addEventListener("DOMContentLoaded", setupAudioEvents);
+/* ============================================================
+   CLEANUP WHEN PAGE CLOSES
+   ============================================================ */
 
-window.addEventListener("beforeunload", () => {
-  if (currentAudioUrl?.startsWith("blob:")) {
-    URL.revokeObjectURL(currentAudioUrl);
+window.addEventListener(
+  "beforeunload",
+  () => {
+
+    if (
+      currentAudioUrl?.startsWith(
+        "blob:"
+      )
+    ) {
+
+      URL.revokeObjectURL(
+        currentAudioUrl
+      );
+    }
   }
-});
+);
 
 /* ============================================================
    OPTIONAL GLOBAL ACCESS
    ============================================================ */
 
 window.EchoCallVoiceStudio = {
+
   initializeVoiceClone,
-  initializeVoiceStudio,
+
   generateVoice,
+
   loadElevenLabsVoices,
+
   downloadGeneratedVoice,
+
   getFirebaseAuthToken
+
 };

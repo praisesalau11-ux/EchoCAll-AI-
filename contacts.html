@@ -1,0 +1,1964 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#0B1120"
+    >
+
+    <title>
+        Contacts — EchoCall AI
+    </title>
+
+
+    <!-- ==========================================
+         MATERIAL SYMBOLS
+    =========================================== -->
+
+    <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..700,0..1,0"
+    >
+
+
+    <!-- ==========================================
+         CONTACTS CSS
+    =========================================== -->
+
+    <link
+        rel="stylesheet"
+        href="../css/contacts.css"
+    >
+
+</head>
+
+
+<body>
+
+<main
+    id="contactsPage"
+    class="contacts-page"
+>
+
+
+    <!-- ==========================================
+         BACKGROUND
+    =========================================== -->
+
+    <div
+        class="contacts-background"
+        aria-hidden="true"
+    >
+
+        <div class="contacts-glow glow-one"></div>
+
+        <div class="contacts-glow glow-two"></div>
+
+        <div class="contacts-glow glow-three"></div>
+
+    </div>
+
+
+    <!-- ==========================================
+         HEADER
+    =========================================== -->
+
+    <header
+        class="contacts-header glass"
+    >
+
+        <div
+            class="contacts-header-left"
+        >
+
+            <button
+                type="button"
+                id="contactsBackButton"
+                class="contacts-icon-button"
+                aria-label="Back"
+                title="Back"
+            >
+
+                <span class="material-symbols-rounded">
+                    arrow_back
+                </span>
+
+            </button>
+
+
+            <div
+                class="contacts-title-block"
+            >
+
+                <span
+                    class="contacts-eyebrow"
+                >
+                    EchoCall
+                </span>
+
+                <h1>
+                    Contacts
+                </h1>
+
+            </div>
+
+        </div>
+
+
+        <div
+            class="contacts-header-actions"
+        >
+
+            <button
+                type="button"
+                id="contactsSearchButton"
+                class="contacts-icon-button"
+                aria-label="Search contacts"
+                title="Search contacts"
+            >
+
+                <span class="material-symbols-rounded">
+                    search
+                </span>
+
+            </button>
+
+
+            <button
+                type="button"
+                id="contactsMoreButton"
+                class="contacts-icon-button"
+                aria-label="More options"
+                aria-expanded="false"
+                title="More"
+            >
+
+                <span class="material-symbols-rounded">
+                    more_vert
+                </span>
+
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <!-- ==========================================
+         SEARCH PANEL
+    =========================================== -->
+
+    <section
+        id="contactsSearchPanel"
+        class="contacts-search-panel glass"
+        aria-hidden="true"
+    >
+
+        <span class="material-symbols-rounded">
+            search
+        </span>
+
+
+        <input
+            type="search"
+            id="contactsSearchInput"
+            class="contacts-search-input"
+            placeholder="Search contacts..."
+            autocomplete="off"
+            spellcheck="false"
+        >
+
+
+        <button
+            type="button"
+            id="contactsSearchClear"
+            class="contacts-search-clear"
+            aria-label="Clear search"
+            title="Clear search"
+        >
+
+            <span class="material-symbols-rounded">
+                close
+            </span>
+
+        </button>
+
+    </section>
+
+
+    <!-- ==========================================
+         MORE MENU
+    =========================================== -->
+
+    <div
+        id="contactsMoreMenu"
+        class="contacts-more-menu glass"
+        aria-hidden="true"
+    >
+
+        <button
+            type="button"
+            data-contact-action="refresh"
+        >
+
+            <span class="material-symbols-rounded">
+                refresh
+            </span>
+
+            <span>
+                Refresh contacts
+            </span>
+
+        </button>
+
+
+        <button
+            type="button"
+            data-contact-action="import"
+        >
+
+            <span class="material-symbols-rounded">
+                import_contacts
+            </span>
+
+            <span>
+                Import contacts
+            </span>
+
+        </button>
+
+
+        <button
+            type="button"
+            data-contact-action="settings"
+        >
+
+            <span class="material-symbols-rounded">
+                settings
+            </span>
+
+            <span>
+                Contact settings
+            </span>
+
+        </button>
+
+    </div>
+
+
+    <!-- ==========================================
+         MAIN CONTENT
+    =========================================== -->
+
+    <section
+        class="contacts-content"
+    >
+
+
+        <!-- ======================================
+             CONTACT HERO
+        ======================================= -->
+
+        <section
+            class="contacts-hero glass"
+        >
+
+            <div
+                class="contacts-hero-icon"
+            >
+
+                <span class="material-symbols-rounded">
+                    contacts
+                </span>
+
+            </div>
+
+
+            <div
+                class="contacts-hero-content"
+            >
+
+                <span
+                    class="contacts-hero-label"
+                >
+                    Your people
+                </span>
+
+                <h2>
+                    Stay connected
+                </h2>
+
+                <p>
+                    Save a phone number to start
+                    messaging and calling someone.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- ======================================
+             NEW CONTACT BUTTON
+        ======================================= -->
+
+        <button
+            type="button"
+            id="newContactButton"
+            class="new-contact-button"
+        >
+
+            <span class="material-symbols-rounded">
+                person_add
+            </span>
+
+            <span>
+                New Contact
+            </span>
+
+        </button>
+
+
+        <!-- ======================================
+             CONTACT STATS
+        ======================================= -->
+
+        <section
+            class="contacts-stats"
+            aria-label="Contact statistics"
+        >
+
+            <div
+                class="contact-stat-card glass"
+            >
+
+                <span class="material-symbols-rounded">
+                    contacts
+                </span>
+
+                <div>
+
+                    <strong
+                        id="totalContactsCount"
+                    >
+                        0
+                    </strong>
+
+                    <span>
+                        Contacts
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="contact-stat-card glass"
+            >
+
+                <span class="material-symbols-rounded">
+                    person_add
+                </span>
+
+                <div>
+
+                    <strong
+                        id="echoCallContactsCount"
+                    >
+                        0
+                    </strong>
+
+                    <span>
+                        On EchoCall
+                    </span>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ======================================
+             CONTACT FILTERS
+        ======================================= -->
+
+        <nav
+            id="contactFilters"
+            class="contact-filters glass"
+            aria-label="Contact filters"
+        >
+
+            <button
+                type="button"
+                class="contact-filter active"
+                data-contact-filter="all"
+            >
+
+                All
+
+            </button>
+
+
+            <button
+                type="button"
+                class="contact-filter"
+                data-contact-filter="echoCall"
+            >
+
+                EchoCall
+
+            </button>
+
+
+            <button
+                type="button"
+                class="contact-filter"
+                data-contact-filter="favorites"
+            >
+
+                Favorites
+
+            </button>
+
+        </nav>
+
+
+        <!-- ======================================
+             CONTACT LIST
+        ======================================= -->
+
+        <section
+            class="contacts-list-section"
+        >
+
+            <div
+                class="contacts-section-heading"
+            >
+
+                <div>
+
+                    <span>
+                        Saved contacts
+                    </span>
+
+                    <h2>
+                        People
+                    </h2>
+
+                </div>
+
+
+                <span
+                    id="contactsListCount"
+                    class="contacts-list-count"
+                >
+                    0
+                </span>
+
+            </div>
+
+
+            <!-- Loading -->
+
+            <div
+                id="contactsLoading"
+                class="contacts-loading"
+                aria-hidden="false"
+            >
+
+                <div class="contact-skeleton"></div>
+
+                <div class="contact-skeleton"></div>
+
+                <div class="contact-skeleton"></div>
+
+            </div>
+
+
+            <!-- Actual list -->
+
+            <div
+                id="contactsList"
+                class="contacts-list"
+            ></div>
+
+
+            <!-- Empty state -->
+
+            <div
+                id="contactsEmpty"
+                class="contacts-empty glass"
+                hidden
+            >
+
+                <div
+                    class="contacts-empty-icon"
+                >
+
+                    <span class="material-symbols-rounded">
+                        person_search
+                    </span>
+
+                </div>
+
+                <h3>
+                    No contacts yet
+                </h3>
+
+                <p>
+                    Add someone's phone number to
+                    start communicating with them.
+                </p>
+
+
+                <button
+                    type="button"
+                    id="emptyAddContactButton"
+                    class="small-primary-button"
+                >
+
+                    <span class="material-symbols-rounded">
+                        person_add
+                    </span>
+
+                    Add Contact
+
+                </button>
+
+            </div>
+
+
+            <!-- Search no results -->
+
+            <div
+                id="contactsNoResults"
+                class="contacts-empty glass"
+                hidden
+            >
+
+                <div
+                    class="contacts-empty-icon"
+                >
+
+                    <span class="material-symbols-rounded">
+                        search_off
+                    </span>
+
+                </div>
+
+                <h3>
+                    No matching contacts
+                </h3>
+
+                <p>
+                    Try a different name or phone number.
+                </p>
+
+            </div>
+
+        </section>
+        <!-- ==========================================
+     CONTACTS — PART 2A
+     New Contact Modal
+========================================== -->
+
+<!-- New Contact Modal -->
+<div
+    id="newContactModal"
+    class="contact-modal"
+    aria-hidden="true"
+>
+
+    <div
+        class="contact-modal-backdrop"
+        data-contact-modal-close
+    ></div>
+
+    <section
+        class="contact-modal-card glass"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="newContactTitle"
+    >
+
+        <!-- Modal Header -->
+        <header class="contact-modal-header">
+
+            <div class="contact-modal-heading">
+
+                <span class="material-symbols-rounded">
+                    person_add
+                </span>
+
+                <div>
+                    <h2 id="newContactTitle">
+                        New Contact
+                    </h2>
+
+                    <p>
+                        Add someone to your EchoCall contacts.
+                    </p>
+                </div>
+
+            </div>
+
+            <button
+                type="button"
+                id="closeNewContactButton"
+                class="icon-button"
+                aria-label="Close"
+            >
+                <span class="material-symbols-rounded">
+                    close
+                </span>
+            </button>
+
+        </header>
+
+
+        <!-- New Contact Form -->
+        <form
+            id="newContactForm"
+            class="new-contact-form"
+            novalidate
+        >
+
+            <!-- ======================================
+                 PROFILE PHOTO
+            ======================================= -->
+
+            <div class="contact-photo-section">
+
+                <button
+                    type="button"
+                    id="contactPhotoButton"
+                    class="contact-photo-button"
+                    aria-label="Choose profile photo"
+                >
+
+                    <span
+                        id="contactPhotoIcon"
+                        class="material-symbols-rounded"
+                    >
+                        add_a_photo
+                    </span>
+
+                    <img
+                        id="contactPhotoPreview"
+                        class="contact-photo-preview"
+                        src=""
+                        alt="Contact profile preview"
+                        hidden
+                    />
+
+                    <span class="contact-photo-overlay">
+                        <span class="material-symbols-rounded">
+                            photo_camera
+                        </span>
+                    </span>
+
+                </button>
+
+                <p class="contact-photo-label">
+                    Add profile photo
+                </p>
+
+                <input
+                    type="file"
+                    id="contactPhotoInput"
+                    accept="image/*"
+                    hidden
+                />
+
+            </div>
+
+
+            <!-- ======================================
+                 SAVED NAME
+            ======================================= -->
+
+            <div class="form-field">
+
+                <label for="contactName">
+                    Saved name
+                </label>
+
+                <div class="input-wrapper">
+
+                    <span class="material-symbols-rounded">
+                        person
+                    </span>
+
+                    <input
+                        type="text"
+                        id="contactName"
+                        name="contactName"
+                        placeholder="e.g. John Doe"
+                        autocomplete="name"
+                        maxlength="80"
+                    />
+
+                </div>
+
+                <small class="field-hint">
+                    The name you want to see in EchoCall.
+                </small>
+
+            </div>
+
+
+            <!-- ======================================
+                 PHONE NUMBER
+            ======================================= -->
+
+            <div class="form-field">
+
+                <label for="contactPhone">
+                    Phone number
+                    <span class="required-mark">*</span>
+                </label>
+
+                <div class="phone-input-row">
+
+                    <!-- Country Selector -->
+                    <div class="country-selector">
+
+                        <button
+                            type="button"
+                            id="countrySelectorButton"
+                            class="country-selector-button"
+                            aria-haspopup="listbox"
+                            aria-expanded="false"
+                        >
+
+                            <span
+                                id="selectedCountryFlag"
+                                class="country-flag"
+                            >
+                                🌍
+                            </span>
+
+                            <span
+                                id="selectedCountryDialCode"
+                                class="country-dial-code"
+                            >
+                                +234
+                            </span>
+
+                            <span class="material-symbols-rounded">
+                                expand_more
+                            </span>
+
+                        </button>
+
+
+                        <!-- Country Dropdown -->
+                        <div
+                            id="countrySelectorMenu"
+                            class="country-selector-menu"
+                            hidden
+                        >
+
+                            <div class="country-search">
+
+                                <span class="material-symbols-rounded">
+                                    search
+                                </span>
+
+                                <input
+                                    type="search"
+                                    id="countrySearchInput"
+                                    placeholder="Search country..."
+                                    autocomplete="off"
+                                />
+
+                                <button
+                                    type="button"
+                                    id="countrySearchClear"
+                                    class="country-search-clear"
+                                    aria-label="Clear country search"
+                                    hidden
+                                >
+                                    <span class="material-symbols-rounded">
+                                        close
+                                    </span>
+                                </button>
+
+                            </div>
+
+
+                            <div
+                                id="countryList"
+                                class="country-list"
+                                role="listbox"
+                                aria-label="Countries"
+                            >
+                                <!-- Loaded from data/countries.js -->
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Phone Number -->
+                    <div class="phone-number-wrapper">
+
+                        <span class="material-symbols-rounded">
+                            phone
+                        </span>
+
+                        <input
+                            type="tel"
+                            id="contactPhone"
+                            name="contactPhone"
+                            placeholder="801 234 5678"
+                            autocomplete="tel"
+                            inputmode="tel"
+                            maxlength="20"
+                            required
+                        />
+
+                    </div>
+
+                </div>
+
+                <p
+                    id="contactPhoneError"
+                    class="field-error"
+                    role="alert"
+                    hidden
+                ></p>
+
+                <small class="field-hint">
+                    Add the person's phone number to find their EchoCall account.
+                </small>
+
+            </div>
+
+
+            <!-- ======================================
+                 ECHOCALL USERNAME
+            ======================================= -->
+
+            <div class="form-field">
+
+                <label for="contactUsername">
+                    EchoCall username
+                </label>
+
+                <div class="input-wrapper">
+
+                    <span class="material-symbols-rounded">
+                        alternate_email
+                    </span>
+
+                    <input
+                        type="text"
+                        id="contactUsername"
+                        name="contactUsername"
+                        placeholder="@username"
+                        autocomplete="off"
+                        maxlength="50"
+                    />
+
+                </div>
+
+                <small class="field-hint">
+                    Optional. Useful if you already know their username.
+                </small>
+
+            </div>
+
+
+            <!-- ======================================
+                 EMAIL
+            ======================================= -->
+
+            <div class="form-field">
+
+                <label for="contactEmail">
+                    Email
+                </label>
+
+                <div class="input-wrapper">
+
+                    <span class="material-symbols-rounded">
+                        mail
+                    </span>
+
+                    <input
+                        type="email"
+                        id="contactEmail"
+                        name="contactEmail"
+                        placeholder="name@example.com"
+                        autocomplete="email"
+                        maxlength="120"
+                    />
+
+                </div>
+
+                <small class="field-hint">
+                    Optional contact information.
+                </small>
+
+            </div>
+                        <!-- ======================================
+                 JOB TITLE
+            ======================================= -->
+
+            <div class="form-field">
+
+                <label for="contactJobTitle">
+                    Job title
+                </label>
+
+                <div class="input-wrapper">
+
+                    <span class="material-symbols-rounded">
+                        work
+                    </span>
+
+                    <input
+                        type="text"
+                        id="contactJobTitle"
+                        name="contactJobTitle"
+                        placeholder="e.g. Software Developer"
+                        autocomplete="organization-title"
+                        maxlength="100"
+                    />
+
+                </div>
+
+            </div>
+
+
+            <!-- ======================================
+                 COMPANY
+            ======================================= -->
+
+            <div class="form-field">
+
+                <label for="contactCompany">
+                    Company
+                </label>
+
+                <div class="input-wrapper">
+
+                    <span class="material-symbols-rounded">
+                        business
+                    </span>
+
+                    <input
+                        type="text"
+                        id="contactCompany"
+                        name="contactCompany"
+                        placeholder="Company or organization"
+                        autocomplete="organization"
+                        maxlength="120"
+                    />
+
+                </div>
+
+            </div>
+
+
+            <!-- ======================================
+                 ADDRESS
+            ======================================= -->
+
+            <div class="form-field">
+
+                <label for="contactAddress">
+                    Address
+                </label>
+
+                <div class="input-wrapper input-wrapper-textarea">
+
+                    <span class="material-symbols-rounded">
+                        location_on
+                    </span>
+
+                    <textarea
+                        id="contactAddress"
+                        name="contactAddress"
+                        placeholder="Home, work, or other address"
+                        maxlength="300"
+                        rows="3"
+                    ></textarea>
+
+                </div>
+
+            </div>
+
+
+            <!-- ======================================
+                 DATE OF BIRTH
+            ======================================= -->
+
+            <div class="form-field">
+
+                <label for="contactDob">
+                    Date of birth
+                </label>
+
+                <div class="input-wrapper">
+
+                    <span class="material-symbols-rounded">
+                        cake
+                    </span>
+
+                    <input
+                        type="date"
+                        id="contactDob"
+                        name="contactDob"
+                        autocomplete="bday"
+                    />
+
+                </div>
+
+                <small class="field-hint">
+                    Optional.
+                </small>
+
+            </div>
+
+
+            <!-- ======================================
+                 NOTES
+            ======================================= -->
+
+            <div class="form-field">
+
+                <label for="contactNotes">
+                    Notes
+                </label>
+
+                <div class="input-wrapper input-wrapper-textarea">
+
+                    <span class="material-symbols-rounded">
+                        notes
+                    </span>
+
+                    <textarea
+                        id="contactNotes"
+                        name="contactNotes"
+                        placeholder="Add anything you want to remember..."
+                        maxlength="1000"
+                        rows="4"
+                    ></textarea>
+
+                </div>
+
+                <div class="character-counter">
+                    <span id="contactNotesCount">0</span>/1000
+                </div>
+
+            </div>
+
+
+            <!-- ======================================
+                 FAVORITE
+            ======================================= -->
+
+            <div class="contact-option-row">
+
+                <div class="contact-option-info">
+
+                    <div class="contact-option-icon">
+
+                        <span class="material-symbols-rounded">
+                            star
+                        </span>
+
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Add to favorites
+                        </strong>
+
+                        <p>
+                            Keep this contact easy to find.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <label
+                    class="toggle-switch"
+                    for="contactFavorite"
+                >
+
+                    <input
+                        type="checkbox"
+                        id="contactFavorite"
+                        name="contactFavorite"
+                    />
+
+                    <span class="toggle-slider"></span>
+
+                </label>
+
+            </div>
+
+
+            <!-- ======================================
+                 FORM ERROR
+            ======================================= -->
+
+            <div
+                id="newContactFormError"
+                class="form-submit-error"
+                role="alert"
+                hidden
+            >
+
+                <span class="material-symbols-rounded">
+                    error
+                </span>
+
+                <span id="newContactFormErrorText"></span>
+
+            </div>
+
+
+            <!-- ======================================
+                 FORM ACTIONS
+            ======================================= -->
+
+            <div class="contact-form-actions">
+
+                <button
+                    type="button"
+                    id="cancelNewContactButton"
+                    class="secondary-button"
+                >
+
+                    <span class="material-symbols-rounded">
+                        close
+                    </span>
+
+                    <span>
+                        Cancel
+                    </span>
+
+                </button>
+
+
+                <button
+                    type="submit"
+                    id="saveContactButton"
+                    class="primary-button"
+                >
+
+                    <span
+                        id="saveContactButtonIcon"
+                        class="material-symbols-rounded"
+                    >
+                        person_add
+                    </span>
+
+                    <span id="saveContactButtonText">
+                        Save Contact
+                    </span>
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
+
+</div>
+<!-- ==========================================
+     CONTACTS — PART 3
+     Contact Details + Navigation + Page End
+========================================== -->
+
+
+<!-- ==========================================
+     CONTACT DETAILS PANEL
+=========================================== -->
+
+<section
+    id="contactDetailsPanel"
+    class="contact-details-panel"
+    aria-hidden="true"
+>
+
+    <!-- Details Header -->
+    <header class="contact-details-header glass">
+
+        <button
+            type="button"
+            id="closeContactDetailsButton"
+            class="icon-button"
+            aria-label="Back to contacts"
+        >
+            <span class="material-symbols-rounded">
+                arrow_back
+            </span>
+        </button>
+
+
+        <div class="contact-details-header-title">
+            <span class="material-symbols-rounded">
+                person
+            </span>
+
+            <span>
+                Contact
+            </span>
+        </div>
+
+
+        <button
+            type="button"
+            id="contactDetailsMoreButton"
+            class="icon-button"
+            aria-label="More contact options"
+        >
+            <span class="material-symbols-rounded">
+                more_vert
+            </span>
+        </button>
+
+    </header>
+
+
+    <!-- Contact Details Content -->
+    <div class="contact-details-content">
+
+        <!-- Profile -->
+        <section class="contact-profile-card glass">
+
+            <div class="contact-profile-avatar-wrapper">
+
+                <img
+                    id="contactDetailsAvatar"
+                    class="contact-profile-avatar"
+                    src=""
+                    alt="Contact profile"
+                />
+
+                <div
+                    id="contactDetailsAvatarFallback"
+                    class="contact-profile-avatar-fallback"
+                >
+                    <span class="material-symbols-rounded">
+                        person
+                    </span>
+                </div>
+
+                <span
+                    id="contactDetailsOnlineIndicator"
+                    class="contact-online-indicator"
+                    hidden
+                ></span>
+
+            </div>
+
+
+            <h2 id="contactDetailsName">
+                Contact
+            </h2>
+
+            <p id="contactDetailsUsername">
+                @username
+            </p>
+
+            <p
+                id="contactDetailsPhone"
+                class="contact-details-phone"
+            >
+                +234
+            </p>
+
+
+            <div
+                id="contactDetailsStatus"
+                class="contact-details-status"
+            >
+                Offline
+            </div>
+
+        </section>
+
+
+        <!-- Communication Actions -->
+        <section class="contact-action-grid">
+
+            <!-- Message -->
+            <button
+                type="button"
+                class="contact-action-card glass"
+                data-contact-action="message"
+            >
+
+                <span class="contact-action-icon">
+                    <span class="material-symbols-rounded">
+                        chat
+                    </span>
+                </span>
+
+                <span class="contact-action-label">
+                    Message
+                </span>
+
+            </button>
+
+
+            <!-- Voice Call -->
+            <button
+                type="button"
+                class="contact-action-card glass"
+                data-contact-action="voice-call"
+            >
+
+                <span class="contact-action-icon">
+                    <span class="material-symbols-rounded">
+                        call
+                    </span>
+                </span>
+
+                <span class="contact-action-label">
+                    Voice Call
+                </span>
+
+            </button>
+
+
+            <!-- Video Call -->
+            <button
+                type="button"
+                class="contact-action-card glass"
+                data-contact-action="video-call"
+            >
+
+                <span class="contact-action-icon">
+                    <span class="material-symbols-rounded">
+                        videocam
+                    </span>
+                </span>
+
+                <span class="contact-action-label">
+                    Video Call
+                </span>
+
+            </button>
+
+
+            <!-- AI Voice Call -->
+            <button
+                type="button"
+                class="contact-action-card glass ai-contact-action"
+                data-contact-action="ai-voice-call"
+            >
+
+                <span class="contact-action-icon">
+                    <span class="material-symbols-rounded">
+                        smart_toy
+                    </span>
+                </span>
+
+                <span class="contact-action-label">
+                    AI Voice
+                </span>
+
+            </button>
+
+
+            <!-- AI Video Call -->
+            <button
+                type="button"
+                class="contact-action-card glass ai-contact-action"
+                data-contact-action="ai-video-call"
+            >
+
+                <span class="contact-action-icon">
+                    <span class="material-symbols-rounded">
+                        video_chat
+                    </span>
+                </span>
+
+                <span class="contact-action-label">
+                    AI Video
+                </span>
+
+            </button>
+
+        </section>
+
+
+        <!-- Contact Information -->
+        <section class="contact-information-card glass">
+
+            <div class="contact-information-heading">
+
+                <span class="material-symbols-rounded">
+                    info
+                </span>
+
+                <h3>
+                    Contact information
+                </h3>
+
+            </div>
+
+
+            <!-- Email -->
+            <div
+                id="contactDetailsEmailRow"
+                class="contact-information-row"
+                hidden
+            >
+
+                <span class="material-symbols-rounded">
+                    mail
+                </span>
+
+                <div>
+                    <span class="contact-information-label">
+                        Email
+                    </span>
+
+                    <span
+                        id="contactDetailsEmail"
+                        class="contact-information-value"
+                    ></span>
+                </div>
+
+            </div>
+
+
+            <!-- Job -->
+            <div
+                id="contactDetailsJobRow"
+                class="contact-information-row"
+                hidden
+            >
+
+                <span class="material-symbols-rounded">
+                    work
+                </span>
+
+                <div>
+                    <span class="contact-information-label">
+                        Job
+                    </span>
+
+                    <span
+                        id="contactDetailsJob"
+                        class="contact-information-value"
+                    ></span>
+                </div>
+
+            </div>
+
+
+            <!-- Company -->
+            <div
+                id="contactDetailsCompanyRow"
+                class="contact-information-row"
+                hidden
+            >
+
+                <span class="material-symbols-rounded">
+                    business
+                </span>
+
+                <div>
+                    <span class="contact-information-label">
+                        Company
+                    </span>
+
+                    <span
+                        id="contactDetailsCompany"
+                        class="contact-information-value"
+                    ></span>
+                </div>
+
+            </div>
+
+
+            <!-- Address -->
+            <div
+                id="contactDetailsAddressRow"
+                class="contact-information-row"
+                hidden
+            >
+
+                <span class="material-symbols-rounded">
+                    location_on
+                </span>
+
+                <div>
+                    <span class="contact-information-label">
+                        Address
+                    </span>
+
+                    <span
+                        id="contactDetailsAddress"
+                        class="contact-information-value"
+                    ></span>
+                </div>
+
+            </div>
+
+
+            <!-- Date of Birth -->
+            <div
+                id="contactDetailsDobRow"
+                class="contact-information-row"
+                hidden
+            >
+
+                <span class="material-symbols-rounded">
+                    cake
+                </span>
+
+                <div>
+                    <span class="contact-information-label">
+                        Date of birth
+                    </span>
+
+                    <span
+                        id="contactDetailsDob"
+                        class="contact-information-value"
+                    ></span>
+                </div>
+
+            </div>
+
+
+            <!-- Notes -->
+            <div
+                id="contactDetailsNotesRow"
+                class="contact-information-row contact-information-notes"
+                hidden
+            >
+
+                <span class="material-symbols-rounded">
+                    notes
+                </span>
+
+                <div>
+                    <span class="contact-information-label">
+                        Notes
+                    </span>
+
+                    <span
+                        id="contactDetailsNotes"
+                        class="contact-information-value"
+                    ></span>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Contact Management -->
+        <section class="contact-management-card glass">
+
+            <button
+                type="button"
+                class="contact-management-button"
+                id="editContactButton"
+            >
+
+                <span class="material-symbols-rounded">
+                    edit
+                </span>
+
+                <span>
+                    Edit contact
+                </span>
+
+                <span class="material-symbols-rounded trailing-icon">
+                    chevron_right
+                </span>
+
+            </button>
+
+
+            <button
+                type="button"
+                class="contact-management-button"
+                id="favoriteContactButton"
+            >
+
+                <span
+                    id="favoriteContactIcon"
+                    class="material-symbols-rounded"
+                >
+                    star
+                </span>
+
+                <span id="favoriteContactText">
+                    Add to favorites
+                </span>
+
+                <span class="material-symbols-rounded trailing-icon">
+                    chevron_right
+                </span>
+
+            </button>
+
+
+            <button
+                type="button"
+                class="contact-management-button danger"
+                id="deleteContactButton"
+            >
+
+                <span class="material-symbols-rounded">
+                    delete
+                </span>
+
+                <span>
+                    Delete contact
+                </span>
+
+                <span class="material-symbols-rounded trailing-icon">
+                    chevron_right
+                </span>
+
+            </button>
+
+        </section>
+
+    </div>
+
+
+    <!-- Contact Details More Menu -->
+    <div
+        id="contactDetailsMoreMenu"
+        class="contact-details-more-menu glass"
+        hidden
+    >
+
+        <button
+            type="button"
+            data-contact-details-action="edit"
+        >
+            <span class="material-symbols-rounded">
+                edit
+            </span>
+
+            <span>
+                Edit contact
+            </span>
+        </button>
+
+
+        <button
+            type="button"
+            data-contact-details-action="favorite"
+        >
+            <span class="material-symbols-rounded">
+                star
+            </span>
+
+            <span>
+                Add to favorites
+            </span>
+        </button>
+
+
+        <button
+            type="button"
+            data-contact-details-action="share"
+        >
+            <span class="material-symbols-rounded">
+                share
+            </span>
+
+            <span>
+                Share contact
+            </span>
+        </button>
+
+
+        <button
+            type="button"
+            data-contact-details-action="delete"
+            class="danger"
+        >
+            <span class="material-symbols-rounded">
+                delete
+            </span>
+
+            <span>
+                Delete contact
+            </span>
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- ==========================================
+     CONTACT CONFIRMATION MODAL
+=========================================== -->
+
+<div
+    id="contactConfirmationModal"
+    class="contact-confirmation-modal"
+    aria-hidden="true"
+>
+
+    <div
+        class="contact-confirmation-backdrop"
+        data-confirmation-close
+    ></div>
+
+
+    <section
+        class="contact-confirmation-card glass"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="contactConfirmationTitle"
+    >
+
+        <div class="confirmation-icon">
+
+            <span
+                id="confirmationIcon"
+                class="material-symbols-rounded"
+            >
+                warning
+            </span>
+
+        </div>
+
+
+        <h2 id="contactConfirmationTitle">
+            Delete contact?
+        </h2>
+
+
+        <p id="contactConfirmationMessage">
+            This contact will be removed from your EchoCall contacts.
+        </p>
+
+
+        <div class="confirmation-actions">
+
+            <button
+                type="button"
+                id="cancelContactConfirmationButton"
+                class="secondary-button"
+            >
+                Cancel
+            </button>
+
+
+            <button
+                type="button"
+                id="confirmContactActionButton"
+                class="danger-button"
+            >
+                Delete
+            </button>
+
+        </div>
+
+    </section>
+
+</div>
+
+
+<!-- ==========================================
+     BOTTOM NAVIGATION
+=========================================== -->
+
+<nav
+    id="contactsBottomNavigation"
+    class="contacts-bottom-navigation glass"
+    aria-label="EchoCall navigation"
+>
+
+    <button
+        type="button"
+        data-contacts-route="home"
+    >
+
+        <span class="material-symbols-rounded">
+            home
+        </span>
+
+        <span>
+            Home
+        </span>
+
+    </button>
+
+
+    <button
+        type="button"
+        data-contacts-route="messages"
+    >
+
+        <span class="material-symbols-rounded">
+            chat
+        </span>
+
+        <span>
+            Messages
+        </span>
+
+    </button>
+
+
+    <button
+        type="button"
+        data-contacts-route="calls"
+    >
+
+        <span class="material-symbols-rounded">
+            call
+        </span>
+
+        <span>
+            Calls
+        </span>
+
+    </button>
+
+
+    <button
+        type="button"
+        class="active"
+        data-contacts-route="contacts"
+    >
+
+        <span class="material-symbols-rounded">
+            contacts
+        </span>
+
+        <span>
+            Contacts
+        </span>
+
+    </button>
+
+
+    <button
+        type="button"
+        data-contacts-route="profile"
+    >
+
+        <span class="material-symbols-rounded">
+            person
+        </span>
+
+        <span>
+            Profile
+        </span>
+
+    </button>
+
+</nav>
+
+
+<!-- ==========================================
+     TOAST
+=========================================== -->
+
+<div
+    id="contactsToast"
+    class="contacts-toast"
+    role="status"
+    aria-live="polite"
+    hidden
+>
+
+    <span
+        id="contactsToastIcon"
+        class="material-symbols-rounded"
+    >
+        check_circle
+    </span>
+
+    <span id="contactsToastMessage">
+        Done
+    </span>
+
+</div>
+
+
+<!-- ==========================================
+     ERROR MESSAGE
+=========================================== -->
+
+<div
+    id="contactsError"
+    class="contacts-error"
+    role="alert"
+    hidden
+>
+
+    <span class="material-symbols-rounded">
+        error
+    </span>
+
+    <div>
+
+        <strong>
+            Something went wrong
+        </strong>
+
+        <p id="contactsErrorMessage">
+            Please try again.
+        </p>
+
+    </div>
+
+    <button
+        type="button"
+        id="contactsErrorClose"
+        class="icon-button"
+        aria-label="Close error"
+    >
+        <span class="material-symbols-rounded">
+            close
+        </span>
+    </button>
+
+</div>
+
+
+<!-- ==========================================
+     PAGE END
+=========================================== -->
+
+</div>
+<!-- /.contacts-content -->
+
+
+</main>
+<!-- /#contactsPage -->
+
+
+<!-- Contacts JavaScript -->
+<script
+    type="module"
+    src="../js/contacts.js"
+></script>

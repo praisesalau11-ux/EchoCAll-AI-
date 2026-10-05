@@ -1,0 +1,1684 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#0B1120"
+    >
+
+    <title>
+        Communication Hub | EchoCall AI
+    </title>
+
+    <!-- Material Symbols -->
+    <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..700,0..1,-50..200"
+    >
+
+    <!-- Communication Hub CSS -->
+    <link
+        rel="stylesheet"
+        href="../css/call.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<!-- =========================================================
+     COMMUNICATION HUB
+========================================================= -->
+
+<main
+    id="communicationHub"
+    class="communication-hub"
+>
+
+
+    <!-- =====================================================
+         BACKGROUND EFFECTS
+    ====================================================== -->
+
+    <div
+        class="hub-background"
+        aria-hidden="true"
+    >
+
+        <div class="background-glow glow-one"></div>
+
+        <div class="background-glow glow-two"></div>
+
+        <div class="background-glow glow-three"></div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
+
+    <header class="hub-header glass">
+
+
+        <!-- Back -->
+        <button
+            id="callBackButton"
+            class="icon-button"
+            type="button"
+            aria-label="Go back"
+        >
+
+            <span class="material-symbols-rounded">
+                arrow_back
+            </span>
+
+        </button>
+
+
+
+        <!-- Header title -->
+        <div class="hub-header-title">
+
+            <span class="eyebrow">
+                ECHOCALL
+            </span>
+
+            <h1>
+                Communication
+            </h1>
+
+        </div>
+
+
+
+        <!-- Header actions -->
+        <div class="hub-header-actions">
+
+
+            <button
+                id="openCallSearch"
+                class="icon-button"
+                type="button"
+                aria-label="Search communication"
+            >
+
+                <span class="material-symbols-rounded">
+                    search
+                </span>
+
+            </button>
+
+
+
+            <button
+                id="callMoreButton"
+                class="icon-button"
+                type="button"
+                aria-label="More options"
+            >
+
+                <span class="material-symbols-rounded">
+                    more_vert
+                </span>
+
+            </button>
+
+
+        </div>
+
+
+    </header>
+
+
+
+    <!-- =====================================================
+         COMMUNICATION NAVIGATION
+    ====================================================== -->
+
+    <nav
+        class="communication-section-nav glass"
+        aria-label="Communication sections"
+    >
+
+
+        <button
+            class="section-nav-item"
+            type="button"
+            data-route="messages"
+            data-section="messages"
+        >
+
+            <span class="material-symbols-rounded">
+                chat
+            </span>
+
+            <span>
+                Messages
+            </span>
+
+        </button>
+
+
+
+        <button
+            class="section-nav-item"
+            type="button"
+            data-route="voice-call"
+            data-section="voice-call"
+        >
+
+            <span class="material-symbols-rounded">
+                call
+            </span>
+
+            <span>
+                Voice Calls
+            </span>
+
+        </button>
+
+
+
+        <button
+            class="section-nav-item"
+            type="button"
+            data-route="ai-voice-call"
+            data-section="ai-voice-call"
+        >
+
+            <span class="material-symbols-rounded">
+                record_voice_over
+            </span>
+
+            <span>
+                AI Voice
+            </span>
+
+        </button>
+
+
+
+        <button
+            class="section-nav-item"
+            type="button"
+            data-route="video-call"
+            data-section="video-call"
+        >
+
+            <span class="material-symbols-rounded">
+                videocam
+            </span>
+
+            <span>
+                Video Calls
+            </span>
+
+        </button>
+
+
+
+        <button
+            class="section-nav-item"
+            type="button"
+            data-route="ai-video-call"
+            data-section="ai-video-call"
+        >
+
+            <span class="material-symbols-rounded">
+                smart_display
+            </span>
+
+            <span>
+                AI Video
+            </span>
+
+        </button>
+
+
+
+        <button
+            class="section-nav-item"
+            type="button"
+            data-route="groups"
+            data-section="groups"
+        >
+
+            <span class="material-symbols-rounded">
+                groups
+            </span>
+
+            <span>
+                Groups
+            </span>
+
+        </button>
+
+
+
+        <button
+            class="section-nav-item"
+            type="button"
+            data-route="communities"
+            data-section="communities"
+        >
+
+            <span class="material-symbols-rounded">
+                hub
+            </span>
+
+            <span>
+                Communities
+            </span>
+
+        </button>
+
+
+
+        <button
+            class="section-nav-item"
+            type="button"
+            data-route="channels"
+            data-section="channels"
+        >
+
+            <span class="material-symbols-rounded">
+                campaign
+            </span>
+
+            <span>
+                Channels
+            </span>
+
+        </button>
+
+
+
+        <button
+            class="section-nav-item"
+            type="button"
+            data-route="status"
+            data-section="status"
+        >
+
+            <span class="material-symbols-rounded">
+                circle
+            </span>
+
+            <span>
+                Status
+            </span>
+
+        </button>
+
+
+
+        <button
+            class="section-nav-item"
+            type="button"
+            data-route="contacts"
+            data-section="contacts"
+        >
+
+            <span class="material-symbols-rounded">
+                contacts
+            </span>
+
+            <span>
+                Contacts
+            </span>
+
+        </button>
+
+
+
+        <button
+            class="section-nav-item"
+            type="button"
+            data-route="call-history"
+            data-section="call-history"
+        >
+
+            <span class="material-symbols-rounded">
+                history
+            </span>
+
+            <span>
+                Call History
+            </span>
+
+        </button>
+
+
+    </nav>
+
+
+
+    <!-- =====================================================
+         SEARCH PANEL
+    ====================================================== -->
+
+    <section
+        id="callSearchPanel"
+        class="call-search-panel glass"
+        hidden
+    >
+
+        <div class="search-input-wrapper">
+
+            <span class="material-symbols-rounded">
+                search
+            </span>
+
+            <input
+                id="callSearchInput"
+                type="search"
+                placeholder="Search people, messages and features..."
+                autocomplete="off"
+            >
+
+        </div>
+
+
+        <button
+            id="closeCallSearch"
+            class="icon-button"
+            type="button"
+            aria-label="Close search"
+        >
+
+            <span class="material-symbols-rounded">
+                close
+            </span>
+
+        </button>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         HERO
+    ====================================================== -->
+
+    <section class="communication-hero">
+
+
+        <div class="hero-content">
+
+
+            <span class="hero-label">
+                COMMUNICATION HUB
+            </span>
+
+
+            <h2>
+                Connect.
+                <span>Communicate.</span>
+                Create.
+            </h2>
+
+
+            <p>
+                Messages, calls, groups, contacts and AI-powered
+                communication tools in one place.
+            </p>
+
+
+            <div class="hero-actions">
+
+
+                <button
+                    class="primary-button"
+                    type="button"
+                    data-route="messages"
+                >
+
+                    <span class="material-symbols-rounded">
+                        chat
+                    </span>
+
+                    Open Messages
+
+                </button>
+
+
+
+                <button
+                    class="secondary-button"
+                    type="button"
+                    data-route="contacts"
+                >
+
+                    <span class="material-symbols-rounded">
+                        person_add
+                    </span>
+
+                    Contacts
+
+                </button>
+
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- Communication orb -->
+
+        <div
+            class="communication-orb"
+            aria-hidden="true"
+        >
+
+            <div class="orb-ring ring-one"></div>
+
+            <div class="orb-ring ring-two"></div>
+
+            <div class="orb-ring ring-three"></div>
+
+
+            <div class="orb-core">
+
+                <span class="material-symbols-rounded">
+                    forum
+                </span>
+
+            </div>
+
+        </div>
+
+
+    </section>
+
+
+
+    <!-- =====================================================
+         QUICK ACTIONS
+    ====================================================== -->
+
+    <section class="hub-section">
+
+
+        <div class="section-heading">
+
+            <div>
+
+                <span class="section-label">
+                    QUICK ACTIONS
+                </span>
+
+                <h2>
+                    Start communicating
+                </h2>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="quick-actions-grid">
+
+
+            <!-- Messages -->
+
+            <button
+                class="quick-action-card"
+                type="button"
+                data-route="messages"
+            >
+
+                <div class="quick-action-icon">
+
+                    <span class="material-symbols-rounded">
+                        chat
+                    </span>
+
+                </div>
+
+                <div class="quick-action-content">
+
+                    <h3>
+                        Messages
+                    </h3>
+
+                    <p>
+                        Text, voice messages, files,
+                        photos and videos.
+                    </p>
+
+                </div>
+
+                <span class="material-symbols-rounded arrow-icon">
+                    arrow_forward
+                </span>
+
+            </button>
+
+
+
+            <!-- Voice Calls -->
+
+            <button
+                class="quick-action-card"
+                type="button"
+                data-route="voice-call"
+            >
+
+                <div class="quick-action-icon">
+
+                    <span class="material-symbols-rounded">
+                        call
+                    </span>
+
+                </div>
+
+                <div class="quick-action-content">
+
+                    <h3>
+                        Voice Calls
+                    </h3>
+
+                    <p>
+                        Make private one-to-one
+                        voice calls.
+                    </p>
+
+                </div>
+
+                <span class="material-symbols-rounded arrow-icon">
+                    arrow_forward
+                </span>
+
+            </button>
+
+
+
+            <!-- AI Voice Calls -->
+
+            <button
+                class="quick-action-card"
+                type="button"
+                data-route="ai-voice-call"
+            >
+
+                <div class="quick-action-icon ai-icon">
+
+                    <span class="material-symbols-rounded">
+                        record_voice_over
+                    </span>
+
+                </div>
+
+                <div class="quick-action-content">
+
+                    <h3>
+                        AI Voice Calls
+                    </h3>
+
+                    <p>
+                        AI assistance during
+                        communication.
+                    </p>
+
+                </div>
+
+                <span class="material-symbols-rounded arrow-icon">
+                    arrow_forward
+                </span>
+
+            </button>
+
+
+
+            <!-- Video Calls -->
+
+            <button
+                class="quick-action-card"
+                type="button"
+                data-route="video-call"
+            >
+
+                <div class="quick-action-icon">
+
+                    <span class="material-symbols-rounded">
+                        videocam
+                    </span>
+
+                </div>
+
+                <div class="quick-action-content">
+
+                    <h3>
+                        Video Calls
+                    </h3>
+
+                    <p>
+                        Video communication with
+                        your contacts.
+                    </p>
+
+                </div>
+
+                <span class="material-symbols-rounded arrow-icon">
+                    arrow_forward
+                </span>
+
+            </button>
+
+                          <!-- AI Video Calls -->
+
+                <button
+                    class="quick-action-card"
+                    type="button"
+                    data-route="ai-video-call"
+                >
+
+                    <div class="quick-action-icon ai-icon">
+
+                        <span class="material-symbols-rounded">
+                            smart_display
+                        </span>
+
+                    </div>
+
+                    <div class="quick-action-content">
+
+                        <h3>
+                            AI Video Calls
+                        </h3>
+
+                        <p>
+                            AI-powered assistance while
+                            using video communication.
+                        </p>
+
+                    </div>
+
+                    <span class="material-symbols-rounded arrow-icon">
+                        arrow_forward
+                    </span>
+
+                </button>
+
+
+
+                <!-- Groups -->
+
+                <button
+                    class="quick-action-card"
+                    type="button"
+                    data-route="groups"
+                >
+
+                    <div class="quick-action-icon">
+
+                        <span class="material-symbols-rounded">
+                            groups
+                        </span>
+
+                    </div>
+
+                    <div class="quick-action-content">
+
+                        <h3>
+                            Groups
+                        </h3>
+
+                        <p>
+                            Group chats, group voice calls
+                            and group video calls.
+                        </p>
+
+                    </div>
+
+                    <span class="material-symbols-rounded arrow-icon">
+                        arrow_forward
+                    </span>
+
+                </button>
+
+
+
+                <!-- Contacts -->
+
+                <button
+                    class="quick-action-card"
+                    type="button"
+                    data-route="contacts"
+                >
+
+                    <div class="quick-action-icon">
+
+                        <span class="material-symbols-rounded">
+                            contacts
+                        </span>
+
+                    </div>
+
+                    <div class="quick-action-content">
+
+                        <h3>
+                            Contacts
+                        </h3>
+
+                        <p>
+                            Save and manage the people
+                            you communicate with.
+                        </p>
+
+                    </div>
+
+                    <span class="material-symbols-rounded arrow-icon">
+                        arrow_forward
+                    </span>
+
+                </button>
+
+
+
+                <!-- Call History -->
+
+                <button
+                    class="quick-action-card"
+                    type="button"
+                    data-route="call-history"
+                >
+
+                    <div class="quick-action-icon">
+
+                        <span class="material-symbols-rounded">
+                            history
+                        </span>
+
+                    </div>
+
+                    <div class="quick-action-content">
+
+                        <h3>
+                            Call History
+                        </h3>
+
+                        <p>
+                            View incoming, outgoing,
+                            missed and scheduled calls.
+                        </p>
+
+                    </div>
+
+                    <span class="material-symbols-rounded arrow-icon">
+                        arrow_forward
+                    </span>
+
+                </button>
+
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         AI COMMUNICATION ASSISTANT
+    ====================================================== -->
+
+    <section
+        id="aiCommunicationCard"
+        class="ai-communication-card glass"
+        data-route="ai-voice-call"
+    >
+
+        <div class="ai-card-glow"></div>
+
+
+        <div class="ai-card-icon">
+
+            <span class="material-symbols-rounded">
+                auto_awesome
+            </span>
+
+        </div>
+
+
+        <div class="ai-card-content">
+
+            <span class="section-label">
+                AI COMMUNICATION
+            </span>
+
+            <h2>
+                Let AI help you communicate
+            </h2>
+
+            <p>
+                Get AI assistance while texting or calling,
+                organize conversations, prepare replies,
+                summarize communication and more.
+            </p>
+
+        </div>
+
+
+        <button
+            class="feature-button"
+            type="button"
+            data-route="ai-voice-call"
+        >
+
+            Try AI Voice
+
+            <span class="material-symbols-rounded">
+                arrow_forward
+            </span>
+
+        </button>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         CONTACT PREVIEW
+    ====================================================== -->
+
+    <section
+        id="contactPreview"
+        class="hub-section"
+    >
+
+
+        <div class="section-heading">
+
+
+            <div>
+
+                <span class="section-label">
+                    YOUR CONTACTS
+                </span>
+
+                <h2>
+                    People you can reach
+                </h2>
+
+            </div>
+
+
+            <button
+                class="text-button"
+                type="button"
+                data-route="contacts"
+            >
+
+                View all
+
+            </button>
+
+
+        </div>
+
+
+
+        <!-- Loading -->
+
+        <div
+            id="contactsPreviewLoading"
+            class="loading-state"
+        >
+
+            <div class="loading-spinner"></div>
+
+            <span>
+                Loading contacts...
+            </span>
+
+        </div>
+
+
+
+        <!-- Contact list -->
+
+        <div
+            class="contact-preview-list"
+            id="contactPreviewList"
+        ></div>
+
+
+    </section>
+
+
+
+    <!-- =====================================================
+         RECENT CONVERSATIONS
+    ====================================================== -->
+
+    <section class="hub-section">
+
+
+        <div class="section-heading">
+
+
+            <div>
+
+                <span class="section-label">
+                    RECENT
+                </span>
+
+                <h2>
+                    Conversations
+                </h2>
+
+            </div>
+
+
+            <button
+                class="text-button"
+                type="button"
+                data-route="messages"
+            >
+
+                View all
+
+            </button>
+
+
+        </div>
+
+
+
+        <!-- Loading -->
+
+        <div
+            id="recentConversationsLoading"
+            class="loading-state"
+        >
+
+            <div class="loading-spinner"></div>
+
+            <span>
+                Loading conversations...
+            </span>
+
+        </div>
+
+
+
+        <!-- Conversations -->
+
+        <div
+            id="recentConversations"
+            class="recent-conversations"
+        ></div>
+
+
+
+        <!-- Empty state -->
+
+        <div
+            id="recentConversationsEmpty"
+            class="empty-state"
+            hidden
+        >
+
+            <div class="empty-state-icon">
+
+                <span class="material-symbols-rounded">
+                    forum
+                </span>
+
+            </div>
+
+            <h3>
+                No conversations yet
+            </h3>
+
+            <p>
+                Save a contact and start your first
+                conversation.
+            </p>
+
+            <button
+                class="primary-button"
+                type="button"
+                data-route="contacts"
+            >
+
+                <span class="material-symbols-rounded">
+                    person_add
+                </span>
+
+                Add Contact
+
+            </button>
+
+        </div>
+
+
+    </section>
+
+
+
+    <!-- =====================================================
+         MORE WAYS TO CONNECT
+    ====================================================== -->
+
+    <section class="hub-section">
+
+
+        <div class="section-heading">
+
+            <div>
+
+                <span class="section-label">
+                    EXPLORE
+                </span>
+
+                <h2>
+                    More ways to connect
+                </h2>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="communication-feature-grid">
+
+
+            <!-- Groups -->
+
+            <button
+                class="feature-row glass"
+                type="button"
+                data-route="groups"
+            >
+
+                <div class="feature-row-icon">
+
+                    <span class="material-symbols-rounded">
+                        groups
+                    </span>
+
+                </div>
+
+                <div class="feature-row-content">
+
+                    <h3>
+                        Groups
+                    </h3>
+
+                    <p>
+                        Talk with multiple contacts
+                        in one conversation.
+                    </p>
+
+                </div>
+
+                <span class="material-symbols-rounded">
+                    chevron_right
+                </span>
+
+            </button>
+
+
+
+            <!-- Communities -->
+
+            <button
+                class="feature-row glass"
+                type="button"
+                data-route="communities"
+            >
+
+                <div class="feature-row-icon">
+
+                    <span class="material-symbols-rounded">
+                        hub
+                    </span>
+
+                </div>
+
+                <div class="feature-row-content">
+
+                    <h3>
+                        Communities
+                    </h3>
+
+                    <p>
+                        Organize related groups
+                        in one community.
+                    </p>
+
+                </div>
+
+                <span class="material-symbols-rounded">
+                    chevron_right
+                </span>
+
+            </button>
+
+
+
+            <!-- Channels -->
+
+            <button
+                class="feature-row glass"
+                type="button"
+                data-route="channels"
+            >
+
+                <div class="feature-row-icon">
+
+                    <span class="material-symbols-rounded">
+                        campaign
+                    </span>
+
+                </div>
+
+                <div class="feature-row-content">
+
+                    <h3>
+                        Channels
+                    </h3>
+
+                    <p>
+                        Follow updates and broadcasts
+                        from creators and organizations.
+                    </p>
+
+                </div>
+
+                <span class="material-symbols-rounded">
+                    chevron_right
+                </span>
+
+            </button>
+
+
+
+            <!-- Status -->
+
+            <button
+                class="feature-row glass"
+                type="button"
+                data-route="status"
+            >
+
+                <div class="feature-row-icon">
+
+                    <span class="material-symbols-rounded">
+                        circle
+                    </span>
+
+                </div>
+
+                <div class="feature-row-content">
+
+                    <h3>
+                        Status
+                    </h3>
+
+                    <p>
+                        Share temporary photos,
+                        videos and updates.
+                    </p>
+
+                </div>
+
+                <span class="material-symbols-rounded">
+                    chevron_right
+                </span>
+
+            </button>
+
+
+
+            <!-- Contact Book -->
+
+            <button
+                class="feature-row glass"
+                type="button"
+                data-route="contacts"
+            >
+
+                <div class="feature-row-icon">
+
+                    <span class="material-symbols-rounded">
+                        contact_page
+                    </span>
+
+                </div>
+
+                <div class="feature-row-content">
+
+                    <h3>
+                        Contact Book
+                    </h3>
+
+                    <p>
+                        Save names, numbers and
+                        useful contact information.
+                    </p>
+
+                </div>
+
+                <span class="material-symbols-rounded">
+                    chevron_right
+                </span>
+
+            </button>
+
+
+
+            <!-- Call History -->
+
+            <button
+                class="feature-row glass"
+                type="button"
+                data-route="call-history"
+            >
+
+                <div class="feature-row-icon">
+
+                    <span class="material-symbols-rounded">
+                        history
+                    </span>
+
+                </div>
+
+                <div class="feature-row-content">
+
+                    <h3>
+                        Call History
+                    </h3>
+
+                    <p>
+                        Review calls and scheduled
+                        communication.
+                    </p>
+
+                </div>
+
+                <span class="material-symbols-rounded">
+                    chevron_right
+                </span>
+
+            </button>
+
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         COMMUNICATION FEATURES
+    ====================================================== -->
+
+    <section class="hub-section">
+
+
+        <div class="section-heading">
+
+            <div>
+
+                <span class="section-label">
+                    ECHOCALL FEATURES
+                </span>
+
+                <h2>
+                    Built for communication
+                </h2>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="mini-feature-grid">
+
+
+            <!-- Schedule Calls -->
+
+            <article class="mini-feature glass">
+
+                <div class="mini-feature-icon">
+
+                    <span class="material-symbols-rounded">
+                        event
+                    </span>
+
+                </div>
+
+                <h3>
+                    Schedule Calls
+                </h3>
+
+                <p>
+                    Plan calls with your contacts
+                    instead of relying on memory.
+                </p>
+
+            </article>
+
+
+
+            <!-- File Sharing -->
+
+            <article class="mini-feature glass">
+
+                <div class="mini-feature-icon">
+
+                    <span class="material-symbols-rounded">
+                        attach_file
+                    </span>
+
+                </div>
+
+                <h3>
+                    File Sharing
+                </h3>
+
+                <p>
+                    Send documents, photos, videos
+                    and other files.
+                </p>
+
+            </article>
+
+
+
+            <!-- AI Assistance -->
+
+            <article class="mini-feature glass">
+
+                <div class="mini-feature-icon">
+
+                    <span class="material-symbols-rounded">
+                        auto_awesome
+                    </span>
+
+                </div>
+
+                <h3>
+                    AI Assistance
+                </h3>
+
+                <p>
+                    Get intelligent help while
+                    communicating.
+                </p>
+
+            </article>
+
+
+
+            <!-- Private Communication -->
+
+            <article class="mini-feature glass">
+
+                <div class="mini-feature-icon">
+
+                    <span class="material-symbols-rounded">
+                        lock
+                    </span>
+
+                </div>
+
+                <h3>
+                    Private Communication
+                </h3>
+
+                <p>
+                    Communicate directly with
+                    people in your contacts.
+                </p>
+
+            </article>
+
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         BOTTOM NAVIGATION
+    ====================================================== -->
+
+    <nav
+        class="bottom-navigation glass"
+        aria-label="Main navigation"
+    >
+
+
+        <button
+            class="bottom-nav-item"
+            type="button"
+            data-route="home"
+        >
+
+            <span class="material-symbols-rounded">
+                home
+            </span>
+
+            <span>
+                Home
+            </span>
+
+        </button>
+
+
+
+        <button
+            class="bottom-nav-item active"
+            type="button"
+            data-route="call"
+        >
+
+            <span class="material-symbols-rounded">
+                forum
+            </span>
+
+            <span>
+                Connect
+            </span>
+
+        </button>
+
+
+
+        <button
+            class="bottom-nav-item"
+            type="button"
+            data-route="call-history"
+        >
+
+            <span class="material-symbols-rounded">
+                history
+            </span>
+
+            <span>
+                History
+            </span>
+
+        </button>
+
+
+
+        <button
+            class="bottom-nav-item"
+            type="button"
+            data-route="contacts"
+        >
+
+            <span class="material-symbols-rounded">
+                contacts
+            </span>
+
+            <span>
+                Contacts
+            </span>
+
+        </button>
+
+
+
+        <button
+            class="bottom-nav-item"
+            type="button"
+            data-route="profile"
+        >
+
+            <span class="material-symbols-rounded">
+                person
+            </span>
+
+            <span>
+                Profile
+            </span>
+
+        </button>
+
+
+    </nav>
+
+
+
+    <!-- =====================================================
+         MORE MENU
+    ====================================================== -->
+
+    <div
+        id="callMoreMenu"
+        class="call-more-menu glass"
+        hidden
+    >
+
+        <button
+            type="button"
+            data-route="settings"
+        >
+
+            <span class="material-symbols-rounded">
+                settings
+            </span>
+
+            Settings
+
+        </button>
+
+
+
+        <button
+            type="button"
+            data-route="help"
+        >
+
+            <span class="material-symbols-rounded">
+                help
+            </span>
+
+            Help & Support
+
+        </button>
+
+
+
+        <button
+            type="button"
+            data-route="privacy"
+        >
+
+            <span class="material-symbols-rounded">
+                privacy_tip
+            </span>
+
+            Privacy
+
+        </button>
+
+
+    </div>
+
+
+
+    <!-- =====================================================
+         TOAST
+    ====================================================== -->
+
+    <div
+        id="callToast"
+        class="call-toast"
+        role="status"
+        aria-live="polite"
+    >
+
+        <span class="material-symbols-rounded">
+            info
+        </span>
+
+        <span id="callToastMessage">
+            Done
+        </span>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         ERROR AREA
+    ====================================================== -->
+
+    <div
+        id="callError"
+        class="call-error"
+        role="alert"
+        hidden
+    >
+
+        <span class="material-symbols-rounded">
+            error
+        </span>
+
+        <span id="callErrorMessage">
+            Something went wrong.
+        </span>
+
+    </div>
+
+
+</main>
+
+
+
+<!-- =========================================================
+     COMMUNICATION HUB JAVASCRIPT
+========================================================= -->
+
+<script
+    type="module"
+    src="../js/call.js"
+></script>
+

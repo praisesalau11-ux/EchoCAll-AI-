@@ -85,8 +85,153 @@ const routes = {
         css: "css/notifications.css",
         script: "./notifications.js",
         initializer: "initializeNotifications"
-    }
+    },
 
+  calls: {
+        html: "pages/call.html",
+        css: "css/call.css",
+        script: "./call.js",
+        initializer: "initializeCalls"
+    },
+
+    messages: {
+        html: "pages/messages.html",
+        css: "css/messages.css",
+        script: "./messages.js",
+        initializer: "initializeMessages"
+    },
+
+    "voice-call": {
+        html: "pages/voice-call.html",
+        css: "css/voice-call.css",
+        script: "./voice-call.js",
+        initializer: "initializeVoiceCall"
+    },
+
+    "ai-voice-call": {
+        html: "pages/ai-voice-call.html",
+        css: "css/ai-voice-call.css",
+        script: "./ai-voice-call.js",
+        initializer: "initializeAIVoiceCall"
+    },
+
+    "video-call": {
+        html: "pages/video-call.html",
+        css: "css/video-call.css",
+        script: "./video-call.js",
+        initializer: "initializeVideoCall"
+    },
+
+    "ai-video-call": {
+        html: "pages/ai-video-call.html",
+        css: "css/ai-video-call.css",
+        script: "./ai-video-call.js",
+        initializer: "initializeAIVideoCall"
+    },
+
+    groups: {
+        html: "pages/groups.html",
+        css: "css/groups.css",
+        script: "./groups.js",
+        initializer: "initializeGroups"
+    },
+
+    communities: {
+        html: "pages/communities.html",
+        css: "css/communities.css",
+        script: "./communities.js",
+        initializer: "initializeCommunities"
+    },
+
+    channels: {
+        html: "pages/channels.html",
+        css: "css/channels.css",
+        script: "./channels.js",
+        initializer: "initializeChannels"
+    },
+
+    status: {
+        html: "pages/status.html",
+        css: "css/status.css",
+        script: "./status.js",
+        initializer: "initializeStatus"
+    },
+
+    contacts: {
+        html: "pages/contacts.html",
+        css: "css/contacts.css",
+        script: "./contacts.js",
+        initializer: "initializeContacts"
+    },
+
+    "call-history": {
+        html: "pages/call-history.html",
+        css: "css/call-history.css",
+        script: "./call-history.js",
+        initializer: "initializeCallHistory"
+    },
+
+    // ======================================
+    // AI
+    // ======================================
+
+    "ai-chat": {
+        html: "pages/ai-chat.html",
+        css: "css/ai-chat.css",
+        script: "./ai-chat.js",
+        initializer: "initializeAIChat"
+    },
+
+    // ======================================
+    // OTHER ECHOCALL PAGES
+    // ======================================
+
+    history: {
+        html: "pages/history.html",
+        css: "css/history.css",
+        script: "./history.js",
+        initializer: "initializeHistory"
+    },
+
+    profile: {
+        html: "pages/profile.html",
+        css: "css/profile.css",
+        script: "./profile.js",
+        initializer: "initializeProfile"
+    },
+
+    voiceClone: {
+        html: "pages/voice-clone.html",
+        css: "css/voice-clone.css",
+        script: "./voiceClone.js",
+        initializer: "initializeVoiceClone"
+    },
+
+    settings: {
+        html: "pages/settings.html",
+        css: "css/settings.css",
+        script: "./settings.js",
+        initializer: "initializeSettings"
+    },
+
+    premium: {
+        html: "pages/premium.html",
+        css: "css/premium.css",
+        script: "./premium.js",
+        initializer: "initializePremium"
+    },
+
+    security: {
+        html: "pages/security.html",
+        css: "css/security.css",
+        script: "./security.js",
+        initializer: "initializeSecurity"
+    },
+
+
+    
+
+  
     // IMPORTANT:
     // Do not add "auth" here until you confirm
     // the exact auth HTML/JS filenames.
@@ -157,11 +302,34 @@ async function cleanupPreviousPage() {
 
     try {
 
+        // Standard cleanup
         if (
             typeof currentModule.cleanup ===
             "function"
         ) {
+
             await currentModule.cleanup();
+
+        }
+
+        // Contacts cleanup
+        else if (
+            typeof currentModule.cleanupContactsPage ===
+            "function"
+        ) {
+
+            await currentModule.cleanupContactsPage();
+
+        }
+
+        // Older Contacts cleanup
+        else if (
+            typeof currentModule.cleanupContacts ===
+            "function"
+        ) {
+
+            await currentModule.cleanupContacts();
+
         }
 
     } catch (error) {
@@ -170,10 +338,13 @@ async function cleanupPreviousPage() {
             "[Router] Page cleanup error:",
             error
         );
+
     }
 
     currentModule = null;
 }
+
+
 
 // ==========================================
 // Load HTML
@@ -486,9 +657,24 @@ async function loadPage(
     } catch (error) {
 
         console.error(
-            "[Router] Navigation failed:",
-            error
-        );
+    "[Router] Navigation failed:",
+    error
+);
+
+console.error(
+    "[Router] Error name:",
+    error?.name
+);
+
+console.error(
+    "[Router] Error message:",
+    error?.message
+);
+
+console.error(
+    "[Router] Error stack:",
+    error?.stack
+);
 
         container.innerHTML = `
             <div class="router-error">

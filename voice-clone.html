@@ -1,630 +1,772 @@
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
 
-    <meta name="theme-color" content="#080812">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
-    <title>Voice Studio | EchoCall AI</title>
+  <meta
+    name="theme-color"
+    content="#080812"
+  >
 
-    <link rel="stylesheet"
-          href="../css/voice-clone.css">
+  <title>EchoCall AI — Voice Studio</title>
+
+  <!-- ========================================================
+       VOICE STUDIO CSS
+       ======================================================== -->
+
+  <link
+    rel="stylesheet"
+    href="../css/voice-clone.css"
+  >
+
 </head>
+
 
 <body>
 
-    <!-- Background -->
-    <div class="voice-page-background">
-        <div class="background-grid"></div>
-        <div class="background-orb orb-one"></div>
-        <div class="background-orb orb-two"></div>
-        <div class="background-orb orb-three"></div>
-    </div>
+  <!-- ========================================================
+       VOICE STUDIO PAGE
+       ======================================================== -->
+
+  <main class="voice-studio-page">
 
 
-    <!-- Main Page -->
-    <main class="voice-page">
+    <!-- ======================================================
+         TOP NAVIGATION
+         ====================================================== -->
 
-        <!-- Top Navigation -->
-        <header class="voice-topbar">
+    <header class="voice-studio-header">
 
-            <button
-                type="button"
-                class="voice-back-button"
-                id="voiceBackButton"
-                aria-label="Go back">
-
-                <span>←</span>
-                <span>Back</span>
-
-            </button>
+      <button
+        type="button"
+        id="voiceBackButton"
+        class="voice-back-button"
+        aria-label="Go back"
+      >
+        ←
+        <span>Back</span>
+      </button>
 
 
-            <div class="voice-brand">
+      <div class="voice-header-brand">
 
-                <div class="voice-brand-logo">
-                    E
-                </div>
+        <div class="voice-brand-icon">
+          E
+        </div>
 
-                <div class="voice-brand-text">
-                    <strong>EchoCall</strong>
-                    <span>AI VOICE STUDIO</span>
-                </div>
+        <div class="voice-brand-text">
 
+          <span class="voice-brand-name">
+            EchoCall
+          </span>
+
+          <span class="voice-brand-ai">
+            AI
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <div class="voice-online-status">
+
+        <span class="online-dot"></span>
+
+        <span>
+          Online
+        </span>
+
+      </div>
+
+    </header>
+
+
+
+    <!-- ======================================================
+         HERO
+         ====================================================== -->
+
+    <section class="voice-hero">
+
+      <div class="voice-hero-badge">
+        ✦ ELEVENLABS POWERED
+      </div>
+
+
+      <h1>
+        Create Your
+        <span>AI Voice</span>
+      </h1>
+
+
+      <p>
+        Generate natural-sounding AI speech using powerful
+        ElevenLabs voice technology.
+      </p>
+
+    </section>
+
+
+
+    <!-- ======================================================
+         MAIN VOICE STUDIO
+         ====================================================== -->
+
+    <section class="voice-studio-container">
+
+
+      <!-- ====================================================
+           SELECTED VOICE CARD
+           IMPORTANT:
+           Do NOT add another select here.
+           voiceClone.js creates it automatically.
+           ==================================================== -->
+
+      <div class="selected-voice-card">
+
+        <div class="selected-voice-card-top">
+
+          <div class="selected-voice-icon">
+            🎙️
+          </div>
+
+          <div>
+
+            <div class="selected-voice-label">
+              SELECTED VOICE
             </div>
 
-
-            <div class="voice-topbar-status">
-                <span class="status-dot"></span>
-                <span>Online</span>
+            <div
+              class="selected-voice-name"
+              id="selectedVoiceName"
+            >
+              Choose an AI Voice
             </div>
 
-        </header>
+          </div>
 
+        </div>
 
 
-        <!-- Main Content -->
-        <section class="voice-content">
+        <div class="selected-voice-ready">
 
-            <!-- Hero Section -->
-            <section class="voice-hero">
+          <span class="ready-dot"></span>
 
-                <div class="hero-badge">
-                    <span>✦</span>
-                    ELEVENLABS POWERED
-                </div>
+          <span>
+            Ready
+          </span>
 
+        </div>
 
-                <h1>
-                    Create Your
-                    <span>AI Voice</span>
-                </h1>
+      </div>
 
 
-                <p>
-                    Generate natural-sounding AI speech using
-                    powerful ElevenLabs voice technology.
-                </p>
 
-            </section>
+      <!-- ====================================================
+           STEP 01 — VOICE SELECTION
+           ==================================================== -->
 
+      <section class="voice-step-card">
 
+        <div class="voice-step-number">
+          01
+        </div>
 
-            <!-- Selected Voice Card -->
-            <section class="selected-voice-card">
 
-                <div class="selected-voice-icon">
-                    🎙️
-                </div>
+        <h2>
+          Voice Selection
+        </h2>
 
 
-                <div class="selected-voice-information">
+        <p class="voice-step-description">
+          Choose the voice that will speak your text.
+        </p>
 
-                    <span class="small-label">
-                        SELECTED VOICE
-                    </span>
 
-                    <h2 id="selectedVoiceName">
-                        Choose an AI Voice
-                    </h2>
+        <label
+          class="voice-field-label"
+          for="elevenLabsVoiceSelector"
+        >
+          AI Voice
+        </label>
 
-                    <p>
-                        Select a voice below to begin.
-                    </p>
 
-                </div>
+        <!-- ==================================================
+             IMPORTANT:
+             The JavaScript inserts the ElevenLabs selector
+             directly after .selected-voice-card.
+             ================================================== -->
 
 
-                <div class="voice-status-badge">
-                    <span></span>
-                    Ready
-                </div>
+        <div
+          class="voice-selector-placeholder"
+          aria-hidden="true"
+        >
+        </div>
 
-            </section>
 
+      </section>
 
 
-            <!-- Voice Studio Panel -->
-            <section class="voice-panel">
 
-                <div class="panel-heading">
+      <!-- ====================================================
+           STEP 02 — TEXT TO SPEECH
+           ==================================================== -->
 
-                    <div>
-                        <span class="section-number">01</span>
+      <section class="voice-step-card">
 
-                        <h2>Voice Selection</h2>
+        <div class="voice-step-number">
+          02
+        </div>
 
-                        <p>
-                            Choose the voice that will speak your text.
-                        </p>
-                    </div>
 
-                </div>
+        <h2>
+          Text to Speech
+        </h2>
 
 
-                <!-- Dynamic Voice Selector -->
-                <div class="voice-selector-container">
+        <p class="voice-step-description">
+          Write what you want your AI voice to say.
+        </p>
 
-                    <label for="elevenLabsVoice">
-                        AI Voice
-                    </label>
 
-                    <select
-                        id="elevenLabsVoice"
-                        name="voice"
-                        class="voice-selector">
+        <label
+          class="voice-field-label"
+          for="voicePreviewText"
+        >
+          Your Text
+        </label>
 
-                        <option value="">
-                            Loading available voices...
-                        </option>
 
-                    </select>
+        <div class="voice-textarea-wrapper">
 
-                    <small>
-                        Voices are loaded securely from your backend.
-                    </small>
+          <textarea
+            id="voicePreviewText"
+            name="voicePreviewText"
+            class="voice-preview-text"
+            maxlength="2500"
+            rows="8"
+            placeholder="Type something for your AI voice to speak..."
+            autocomplete="off"
+          ></textarea>
 
-                </div>
 
+          <div class="voice-textarea-footer">
 
+            <span class="voice-text-hint">
+              Natural AI speech generation
+            </span>
 
-                <!-- Text Section -->
-                <div class="panel-heading text-heading">
+            <span
+              id="characterCount"
+              class="character-count"
+            >
+              0 characters
+            </span>
 
-                    <div>
-                        <span class="section-number">02</span>
+          </div>
 
-                        <h2>Text to Speech</h2>
+        </div>
 
-                        <p>
-                            Write what you want your AI voice to say.
-                        </p>
-                    </div>
+      </section>
 
-                </div>
 
 
-                <div class="voice-text-container">
+      <!-- ====================================================
+           STEP 03 — VOICE SETTINGS
+           ==================================================== -->
 
-                    <label for="voicePreviewText">
-                        Your Text
-                    </label>
+      <section class="voice-step-card">
 
+        <div class="voice-step-number">
+          03
+        </div>
 
-                    <textarea
-                        id="voicePreviewText"
-                        name="text"
-                        rows="7"
-                        maxlength="2500"
-                        placeholder="Type something for your AI voice to speak..."
-                        autocomplete="off"></textarea>
 
+        <h2>
+          Voice Settings
+        </h2>
 
-                    <div class="textarea-footer">
 
-                        <span>
-                            Natural AI speech generation
-                        </span>
+        <p class="voice-step-description">
+          Adjust the voice style and stability.
+        </p>
 
-                        <span id="characterCount">
-                            0 / 2500
-                        </span>
 
-                    </div>
 
-                </div>
+        <!-- ==================================================
+             STABILITY
+             ================================================== -->
 
+        <div class="voice-setting">
 
+          <div class="voice-setting-header">
 
-                <!-- Voice Controls -->
-                <div class="panel-heading controls-heading">
+            <label
+              for="voiceStability"
+              class="voice-field-label"
+            >
+              Stability
+            </label>
 
-                    <div>
-                        <span class="section-number">03</span>
+            <span
+              id="stabilityValue"
+              class="voice-setting-value"
+            >
+              50%
+            </span>
 
-                        <h2>Voice Settings</h2>
+          </div>
 
-                        <p>
-                            Adjust the voice style and stability.
-                        </p>
-                    </div>
 
-                </div>
+          <input
+            type="range"
+            id="voiceStability"
+            class="voice-range"
+            min="0"
+            max="1"
+            step="0.01"
+            value="0.5"
+          >
 
 
-                <div class="voice-controls">
+          <div class="voice-range-labels">
 
-                    <!-- Stability -->
-                    <div class="voice-control-group">
+            <span>
+              Expressive
+            </span>
 
-                        <div class="control-header">
+            <span>
+              Stable
+            </span>
 
-                            <label
-                                for="voiceStability"
-                                class="control-title">
+          </div>
 
-                                Stability
+        </div>
 
-                            </label>
 
 
-                            <span
-                                id="stabilityValue"
-                                class="control-value">
+        <!-- ==================================================
+             SIMILARITY
+             ================================================== -->
 
-                                50%
+        <div class="voice-setting">
 
-                            </span>
+          <div class="voice-setting-header">
 
-                        </div>
+            <label
+              for="voiceSimilarity"
+              class="voice-field-label"
+            >
+              Voice Similarity
+            </label>
 
+            <span
+              id="similarityValue"
+              class="voice-setting-value"
+            >
+              75%
+            </span>
 
-                        <input
-                            type="range"
-                            id="voiceStability"
-                            name="stability"
-                            class="voice-slider"
-                            min="0"
-                            max="1"
-                            step="0.05"
-                            value="0.5">
+          </div>
 
 
-                        <div class="slider-labels">
+          <input
+            type="range"
+            id="voiceSimilarity"
+            class="voice-range"
+            min="0"
+            max="1"
+            step="0.01"
+            value="0.75"
+          >
 
-                            <span>Expressive</span>
-                            <span>Stable</span>
 
-                        </div>
+          <div class="voice-range-labels">
 
-                    </div>
+            <span>
+              Creative
+            </span>
 
+            <span>
+              Accurate
+            </span>
 
+          </div>
 
-                    <!-- Similarity -->
-                    <div class="voice-control-group">
+        </div>
 
-                        <div class="control-header">
+      </section>
 
-                            <label
-                                for="voiceSimilarity"
-                                class="control-title">
 
-                                Voice Similarity
 
-                            </label>
+      <!-- ====================================================
+           GENERATE
+           ==================================================== -->
 
+      <section class="voice-generate-section">
 
-                            <span
-                                id="similarityValue"
-                                class="control-value">
 
-                                75%
+        <button
+          type="button"
+          id="generateVoiceButton"
+          class="generate-voice-button"
+        >
 
-                            </span>
+          <span class="generate-icon">
+            ✦
+          </span>
 
-                        </div>
+          <span class="generate-button-text">
+            Generate Voice
+          </span>
 
+          <span class="generate-arrow">
+            →
+          </span>
 
-                        <input
-                            type="range"
-                            id="voiceSimilarity"
-                            name="similarity"
-                            class="voice-slider"
-                            min="0"
-                            max="1"
-                            step="0.05"
-                            value="0.75">
+        </button>
 
 
-                        <div class="slider-labels">
+        <p class="generate-note">
 
-                            <span>Creative</span>
-                            <span>Accurate</span>
+          Your voice will be generated using
+          ElevenLabs AI.
 
-                        </div>
+        </p>
 
-                    </div>
+      </section>
 
-                </div>
 
 
+      <!-- ====================================================
+           AUDIO STATUS
+           ==================================================== -->
 
-                <!-- Generate Button -->
-                <div class="generate-area">
+      <div
+        id="audioStatus"
+        class="audio-status status-info"
+        aria-live="polite"
+      ></div>
 
-                    <button
-                        type="button"
-                        id="generateVoiceButton"
-                        class="generate-voice-button">
 
-                        <span class="generate-icon">
-                            ✦
-                        </span>
 
-                        <span class="generate-text">
-                            Generate Voice
-                        </span>
+      <!-- ====================================================
+           GENERATED AUDIO
+           Hidden until voice generation succeeds.
+           ==================================================== -->
 
-                        <span class="generate-arrow">
-                            →
-                        </span>
+      <section
+        id="audioSection"
+        class="generated-audio-section"
+        hidden
+      >
 
-                    </button>
+        <div class="generated-audio-header">
 
+          <div class="generated-audio-icon">
+            🎵
+          </div>
 
-                    <p class="generation-note">
-                        Your voice will be generated using ElevenLabs AI.
-                    </p>
+          <div>
 
-                </div>
+            <h2>
+              Your Generated Voice
+            </h2>
 
-
-
-                <!-- Generation Status -->
-                <div
-                    id="audioStatus"
-                    class="audio-status"
-                    role="status"
-                    aria-live="polite"
-                    hidden>
-
-                    <div class="status-spinner"></div>
-
-                    <div class="status-content">
-
-                        <strong>
-                            Generating your voice...
-                        </strong>
-
-                        <span>
-                            Please wait while EchoCall processes your text.
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-
-                <!-- Audio Result -->
-                <section
-                    id="audioSection"
-                    class="audio-section"
-                    hidden>
-
-                    <div class="audio-section-header">
-
-                        <div>
-
-                            <span class="section-number">
-                                04
-                            </span>
-
-                            <h2>
-                                Your Generated Voice
-                            </h2>
-
-                        </div>
-
-
-                        <span class="audio-ready-badge">
-                            Ready
-                        </span>
-
-                    </div>
-
-
-
-                    <div class="audio-player-card">
-
-                        <div class="audio-player-info">
-
-                            <div class="audio-file-icon">
-                                🎧
-                            </div>
-
-                            <div>
-
-                                <strong>
-                                    EchoCall AI Voice
-                                </strong>
-
-                                <span>
-                                    Generated audio
-                                </span>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="audio-visualizer">
-
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                            <span></span>
-
-                        </div>
-
-
-                        <audio
-                            id="voiceAudioPlayer"
-                            controls
-                            preload="metadata">
-
-                            Your browser does not support audio playback.
-
-                        </audio>
-
-                    </div>
-
-
-
-                    <!-- Download Area -->
-                    <div
-                        id="downloadArea"
-                        class="download-area">
-
-                        <!-- Download button is created by JavaScript -->
-
-                    </div>
-
-
-
-                    <!-- Generate Again -->
-                    <button
-                        type="button"
-                        id="generateAgainButton"
-                        class="generate-again-button">
-
-                        ↻ Generate Another Voice
-
-                    </button>
-
-                </section>
-
-            </section>
-
-
-
-            <!-- Information Section -->
-            <section class="voice-info-section">
-
-                <div class="voice-info-grid">
-
-                    <div class="voice-info-card">
-
-                        <div class="info-icon">
-                            🔒
-                        </div>
-
-                        <div>
-
-                            <h3>
-                                Secure Processing
-                            </h3>
-
-                            <p>
-                                Your API credentials remain on the server.
-                            </p>
-
-                        </div>
-
-                    </div>
-
-
-
-                    <div class="voice-info-card">
-
-                        <div class="info-icon">
-                            ⚡
-                        </div>
-
-                        <div>
-
-                            <h3>
-                                Fast Generation
-                            </h3>
-
-                            <p>
-                                Convert your text into natural AI speech.
-                            </p>
-
-                        </div>
-
-                    </div>
-
-
-
-                    <div class="voice-info-card">
-
-                        <div class="info-icon">
-                            🎵
-                        </div>
-
-                        <div>
-
-                            <h3>
-                                Audio Download
-                            </h3>
-
-                            <p>
-                                Play and download your generated audio.
-                            </p>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </section>
-
-        </section>
-
-
-
-        <!-- Footer -->
-        <footer class="voice-footer">
-
-            <div class="footer-brand">
-
-                <div class="footer-logo">
-                    E
-                </div>
-
-                <div class="footer-brand-text">
-
-                    <strong>
-                        EchoCall AI
-                    </strong>
-
-                    <span>
-                        Intelligent conversations. Powerful voices.
-                    </span>
-
-                </div>
-
-            </div>
-
-
-            <div class="footer-status">
-
-                <span class="footer-status-dot"></span>
-
-                Voice Studio Active
-
-            </div>
-
-
-            <p class="footer-copyright">
-                © 2026 EchoCall AI. All rights reserved.
+            <p>
+              Your AI voice is ready.
             </p>
 
-        </footer>
+          </div>
 
-    </main>
+        </div>
+
+
+        <div class="voice-audio-player-wrapper">
+
+          <audio
+            id="voiceAudioPlayer"
+            class="voice-audio-player"
+            controls
+            preload="metadata"
+          >
+          </audio>
+
+        </div>
+
+        <!--
+          voiceClone.js automatically creates:
+
+          #voiceDownloadWrapper
+          #downloadVoiceButton
+
+          after the audio player.
+        -->
+
+      </section>
 
 
 
-    <!-- JavaScript -->
-    <script
-        type="module"
-        src="../js/voiceClone.js"></script>
+      <!-- ====================================================
+           SECURITY / FEATURES
+           ==================================================== -->
+
+      <section class="voice-features">
+
+
+        <div class="voice-feature-card">
+
+          <div class="voice-feature-icon">
+            🔒
+          </div>
+
+          <div>
+
+            <h3>
+              Secure Processing
+            </h3>
+
+            <p>
+              Your API credentials remain on the server.
+            </p>
+
+          </div>
+
+        </div>
+
+
+
+        <div class="voice-feature-card">
+
+          <div class="voice-feature-icon">
+            ⚡
+          </div>
+
+          <div>
+
+            <h3>
+              Fast Generation
+            </h3>
+
+            <p>
+              Convert your text into natural AI speech.
+            </p>
+
+          </div>
+
+        </div>
+
+
+
+        <div class="voice-feature-card">
+
+          <div class="voice-feature-icon">
+            🎵
+          </div>
+
+          <div>
+
+            <h3>
+              Audio Download
+            </h3>
+
+            <p>
+              Play and download your generated audio.
+            </p>
+
+          </div>
+
+        </div>
+
+
+      </section>
+
+    </section>
+
+
+
+    <!-- ======================================================
+         FOOTER
+         ====================================================== -->
+
+    <footer class="voice-studio-footer">
+
+      <div class="footer-brand">
+
+        <div class="footer-brand-icon">
+          E
+        </div>
+
+        <div>
+
+          <strong>
+            EchoCall AI
+          </strong>
+
+          <p>
+            Intelligent conversations. Powerful voices.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="footer-status">
+
+        <span class="online-dot"></span>
+
+        Voice Studio Active
+
+      </div>
+
+
+      <p class="footer-copyright">
+        © 2026 EchoCall AI. All rights reserved.
+      </p>
+
+    </footer>
+
+
+  </main>
+
+
+
+  <!-- ========================================================
+       FLOATING AI BUTTON
+       ======================================================== -->
+
+  <button
+    type="button"
+    id="floatingAiButton"
+    class="floating-ai-button"
+    aria-label="Open EchoCall AI"
+  >
+
+    <span>
+      🤖
+    </span>
+
+  </button>
+
+
+
+  <!-- ========================================================
+       BOTTOM NAVIGATION
+       ======================================================== -->
+
+  <nav class="bottom-navigation">
+
+
+    <button
+      type="button"
+      class="bottom-nav-item"
+      data-page="home"
+    >
+
+      <span class="bottom-nav-icon">
+        ⌂
+      </span>
+
+      <span>
+        Home
+      </span>
+
+    </button>
+
+
+
+    <button
+      type="button"
+      class="bottom-nav-item"
+      data-page="calls"
+    >
+
+      <span class="bottom-nav-icon">
+        ☎
+      </span>
+
+      <span>
+        Calls
+      </span>
+
+    </button>
+
+
+
+    <button
+      type="button"
+      class="bottom-nav-item"
+      data-page="history"
+    >
+
+      <span class="bottom-nav-icon">
+        ◷
+      </span>
+
+      <span>
+        History
+      </span>
+
+    </button>
+
+
+
+    <button
+      type="button"
+      class="bottom-nav-item"
+      data-page="contacts"
+    >
+
+      <span class="bottom-nav-icon">
+        ▣
+      </span>
+
+      <span>
+        Contacts
+      </span>
+
+    </button>
+
+
+
+    <button
+      type="button"
+      class="bottom-nav-item"
+      data-page="profile"
+    >
+
+      <span class="bottom-nav-icon">
+        ♙
+      </span>
+
+      <span>
+        Profile
+      </span>
+
+    </button>
+
+
+  </nav>
+
+
+
+  <!-- ========================================================
+       VOICE CLONE JAVASCRIPT
+       
+       If your router dynamically imports voiceClone.js,
+       DO NOT add another script here.
+       ======================================================== -->
 
 </body>
+
 </html>
